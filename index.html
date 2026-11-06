@@ -14,6 +14,8 @@
   .menu-btn.secondary { background: #fff; color: #222; border: 1px solid #ccc; }
   .day { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; margin: 8px 0; }
   .day .date { font-weight: bold; margin-bottom: 6px; }
+  .day .date.sat { color: #1565c0; }
+  .day .date.sun { color: #d32f2f; }
   .row { display: flex; align-items: center; gap: 10px; margin: 4px 0; font-size: 14px; }
   .row .label { width: 2em; font-weight: bold; }
   label.choice { display: inline-flex; align-items: center; gap: 4px; }
@@ -113,7 +115,9 @@
   var LIFF_ID = '2012415539-uyDwxJzS';
   var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyq-2V2fcnnlhTXKZKnOcTdAs0FkJo6vZeSnRewQItzR5fQaPBP_aPbEm9MsdvL74k6/exec';
   var WEEKEND_TARGETS = ['\u7d05\u8449', '\u6709\u7a00', '\u83dc\u3005\u5b9f', 'Misaki', '\u5fc3\u8f1d'];
-  var PERIOD = computePeriod();
+  var PERIOD = computePeriod(); 
+  var HOLIDAYS = {'2026-11-03':1,'2026-11-23':1,'2027-01-01':1,'2027-01-11':1,'2027-02-11':1,'2027-02-23':1,'2027-03-20':1,'2027-04-29':1,'2027-05-03':1,'2027-05-04':1,'2027-05-05':1,'2027-07-19':1,'2027-08-11':1,'2027-09-20':1,'2027-09-23':1,'2027-10-11':1,'2027-11-03':1,'2027-11-23':1,'2028-01-01':1,'2028-01-10':1}; 
+  PERIOD.days.forEach(function (d) { d.isHol = HOLIDAYS[d.date] === 1; });
 
   // 募集期間の計算（Apps Script版と同じルール: 今週月曜 +10日(木) 〜 +15日(火)、水曜を除く）
   function computePeriod() {
@@ -158,7 +162,7 @@
       var div = document.createElement('div');
       div.className = 'day';
       div.innerHTML =
-        '<div class="date">' + fmtDateLabel(d.date) + '（' + d.dow + '）</div>' +
+        '<div class="date' + ((d.isSun || d.isHol) ? ' sun' : (d.isSat ? ' sat' : '')) + '">' + fmtDateLabel(d.date) + '（' + d.dow + '）</div>' +
         '<div class="row"><span class="label">朝</span>' +
         '<label class="choice"><input type="radio" name="m' + i + '" value="work"> 出勤できる</label>' +
         '<label class="choice"><input type="radio" name="m' + i + '" value="off" checked> 休み希望</label></div>' +
