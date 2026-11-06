@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>じゅうじゅう亭 連絡フォーム</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 16px; color: #222; background: #fafafa; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 16px; }
+  .menu-btn { display: block; width: 100%; padding: 16px; margin: 10px 0; font-size: 16px;
+    background: #06c755; color: #fff; border: none; border-radius: 8px; }
+  .menu-btn.secondary { background: #fff; color: #222; border: 1px solid #ccc; }
+  .day { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; margin: 8px 0; }
+  .day .date { font-weight: bold; margin-bottom: 6px; }
+  .row { display: flex; align-items: center; gap: 10px; margin: 4px 0; font-size: 14px; }
+  .row .label { width: 2em; font-weight: bold; }
+  label.choice { display: inline-flex; align-items: center; gap: 4px; }
+  select, input[type="date"], textarea { font-size: 15px; padding: 6px; border: 1px solid #bbb; border-radius: 6px; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 64px; }
+  .field { margin: 12px 0; }
+  .field .flabel { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
+  .submit { display: block; width: 100%; padding: 14px; margin-top: 16px; font-size: 16px;
+    background: #06c755; color: #fff; border: none; border-radius: 8px; }
+  .back { display: inline-block; margin-bottom: 12px; color: #06c755; font-size: 14px; background: none; border: none; padding: 0; }
+  .counter { background: #fff7e6; border: 1px solid #f0d9a0; border-radius: 8px; padding: 10px 12px; font-size: 14px; margin: 10px 0; }
+  .warn { color: #b30000; font-size: 13px; }
+  .hidden { display: none; }
+  .done { text-align: center; padding: 40px 0; font-size: 16px; line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<div id="view-loading">読み込み中…<div id="debug" style="margin-top:12px;font-size:12px;color:#888;white-space:pre-wrap;"></div></div>
+
+<!-- ホーム -->
+<div id="view-home" class="hidden">
+  <h1>じゅうじゅう亭 連絡フォーム</h1>
+  <div class="sub"><span id="hello-name"></span>さん、こんにちは。用件を選んでください。</div>
+  <button class="menu-btn" onclick="show('shift')">シフトを提出する</button>
+  <button class="menu-btn secondary" onclick="show('long')">長期休みを申請する</button>
+  <button class="menu-btn secondary" onclick="show('resign')">退職を申請する</button>
+</div>
+
+<!-- シフト提出 -->
+<div id="view-shift" class="hidden">
+  <button class="back" onclick="show('home')">← もどる</button>
+  <h1>シフト提出</h1>
+  <div class="sub">期間: <span id="period-label"></span><br>出勤できる日は「出勤できる」、休みたい日は「休み希望」を選んでください。夜に出勤できる場合は開始時間も選んでください。</div>
+  <div id="weekend-counter" class="counter hidden"></div>
+  <div id="days"></div>
+  <div class="field">
+    <div class="flabel">備考（任意）</div>
+    <textarea id="shift-note" placeholder="例: 14日は18時30分からなら出勤できます"></textarea>
+  </div>
+  <button class="submit" onclick="submitShift()">提出する</button>
+</div>
+
+<!-- 長期休み申請 -->
+<div id="view-long" class="hidden">
+  <button class="back" onclick="show('home')">← もどる</button>
+  <h1>長期休みの申請</h1>
+  <div class="sub">実習・研修、テスト期間、帰省など、先に分かっている長いお休みはこちらから申請してください。</div>
+  <div class="field">
+    <div class="flabel">開始日</div>
+    <input type="date" id="long-start">
+  </div>
+  <div class="field">
+    <div class="flabel">終了日</div>
+    <input type="date" id="long-end">
+  </div>
+  <div class="field">
+    <div class="flabel">理由</div>
+    <select id="long-reason">
+      <option>実習・研修</option>
+      <option>テスト期間</option>
+      <option>帰省</option>
+      <option>旅行</option>
+      <option>その他</option>
+    </select>
+  </div>
+  <div class="field">
+    <div class="flabel">詳細（任意）</div>
+    <textarea id="long-detail" placeholder="例: 看護実習のため終日出勤できません"></textarea>
+  </div>
+  <button class="submit" onclick="submitLong()">申請する</button>
+</div>
+
+<!-- 退職申請 -->
+<div id="view-resign" class="hidden">
+  <button class="back" onclick="show('home')">← もどる</button>
+  <h1>退職の申請</h1>
+  <div class="sub">送信すると店長に届きます。<span class="warn">研修期間終了後の退職は、1ヶ月前までの申告がルールです。</span></div>
+  <div class="field">
+    <div class="flabel">退職希望日（最終出勤日）</div>
+    <input type="date" id="resign-day">
+  </div>
+  <div class="field">
+    <div class="flabel">理由（任意）</div>
+    <textarea id="resign-reason"></textarea>
+  </div>
+  <button class="submit" onclick="submitResign()">申請する</button>
+</div>
+
+<!-- 完了 -->
+<div id="view-done" class="hidden">
+  <div class="done">送信しました。<br>確認したら、こちらから連絡します。<br>ありがとうございました。</div>
+</div>
+
+<script>
+  // 単独公開版: LIFF ID と送信先(GAS)はここに直接書いてあります
+  var LIFF_ID = '2012415539-uyDwxJzS';
+  var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyq-2V2fcnnlhTXKZKnOcTdAs0FkJo6vZeSnRewQItzR5fQaPBP_aPbEm9MsdvL74k6/exec';
+  var WEEKEND_TARGETS = ['\u7d05\u8449', '\u6709\u7a00', '\u83dc\u3005\u5b9f', 'Misaki', '\u5fc3\u8f1d'];
+  var PERIOD = computePeriod();
+
+  // 募集期間の計算（Apps Script版と同じルール: 今週月曜 +10日(木) 〜 +15日(火)、水曜を除く）
+  function computePeriod() {
+    var now = new Date();
+    var jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    var dow = jst.getUTCDay();
+    var monday = new Date(Date.UTC(jst.getUTCFullYear(), jst.getUTCMonth(), jst.getUTCDate() - ((dow + 6) % 7)));
+    function add(d, n) { return new Date(d.getTime() + n * 24 * 60 * 60 * 1000); }
+    function fmt(d) {
+      return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
+    }
+    var start = add(monday, 10), end = add(monday, 15);
+    var dowNames = ['\u65e5', '\u6708', '\u706b', '\u6c34', '\u6728', '\u91d1', '\u571f'];
+    var days = [];
+    for (var d = start; d <= end; d = add(d, 1)) {
+      var w = d.getUTCDay();
+      if (w === 3) continue;
+      days.push({ date: fmt(d), dow: dowNames[w], isSat: w === 6, isSun: w === 0 });
+    }
+    return { start: fmt(start), end: fmt(end), days: days };
+  }
+  var profile = null;
+
+  function show(name) {
+    ['loading', 'home', 'shift', 'long', 'resign', 'done'].forEach(function (v) {
+      document.getElementById('view-' + v).classList.toggle('hidden', v !== name);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function fmtDateLabel(iso) {
+    var p = iso.split('-');
+    return Number(p[1]) + '/' + Number(p[2]);
+  }
+
+  function buildShiftForm() {
+    document.getElementById('period-label').textContent =
+      fmtDateLabel(PERIOD.start) + ' 〜 ' + fmtDateLabel(PERIOD.end);
+    var wrap = document.getElementById('days');
+    wrap.innerHTML = '';
+    PERIOD.days.forEach(function (d, i) {
+      var div = document.createElement('div');
+      div.className = 'day';
+      div.innerHTML =
+        '<div class="date">' + fmtDateLabel(d.date) + '（' + d.dow + '）</div>' +
+        '<div class="row"><span class="label">朝</span>' +
+        '<label class="choice"><input type="radio" name="m' + i + '" value="work"> 出勤できる</label>' +
+        '<label class="choice"><input type="radio" name="m' + i + '" value="off" checked> 休み希望</label></div>' +
+        '<div class="row"><span class="label">夜</span>' +
+        '<label class="choice"><input type="radio" name="n' + i + '" value="work" onchange="toggleTime(' + i + ')"> 出勤できる</label>' +
+        '<label class="choice"><input type="radio" name="n' + i + '" value="off" checked onchange="toggleTime(' + i + ')"> 休み希望</label>' +
+        '<select id="t' + i + '" disabled>' +
+        '<option>17:30</option><option>18:00</option><option>18:30</option><option>19:00</option>' +
+        '</select></div>';
+      wrap.appendChild(div);
+    });
+    if (profile && WEEKEND_TARGETS.indexOf(profile.displayName) >= 0) {
+      document.getElementById('weekend-counter').classList.remove('hidden');
+      updateCounter();
+      wrap.addEventListener('change', updateCounter);
+    }
+  }
+
+  function toggleTime(i) {
+    var work = document.querySelector('input[name="n' + i + '"][value="work"]').checked;
+    document.getElementById('t' + i).disabled = !work;
+  }
+
+  function collectDays() {
+    return PERIOD.days.map(function (d, i) {
+      var nightWork = document.querySelector('input[name="n' + i + '"][value="work"]').checked;
+      return {
+        date: d.date, dow: d.dow, isSat: d.isSat, isSun: d.isSun,
+        morning: document.querySelector('input[name="m' + i + '"][value="work"]').checked ? 'work' : 'off',
+        night: nightWork ? 'work' : 'off',
+        nightStart: nightWork ? document.getElementById('t' + i).value : null
+      };
+    });
+  }
+
+  function updateCounter() {
+    var days = collectDays();
+    var sat = days.filter(function (d) { return d.isSat && d.night === 'off'; }).length;
+    var sun = days.filter(function (d) { return d.isSun && d.night === 'off'; }).length;
+    document.getElementById('weekend-counter').textContent =
+      '土日の夜の休み希望（今回の提出分）: 土曜 ' + sat + '日 / 日曜 ' + sun + '日' +
+      ' ※土日の夜は月に半分以上の出勤が約束になっています';
+  }
+
+  function post(payload) {
+    payload.accessToken = liff.getAccessToken();
+    return fetch(WEB_APP_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    }).then(function () { show('done'); })
+      .catch(function () { alert('送信に失敗しました。もう一度お試しください。'); });
+  }
+
+  function submitShift() {
+    var days = collectDays();
+    var weekend = null;
+    if (profile && WEEKEND_TARGETS.indexOf(profile.displayName) >= 0) {
+      weekend = {
+        satNightOff: days.filter(function (d) { return d.isSat && d.night === 'off'; }).length,
+        sunNightOff: days.filter(function (d) { return d.isSun && d.night === 'off'; }).length
+      };
+    }
+    post({
+      formType: 'shift',
+      period: { start: PERIOD.start, end: PERIOD.end },
+      days: days,
+      weekend: weekend,
+      note: document.getElementById('shift-note').value
+    });
+  }
+
+  function submitLong() {
+    var s = document.getElementById('long-start').value;
+    var e = document.getElementById('long-end').value;
+    if (!s || !e) { alert('開始日と終了日を選んでください。'); return; }
+    if (e < s) { alert('終了日が開始日より前になっています。'); return; }
+    post({
+      formType: 'long',
+      startDate: s, endDate: e,
+      reason: document.getElementById('long-reason').value,
+      detail: document.getElementById('long-detail').value
+    });
+  }
+
+  function submitResign() {
+    var d = document.getElementById('resign-day').value;
+    if (!d) { alert('退職希望日を選んでください。'); return; }
+    if (!confirm('この内容で退職を申請します。よろしいですか？')) return;
+    post({
+      formType: 'resign',
+      lastDay: d,
+      reason: document.getElementById('resign-reason').value
+    });
+  }
+
+  var debugEl = document.getElementById('debug');
+  function dbg(msg) { if (debugEl) debugEl.textContent += msg + '\n'; }
+  window.addEventListener('error', function (e) { dbg('エラー: ' + e.message); });
+
+  dbg('フォームのコード: 診断版');
+  dbg('LIFF ID: ' + (LIFF_ID ? LIFF_ID : '（空です）'));
+  setTimeout(function () {
+    if (document.getElementById('view-home').classList.contains('hidden')) {
+      dbg('10秒たっても初期化が終わりません。LIFF側の設定（エンドポイントURL・チャネルの公開状態）を確認してください。');
+    }
+  }, 10000);
+
+  if (typeof liff === 'undefined') {
+    dbg('LINEの部品（SDK）が読み込めませんでした。');
+  } else {
+    dbg('初期化を開始します…');
+    liff.init({ liffId: LIFF_ID }).then(function () {
+      dbg('初期化OK。ログイン状態: ' + liff.isLoggedIn() + ' / LINE内: ' + liff.isInClient());
+      if (!liff.isLoggedIn()) { liff.login(); return; }
+      return liff.getProfile();
+    }).then(function (p) {
+      if (!p) return;
+      profile = p;
+      document.getElementById('hello-name').textContent = p.displayName;
+      buildShiftForm();
+      show('home');
+    }).catch(function (err) {
+      dbg('初期化に失敗: ' + (err && err.message ? err.message : err));
+      document.getElementById('view-loading').firstChild.textContent =
+        '読み込みに失敗しました。';
+    });
+  }
+</script>
+</body>
+</html>
