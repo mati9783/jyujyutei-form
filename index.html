@@ -61,8 +61,9 @@
   <button class="menu-btn" onclick="show('timecard')">タイムカード</button>
   <button class="menu-btn secondary" onclick="show('shift')">シフトを提出する</button>
   <button class="menu-btn" onclick="show('table')">シフトを確認する</button>
-  <button class="menu-btn secondary" onclick="show('long')">長期休みを申請する</button>
-  <button class="menu-btn" onclick="show('resign')">退職を申請する</button>
+  <button class="menu-btn secondary" onclick="show('history')">勤務履歴</button>
+  <button class="menu-btn" onclick="show('long')">長期休みを申請する</button>
+  <button class="menu-btn secondary" onclick="show('resign')">退職を申請する</button>
 </div>
 
 <!-- シフト提出 -->
@@ -163,12 +164,15 @@
     <label class="choice"><input type="checkbox" id="tc-night-solo"> 一人勤務</label>
   </div>
   <div class="field">
+    <div class="flabel">まかない金額（任意）</div>
+    <input type="number" id="tc-makanai" inputmode="numeric" min="0" placeholder="円">
+  </div>
+  <div class="field">
     <div class="flabel">備考（任意）</div>
     <textarea id="tc-note" placeholder="何かあれば書いてください"></textarea>
   </div>
   <button class="submit" onclick="submitTimecard()">記録する</button>
-  <h1 style="margin-top:28px;">自分の記録</h1>
-  <div id="tc-history"><div class="sub">読み込み中…</div></div>
+  <div class="sub" style="margin-top:14px;">自分の記録と給与の見込みは、ホームの【勤務履歴】から確認できます。</div>
 </div>
 
 <!-- シフト確認 -->
@@ -178,6 +182,19 @@
   <div class="sub">期間: <span id="shift-period-label"></span></div>
   <div class="legend">上段は朝（9時〜15時）、下段は夜（17時30分〜23時）の時間帯です。<br>時間＝出勤、休＝休み希望、〇＝出勤できますがシフトに入っていません（18〇・19〇は、その時間から出勤できるという意味です）。</div>
   <div id="shift-table-wrap"></div>
+</div>
+
+<!-- 勤務履歴 -->
+<div id="view-history" class="hidden">
+  <button class="back" onclick="show('home')">← もどる</button>
+  <h1>勤務履歴</h1>
+  <div class="sub">勤務の記録と、その月の給与の見込みです。金額は見込みで、確定は月末の給与明細でお知らせします。</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0;">
+    <button id="hist-prev" class="back" style="margin:0;" onclick="stepHistoryMonth(-1)">◀ 前の月</button>
+    <div id="hist-month-label" style="font-weight:bold;font-size:16px;"></div>
+    <button id="hist-next" class="back" style="margin:0;" onclick="stepHistoryMonth(1)">次の月 ▶</button>
+  </div>
+  <div id="hist-body"><div class="sub">読み込み中…</div></div>
 </div>
 
 <!-- 完了 -->
@@ -217,11 +234,11 @@
   var profile = null;
 
   function show(name) {
-    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard'].forEach(function (v) {
+    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history'].forEach(function (v) {
       document.getElementById('view-' + v).classList.toggle('hidden', v !== name);
     });
     if (name === 'table') loadShiftTable();
-    if (name === 'timecard') loadTimecardHistory();
+    if (name === 'history') loadWorkHistory();
     window.scrollTo(0, 0);
   }
 
@@ -353,36 +370,78 @@
       nightIn: vals['night-in'], nightOut: vals['night-out'],
       daySolo: document.getElementById('tc-day-solo').checked,
       nightSolo: document.getElementById('tc-night-solo').checked,
+      makanaiAmount: document.getElementById('tc-makanai').value,
       note: document.getElementById('tc-note').value
     });
   }
 
-  function loadTimecardHistory() {
-    var box = document.getElementById('tc-history');
-    if (!box) return;
-    box.innerHTML = '<div class="sub">読み込み中…</div>';
-    var cb = 'tcHistCb_' + Date.now();
-    window[cb] = function (data) {
+  var histMonth = null;
+
+  function currentMonthStr() {
+    var now = new Date();
+    var jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    return jst.getUTCFullYear() + '-' + ('0' + (jst.getUTCMonth() + 1)).slice(-2);
+  }
+
+  function stepHistoryMonth(delta) {
+    if (!histMonth) histMonth = currentMonthStr();
+    var p = histMonth.split('-');
+    var d = new Date(Number(p[0]), Number(p[1]) - 1 + delta, 1);
+    var s = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
+    if (s > currentMonthStr() || s < '2026-11') return;
+    histMonth = s;
+    loadWorkHistory();
+  }
+
+  function fmtYen(n) { return '¥' + Number(n).toLocaleString('ja-JP'); }
+  function fmtMins(mins) { return Math.floor(mins / 60) + ':' + ('0' + (mins % 60)).slice(-2); }
+
+  function loadWorkHistory() {
+    if (!histMonth) histMonth = currentMonthStr();
+    var body = document.getElementById('hist-body');
+    var p = histMonth.split('-');
+    document.getElementById('hist-month-label').textContent = Number(p[0]) + '年' + Number(p[1]) + '月';
+    document.getElementById('hist-next').style.visibility = (histMonth >= currentMonthStr()) ? 'hidden' : 'visible';
+    document.getElementById('hist-prev').style.visibility = (histMonth <= '2026-11') ? 'hidden' : 'visible';
+    body.innerHTML = '<div class="sub">読み込み中…</div>';
+    var cb = 'histCb_' + Date.now();
+    window[cb] = function (res) {
       delete window[cb];
-      if (!data || data.status !== 'ok') { box.innerHTML = '<div class="sub">記録を読み込めませんでした。</div>'; return; }
-      if (!data.entries || data.entries.length === 0) { box.innerHTML = '<div class="sub">まだ記録がありません。</div>'; return; }
+      if (!res || res.status !== 'ok') { body.innerHTML = '<div class="sub">読み込めませんでした。</div>'; return; }
+      var t = res.totals || { pay: 0, makanai: 0, estimate: 0, mins: 0 };
+      var html = '<div class="day" style="background:#e8f7ee;">'
+        + '<div style="font-size:13px;color:#666;">給与の見込み（支給予定）</div>'
+        + '<div style="font-size:24px;font-weight:bold;">' + fmtYen(t.estimate) + '</div>'
+        + '<div style="font-size:13px;color:#444;">勤務分 ' + fmtYen(t.pay) + ' − まかない ' + fmtYen(t.makanai)
+        + '　／　勤務時間 ' + fmtMins(t.mins) + '</div>'
+        + (res.pending ? '<div style="font-size:13px;color:#b30000;margin-top:4px;">確認中の記録が' + res.pending + '件あり、合計に入っていません。</div>' : '')
+        + '</div>';
+      if (!res.days || res.days.length === 0) {
+        html += '<div class="sub">この月の記録はありません。</div>';
+      }
       var dowNames = ['日', '月', '火', '水', '木', '金', '土'];
-      var html = '';
-      data.entries.forEach(function (en) {
-        var p = en.date.split('-');
-        var dt = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
-        var label = Number(p[1]) + '/' + Number(p[2]) + '（' + dowNames[dt.getDay()] + '）';
-        var parts = [];
-        if (en.dayIn) parts.push('昼 ' + en.dayIn + '〜' + en.dayOut + (en.daySolo ? ' (一人勤務)' : ''));
-        if (en.nightIn) parts.push('夜 ' + en.nightIn + '〜' + en.nightOut + (en.nightSolo ? ' (一人勤務)' : ''));
-        if (en.note) parts.push('「' + en.note + '」');
-        html += '<div class="hist-item"><b>' + label + '</b>　' + parts.join('　') + '</div>';
+      (res.days || []).forEach(function (d) {
+        var pp = d.date.split('-');
+        var dt = new Date(Number(pp[0]), Number(pp[1]) - 1, Number(pp[2]));
+        var cls = dt.getDay() === 6 ? 'sat' : (dt.getDay() === 0 ? 'sun' : '');
+        html += '<div class="day"><div class="date ' + cls + '">' + Number(pp[1]) + '/' + Number(pp[2]) + '（' + dowNames[dt.getDay()] + '）'
+          + '<span style="float:right;">' + (d.dayPay ? fmtYen(d.dayPay) : '―') + '</span></div>';
+        d.segments.forEach(function (sg) {
+          html += '<div style="font-size:14px;margin:3px 0;">' + sg.seg + ' ' + sg.in + '〜' + sg.out
+            + '（' + fmtMins(sg.mins) + '）'
+            + (sg.solo ? ' 一人勤務' : '')
+            + (sg.pending ? ' <span style="color:#b30000;font-weight:bold;">確認中</span>' : '')
+            + (sg.note ? '　「' + sg.note + '」' : '')
+            + '</div>';
+        });
+        if (d.makanai) html += '<div style="font-size:13px;color:#666;">まかない ' + fmtYen(d.makanai) + '</div>';
+        html += '</div>';
       });
-      box.innerHTML = html;
+      body.innerHTML = html;
     };
     var s = document.createElement('script');
-    s.src = WEB_APP_URL + '?action=timecard&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
-    s.onerror = function () { box.innerHTML = '<div class="sub">記録を読み込めませんでした。</div>'; };
+    s.src = WEB_APP_URL + '?action=history&token=' + encodeURIComponent(liff.getAccessToken()) + '&month=' + histMonth + '&callback=' + cb;
+    s.onerror = function () { body.innerHTML = '<div class="sub">読み込みに失敗しました。</div>'; };
     document.body.appendChild(s);
   }
 
