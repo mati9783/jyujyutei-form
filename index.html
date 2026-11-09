@@ -463,15 +463,18 @@
     document.body.appendChild(s);
   }
 
+  var postInFlight = false;
   function post(payload) {
+    if (postInFlight) { return Promise.resolve(); }
+    postInFlight = true;
     payload.accessToken = liff.getAccessToken();
     return fetch(WEB_APP_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
-    }).then(function () { show('done'); })
-      .catch(function () { alert('送信に失敗しました。もう一度お試しください。'); });
+    }).then(function () { postInFlight = false; show('done'); })
+      .catch(function () { postInFlight = false; alert('送信に失敗しました。もう一度お試しください。'); });
   }
 
   function submitShift() {
