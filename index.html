@@ -163,11 +163,6 @@
     <label class="choice"><input type="checkbox" id="tc-night-solo"> 一人勤務</label>
   </div>
   <div class="field">
-    <div class="flabel">まかない金額（円・任意）</div>
-    <input type="number" id="tc-makanai" min="0" step="1" inputmode="numeric" placeholder="例: 245" style="font-size:15px; padding:6px; border:1px solid #bbb; border-radius:6px;">
-    <div class="sub" style="margin:4px 0 0;">まかないを買った日だけ、その金額を入れてください。給与から差し引きます。</div>
-  </div>
-  <div class="field">
     <div class="flabel">備考（任意）</div>
     <textarea id="tc-note" placeholder="何かあれば書いてください"></textarea>
   </div>
@@ -234,6 +229,11 @@
 
   function renderShiftBlock_(data, myName) {
     var html = '<div class="sub" style="margin:14px 0 4px;font-weight:bold;color:#222;">' + (data.periodLabel || '') + '</div>';
+    if (data.note) {
+      html += '<div style="margin:6px 0 10px;padding:10px 12px;background:#fff3f3;border:2px solid #d32f2f;border-radius:8px;color:#d32f2f;font-weight:bold;line-height:1.5;">' + data.note + '</div>';
+    }
+    var redSet = {};
+    (data.redCells || []).forEach(function (r) { redSet[r.name + '|' + r.seg + '|' + r.day] = 1; });
     html += '<div class="shift-wrap"><table class="shift"><tr><th class="name">名前</th>';
     data.days.forEach(function (d) {
       html += '<th class="' + (d.cls || '') + '">' + d.label + '</th>';
@@ -242,9 +242,9 @@
     data.staff.forEach(function (s) {
       var me = (myName && s.name === myName) ? 'me' : '';
       html += '<tr class="' + me + '"><td class="name" rowspan="2">' + s.name + '</td>';
-      s.am.forEach(function (v) { html += '<td>' + (v || '') + '</td>'; });
+      s.am.forEach(function (v, i) { html += '<td' + (redSet[s.name + '|am|' + i] ? ' style="color:#d32f2f;font-weight:bold;"' : '') + '>' + (v || '') + '</td>'; });
       html += '</tr><tr class="' + (me ? me + ' ' : '') + 'end">';
-      s.pm.forEach(function (v) { html += '<td>' + (v || '') + '</td>'; });
+      s.pm.forEach(function (v, i) { html += '<td' + (redSet[s.name + '|pm|' + i] ? ' style="color:#d32f2f;font-weight:bold;"' : '') + '>' + (v || '') + '</td>'; });
       html += '</tr>';
     });
     html += '</table></div>';
@@ -346,8 +346,6 @@
       }
     }
     if (!any) { alert('時間を入れてください。'); return; }
-    var makanai = parseInt(document.getElementById('tc-makanai').value, 10);
-    if (isNaN(makanai) || makanai < 0) makanai = 0;
     post({
       formType: 'timecard',
       date: date,
@@ -355,7 +353,6 @@
       nightIn: vals['night-in'], nightOut: vals['night-out'],
       daySolo: document.getElementById('tc-day-solo').checked,
       nightSolo: document.getElementById('tc-night-solo').checked,
-      makanaiAmount: makanai,
       note: document.getElementById('tc-note').value
     });
   }
