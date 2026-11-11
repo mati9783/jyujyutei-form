@@ -11,7 +11,7 @@
   .sub { color: #666; font-size: 13px; margin-bottom: 16px; }
   .menu-btn { display: block; width: 100%; padding: 16px; margin: 10px 0; font-size: 16px;
     background: #06c755; color: #fff; border: none; border-radius: 8px; }
-  .menu-btn.secondary { background: #fff; color: #222; border: 1px solid #ccc; }
+  .menu-btn.secondary { background: #fff; color: #222; border: 2px solid #888; box-shadow: 0 2px 6px rgba(0,0,0,.18); }
   .menu-btn.emergency { background: #b71c1c; color: #fff; border: 3px solid #5f0000; font-weight: bold;
     font-size: 17px; padding: 18px 16px; margin-top: 26px; box-shadow: 0 3px 8px rgba(0,0,0,.4); letter-spacing: .06em; }
   .emg-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 8px 0; font-size: 15px; }
@@ -19,6 +19,8 @@
   .emg-warn { color: #b30000; font-weight: bold; font-size: 13px; line-height: 1.6; margin: 4px 0; }
   .emg-example { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #444; line-height: 1.6; margin: 6px 0; }
   .submit.emergency-submit { background: #b71c1c; }
+  .emg-confirm-reason { background: #fff; border: 2px solid #b71c1c; border-radius: 8px; padding: 12px; font-size: 15px; line-height: 1.6; margin: 8px 0; white-space: pre-wrap; word-break: break-word; }
+  .emg-confirm-box { background: #fff; border-radius: 10px; padding: 18px; max-width: 520px; margin: 24px auto; }
   .day { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; margin: 8px 0; }
   .day .date { font-weight: bold; margin-bottom: 6px; }
   .day .date.sat { color: #1565c0; }
@@ -222,6 +224,19 @@
   </div>
   <button class="submit emergency-submit" onclick="submitEmergency()">送信する</button>
   <div class="sub" style="margin-top:14px;">遅刻・早退の連絡は、「事務 たなか」へ直接LINEしてください。</div>
+</div>
+
+<!-- 緊急連絡 送信前の二重確認 -->
+<div id="emg-confirm-overlay" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;padding:16px;overflow-y:auto;box-sizing:border-box;">
+  <div class="emg-confirm-box">
+    <h1 style="color:#b71c1c;">送信前の確認</h1>
+    <div class="emg-warn" style="font-size:15px;">この内容は、そのままグループLINEに載り、スタッフ全員に見られます。本当に送信しても良いですか？</div>
+    <div class="sub" style="margin:14px 0 0;">あなたが書いた理由</div>
+    <div id="emg-confirm-reason" class="emg-confirm-reason"></div>
+    <div id="emg-confirm-count" class="sub"></div>
+    <button class="submit emergency-submit" onclick="confirmEmergencySend()">共有されても送信する</button>
+    <button class="menu-btn secondary" onclick="closeEmgConfirm()">戻る</button>
+  </div>
 </div>
 
 <!-- 完了 -->
@@ -622,6 +637,8 @@
     document.body.appendChild(s);
   }
 
+  var emgPending = null;
+
   function submitEmergency() {
     var picked = [];
     emgItems.forEach(function (it, i) {
@@ -632,7 +649,22 @@
     var reason = document.getElementById('emg-reason').value.trim();
     if (!reason) { alert('理由を書いてください。'); return; }
     if (!confirm('チェックした ' + picked.length + ' 件のシフトを欠勤として送信します。よろしいですか？')) return;
-    post({ formType: 'emergency', items: picked, reason: reason });
+    emgPending = { items: picked, reason: reason };
+    document.getElementById('emg-confirm-reason').textContent = reason;
+    document.getElementById('emg-confirm-count').textContent = '欠勤として送信するシフト: ' + picked.length + ' 件';
+    document.getElementById('emg-confirm-overlay').classList.remove('hidden');
+  }
+
+  function closeEmgConfirm() {
+    document.getElementById('emg-confirm-overlay').classList.add('hidden');
+  }
+
+  function confirmEmergencySend() {
+    if (!emgPending) { closeEmgConfirm(); return; }
+    var pending = emgPending;
+    emgPending = null;
+    closeEmgConfirm();
+    post({ formType: 'emergency', items: pending.items, reason: pending.reason });
   }
 
   function submitResign() {
