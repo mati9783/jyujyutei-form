@@ -12,6 +12,12 @@
   .menu-btn { display: block; width: 100%; padding: 16px; margin: 10px 0; font-size: 16px;
     background: #06c755; color: #fff; border: none; border-radius: 8px; }
   .menu-btn.secondary { background: #fff; color: #222; border: 1px solid #ccc; }
+  .menu-btn.emergency { background: #b71c1c; color: #fff; border: 3px solid #5f0000; font-weight: bold;
+    font-size: 17px; padding: 18px 16px; margin-top: 26px; box-shadow: 0 3px 8px rgba(0,0,0,.4); letter-spacing: .06em; }
+  .emg-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 8px 0; font-size: 15px; }
+  .emg-item input { width: 20px; height: 20px; flex: none; }
+  .emg-warn { color: #b30000; font-weight: bold; font-size: 13px; line-height: 1.6; margin: 4px 0; }
+  .submit.emergency-submit { background: #b71c1c; }
   .day { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; margin: 8px 0; }
   .day .date { font-weight: bold; margin-bottom: 6px; }
   .day .date.sat { color: #1565c0; }
@@ -64,6 +70,7 @@
   <button class="menu-btn secondary" onclick="show('history')">勤務履歴</button>
   <button class="menu-btn" onclick="show('long')">長期休みを申請する</button>
   <button class="menu-btn secondary" onclick="show('resign')">退職を申請する</button>
+  <button class="menu-btn emergency" onclick="show('emergency')">【緊急連絡119番】</button>
 </div>
 
 <!-- シフト提出 -->
@@ -197,6 +204,22 @@
   <div id="hist-body"><div class="sub">読み込み中…</div></div>
 </div>
 
+<!-- 緊急連絡 -->
+<div id="view-emergency" class="hidden">
+  <button class="back" onclick="show('home')">← もどる</button>
+  <h1 style="color:#b71c1c;">緊急連絡119番</h1>
+  <div class="sub">急遽出勤できなくなった時は、こちらから連絡してください。<br>※急遽出勤できない・他のスタッフにシフトを代わってほしい日をチェックしてください。</div>
+  <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
+  <div id="emg-list"><div class="sub">読み込み中…</div></div>
+  <div class="field">
+    <div class="flabel">理由</div>
+    <div class="emg-warn">この内容がそのままグループLINEの募集に載ります。他のスタッフに知られたくない個人的なことは記載しないように!!</div>
+    <textarea id="emg-reason" placeholder="例: インフルエンザにかかりました"></textarea>
+  </div>
+  <button class="submit emergency-submit" onclick="submitEmergency()">送信する</button>
+  <div class="sub" style="margin-top:14px;">遅刻・早退の連絡は、「事務 たなか」へ直接LINEしてください。</div>
+</div>
+
 <!-- 完了 -->
 <div id="view-done" class="hidden">
   <div class="done">送信しました。<br>確認したら、こちらから連絡します。<br>ありがとうございました。</div>
@@ -234,11 +257,12 @@
   var profile = null;
 
   function show(name) {
-    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history'].forEach(function (v) {
+    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history', 'emergency'].forEach(function (v) {
       document.getElementById('view-' + v).classList.toggle('hidden', v !== name);
     });
     if (name === 'table') loadShiftTable();
     if (name === 'history') loadWorkHistory();
+    if (name === 'emergency') loadMyShifts();
     window.scrollTo(0, 0);
   }
 
@@ -565,6 +589,46 @@
       reason: document.getElementById('long-reason').value,
       detail: document.getElementById('long-detail').value
     });
+  }
+
+  var emgItems = [];
+  function loadMyShifts() {
+    var list = document.getElementById('emg-list');
+    list.innerHTML = '<div class="sub">読み込み中…</div>';
+    var cb = 'emgCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok') {
+        emgItems = [];
+        list.innerHTML = '<div class="sub">' + (res && res.message === 'no_data' ? '確定シフトはまだ公開されていません。' : '読み込めませんでした。急ぎの場合は「事務 たなか」へ直接LINEしてください。') + '</div>';
+        return;
+      }
+      emgItems = res.items || [];
+      if (emgItems.length === 0) {
+        list.innerHTML = '<div class="sub">現在、確定シフトはありません。急ぎの場合は「事務 たなか」へ直接LINEしてください。</div>';
+        return;
+      }
+      list.innerHTML = emgItems.map(function (it, i) {
+        return '<label class="emg-item"><input type="checkbox" id="emg-' + i + '"><span>' + it.text + '</span></label>';
+      }).join('');
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=myshifts&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.onerror = function () { list.innerHTML = '<div class="sub">読み込みに失敗しました。</div>'; };
+    document.body.appendChild(s);
+  }
+
+  function submitEmergency() {
+    var picked = [];
+    emgItems.forEach(function (it, i) {
+      var box = document.getElementById('emg-' + i);
+      if (box && box.checked) picked.push({ date: it.date, segKey: it.segKey, time: it.time });
+    });
+    if (picked.length === 0) { alert('出勤できないシフトにチェックを入れてください。'); return; }
+    var reason = document.getElementById('emg-reason').value.trim();
+    if (!reason) { alert('理由を書いてください。'); return; }
+    if (!confirm('チェックした ' + picked.length + ' 件のシフトを欠勤として送信します。よろしいですか？')) return;
+    post({ formType: 'emergency', items: picked, reason: reason });
   }
 
   function submitResign() {
