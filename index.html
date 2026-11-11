@@ -253,12 +253,17 @@
   var HOLIDAYS = {'2026-11-03':1,'2026-11-23':1,'2027-01-01':1,'2027-01-11':1,'2027-02-11':1,'2027-02-23':1,'2027-03-20':1,'2027-04-29':1,'2027-05-03':1,'2027-05-04':1,'2027-05-05':1,'2027-07-19':1,'2027-08-11':1,'2027-09-20':1,'2027-09-23':1,'2027-10-11':1,'2027-11-03':1,'2027-11-23':1,'2028-01-01':1,'2028-01-10':1};
   PERIOD.days.forEach(function (d) { d.isHol = HOLIDAYS[d.date] === 1; });
 
-  // 募集期間の計算（日曜始まりの週の月曜 +10日(木) 〜 +15日(火)、水曜を除く。日曜に開いても翌月曜の募集期間になる）
+  // 募集期間の計算（締切は月曜23:30。その時点まではその月曜 +10日(木) 〜 +15日(火)、
+  // 締切を過ぎたら翌週月曜の期間に切り替える。水曜を除く）
   function computePeriod() {
     var now = new Date();
     var jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
     var dow = jst.getUTCDay();
-    var monday = new Date(Date.UTC(jst.getUTCFullYear(), jst.getUTCMonth(), jst.getUTCDate() + (1 - dow)));
+    // 次に来る月曜までの日数（月曜は0、日曜は1、火曜は6）
+    var toMonday = (8 - dow) % 7;
+    // 月曜の23:30を過ぎていたら、その月曜の締切は終わっているので翌週の月曜にする
+    if (dow === 1 && (jst.getUTCHours() * 60 + jst.getUTCMinutes()) >= 23 * 60 + 30) toMonday = 7;
+    var monday = new Date(Date.UTC(jst.getUTCFullYear(), jst.getUTCMonth(), jst.getUTCDate() + toMonday));
     function add(d, n) { return new Date(d.getTime() + n * 24 * 60 * 60 * 1000); }
     function fmt(d) {
       return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
