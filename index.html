@@ -411,6 +411,7 @@
       }
     }
     if (!any) { alert('時間を入れてください。'); return; }
+    if (!confirm('この内容で記録します。よろしいでしょうか？')) return;
     post({
       formType: 'timecard',
       date: date,
@@ -593,6 +594,7 @@
         sunNightOff: days.filter(function (d) { return d.isSun && d.night === 'off'; }).length
       };
     }
+    if (!confirm('提出します。よろしいですか？変更がある場合は、期限までに再度提出してください。')) return;
     post({
       formType: 'shift',
       period: { start: PERIOD.start, end: PERIOD.end },
@@ -607,6 +609,7 @@
     var e = document.getElementById('long-end').value;
     if (!s || !e) { alert('開始日と終了日を選んでください。'); return; }
     if (e < s) { alert('終了日が開始日より前になっています。'); return; }
+    if (!confirm('この内容で申告します。よろしいでしょうか？')) return;
     post({
       formType: 'long',
       startDate: s, endDate: e,
