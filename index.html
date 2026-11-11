@@ -17,6 +17,7 @@
   .emg-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 8px 0; font-size: 15px; }
   .emg-item input { width: 20px; height: 20px; flex: none; }
   .emg-warn { color: #b30000; font-weight: bold; font-size: 13px; line-height: 1.6; margin: 4px 0; }
+  .emg-example { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #444; line-height: 1.6; margin: 6px 0; }
   .submit.emergency-submit { background: #b71c1c; }
   .day { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; margin: 8px 0; }
   .day .date { font-weight: bold; margin-bottom: 6px; }
@@ -214,7 +215,10 @@
   <div class="field">
     <div class="flabel">理由</div>
     <div class="emg-warn">この内容がそのままグループLINEの募集に載ります。他のスタッフに知られたくない個人的なことは記載しないように!!</div>
-    <textarea id="emg-reason" placeholder="例: インフルエンザにかかりました"></textarea>
+    <div class="emg-example">例：〇日の〇時から〇〇で出勤できなくなりました。大変、申し訳ないのですがシフトを代わっていただける方はいらっしゃいませんか？</div>
+    <div class="emg-warn">※警告1：インフルエンザ等の場合は、病院の領収書、もしくは処方された薬を写真で上げてもらう可能性があります。安易にインフルエンザやコロナを理由にするのは止めましょう。</div>
+    <div class="emg-warn">※警告2：不幸ごとの場合、会葬礼状を後日提出してもらう場合があります。むやみに親戚を殺すのは止めましょう。</div>
+    <textarea id="emg-reason" placeholder="ここに理由を書いてください"></textarea>
   </div>
   <button class="submit emergency-submit" onclick="submitEmergency()">送信する</button>
   <div class="sub" style="margin-top:14px;">遅刻・早退の連絡は、「事務 たなか」へ直接LINEしてください。</div>
