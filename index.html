@@ -73,7 +73,7 @@
   <button class="menu-btn secondary" onclick="show('history')">勤務履歴</button>
   <button class="menu-btn" onclick="show('long')">長期休みを申請する</button>
   <button class="menu-btn secondary" onclick="show('resign')">退職を申請する</button>
-  <button class="menu-btn emergency" onclick="show('emergency')">【緊急連絡119番】</button>
+  <button class="menu-btn emergency" onclick="show('emergency')">緊急連絡119</button>
 </div>
 
 <!-- シフト提出 -->
@@ -210,7 +210,7 @@
 <!-- 緊急連絡 -->
 <div id="view-emergency" class="hidden">
   <button class="back" onclick="show('home')">← もどる</button>
-  <h1 style="color:#b71c1c;">緊急連絡119番</h1>
+  <h1 style="color:#b71c1c;">緊急連絡119</h1>
   <div class="sub">急遽出勤できなくなった時は、こちらから連絡してください。<br>※急遽出勤できない・他のスタッフにシフトを代わってほしい日をチェックしてください。</div>
   <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
   <div id="emg-list"><div class="sub">読み込み中…</div></div>
@@ -224,6 +224,12 @@
   </div>
   <button class="submit emergency-submit" onclick="submitEmergency()">送信する</button>
   <div class="sub" style="margin-top:14px;">遅刻・早退の連絡は、「事務 たなか」へ直接LINEしてください。</div>
+  <div style="margin-top:14px;padding:12px;background:#fff;border:1px solid #ddd;border-radius:8px;font-size:13px;line-height:1.7;color:#444;">
+    <div style="border-top:2px dashed #bbb;margin-bottom:10px;"></div>
+    この機能を使用した場合は、下記のログが表示されます。<br><br>
+    〇年〇月〇日：スタッフ名　使用理由：〇〇のため欠勤
+    <div style="border-bottom:2px dashed #bbb;margin-top:10px;"></div>
+  </div>
 </div>
 
 <!-- 緊急連絡 送信前の二重確認 -->
@@ -231,6 +237,7 @@
   <div class="emg-confirm-box">
     <h1 style="color:#b71c1c;">送信前の確認</h1>
     <div class="emg-warn" style="font-size:15px;">この内容は、そのままグループLINEに載り、スタッフ全員に見られます。本当に送信しても良いですか？</div>
+    <div style="margin-top:8px;font-size:14px;font-weight:bold;color:#222;">使用ログが記録・表示されます。</div>
     <div class="sub" style="margin:14px 0 0;">あなたが書いた理由</div>
     <div id="emg-confirm-reason" class="emg-confirm-reason"></div>
     <div id="emg-confirm-count" class="sub"></div>
@@ -656,7 +663,7 @@
     if (picked.length === 0) { alert('出勤できないシフトにチェックを入れてください。'); return; }
     var reason = document.getElementById('emg-reason').value.trim();
     if (!reason) { alert('理由を書いてください。'); return; }
-    if (!confirm('チェックした ' + picked.length + ' 件のシフトを欠勤として送信します。よろしいですか？')) return;
+    if (!confirm('チェックした ' + picked.length + ' 件のシフトを欠勤として送信します。よろしいですか？\n使用ログが記録・表示されます。')) return;
     emgPending = { items: picked, reason: reason };
     document.getElementById('emg-confirm-reason').textContent = reason;
     document.getElementById('emg-confirm-count').textContent = '欠勤として送信するシフト: ' + picked.length + ' 件';
