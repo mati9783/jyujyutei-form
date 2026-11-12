@@ -190,6 +190,10 @@
   <button class="back" onclick="show('home')">← もどる</button>
   <h1>確定シフト</h1>
   <div class="sub">期間: <span id="shift-period-label"></span></div>
+  <div class="seg-title" style="margin-top:6px;">あなたの出勤確定日</div>
+  <div class="sub" style="margin-bottom:6px;">今日以降、あなたが出勤する日です。</div>
+  <div id="my-confirmed-wrap"><div class="sub">読み込み中…</div></div>
+  <div class="seg-title" style="margin-top:20px;">全員のシフト表</div>
   <div class="legend">上段は朝（9時〜15時）、下段は夜（17時30分〜23時）の時間帯です。<br>時間＝出勤、休＝休み希望、〇＝出勤できますがシフトに入っていません（18〇・19〇は、その時間から出勤できるという意味です）。</div>
   <div id="shift-table-wrap"></div>
 </div>
@@ -323,7 +327,33 @@
     return html;
   }
 
+  function loadMyConfirmedList() {
+    var wrap = document.getElementById('my-confirmed-wrap');
+    wrap.innerHTML = '<div class="sub">読み込み中…</div>';
+    var cb = 'myConfCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok') {
+        wrap.innerHTML = '<div class="sub">' + (res && res.message === 'no_data' ? '確定シフトはまだ公開されていません。' : '読み込めませんでした。') + '</div>';
+        return;
+      }
+      var items = res.items || [];
+      if (items.length === 0) {
+        wrap.innerHTML = '<div class="sub">これからの出勤確定日はありません。</div>';
+        return;
+      }
+      wrap.innerHTML = items.map(function (it) {
+        return '<div class="day" style="font-size:15px;font-weight:bold;">' + it.text + '</div>';
+      }).join('');
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=myshifts&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.onerror = function () { wrap.innerHTML = '<div class="sub">読み込みに失敗しました。</div>'; };
+    document.body.appendChild(s);
+  }
+
   function loadShiftTable() {
+    loadMyConfirmedList();
     var wrap = document.getElementById('shift-table-wrap');
     var meta = document.getElementById('shift-period-label');
     wrap.innerHTML = '<div style="padding:12px;">読み込み中…</div>';
