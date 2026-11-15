@@ -280,6 +280,10 @@
       return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
     }
     var start = add(monday, 10), end = add(monday, 15);
+    // 年末年始の特例（2026-11-16決定）: 12/31〜1/5は休業期間のため募集対象外。
+    // 通常計算で開始日が2026-12-31または2027-01-07になる場合は1週間先へずらし、
+    // 1/7〜1/12分は12/21(月)23:30締切、1/14〜1/19分は12/28(月)23:30締切にする。
+    if (fmt(start) === '2026-12-31' || fmt(start) === '2027-01-07') { start = add(start, 7); end = add(end, 7); }
     var dowNames = ['\u65e5', '\u6708', '\u706b', '\u6c34', '\u6728', '\u91d1', '\u571f'];
     var days = [];
     for (var d = start; d <= end; d = add(d, 1)) {
