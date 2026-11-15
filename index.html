@@ -36,6 +36,23 @@
     background: #06c755; color: #fff; border: none; border-radius: 8px; }
   .back { display: inline-block; margin-bottom: 12px; color: #06c755; font-size: 18px; font-weight: bold; background: none; border: none; padding: 10px 12px 10px 0; }
   .counter { background: #fff7e6; border: 1px solid #f0d9a0; border-radius: 8px; padding: 10px 12px; font-size: 14px; margin: 10px 0; }
+  .adv-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+  .adv-table th { font-size: 12px; color: #666; padding: 3px 0; }
+  .adv-table th.sun { color: #d32f2f; } .adv-table th.sat { color: #1565c0; }
+  .adv-cell { border: 1px solid #ddd; background: #fff; vertical-align: top; height: 62px; padding: 3px; width: 14.28%; }
+  .adv-cell.out { background: #f4f4f4; }
+  .adv-cell.past { opacity: .45; }
+  .adv-cell.sun .adv-dnum { color: #d32f2f; } .adv-cell.sat .adv-dnum { color: #1565c0; }
+  .adv-dnum { font-weight: bold; font-size: 13px; }
+  .adv-off { font-size: 10px; line-height: 1.4; }
+  .adv-closed { font-size: 10px; color: #999; }
+  .adv-tab { padding: 6px 10px; margin: 0 6px 4px 0; border: 1px solid #06c755; background: #fff; color: #06c755; border-radius: 16px; font-size: 13px; }
+  .adv-tab.on { background: #06c755; color: #fff; }
+  .adv-chip { padding: 6px 14px; margin-left: 8px; border: 1px solid #d32f2f; background: #fff; color: #d32f2f; border-radius: 16px; font-size: 13px; }
+  .adv-chip.on { background: #d32f2f; color: #fff; }
+  .adv-chip:disabled { opacity: .4; }
+  .adv-ed-row { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; margin: 6px 0; font-size: 14px; }
+  .adv-lock { font-size: 11px; color: #999; margin-left: 8px; }
   .shift-wrap { overflow-x: auto; background: #fff; border: 1px solid #ddd; border-radius: 8px; }
   table.shift { border-collapse: collapse; font-size: 13px; white-space: nowrap; }
   table.shift th, table.shift td { border: 1px solid #e0e0e0; padding: 6px 8px; text-align: center; min-width: 50px; height: 22px; }
@@ -80,6 +97,14 @@
 <div id="view-shift" class="hidden">
   <button class="back" onclick="show('home')">← もどる</button>
   <h1>シフト提出</h1>
+  <div id="adv-block" style="margin-bottom:16px;">
+    <div style="font-weight:bold;font-size:16px;">先行申告カレンダー</div>
+    <div class="sub">先に分かっている「出勤できない日」が見えます。自分の出られない日は、先に登録しておいてください。休み希望は先着順で確定ではありません。</div>
+    <div id="adv-tabs"></div>
+    <div id="adv-cal"><div class="sub">カレンダーを読み込み中…</div></div>
+    <button class="submit" style="background:#fff;color:#06c755;border:2px solid #06c755;" onclick="toggleAdvEditor()">先の休みを申告・変更する</button>
+    <div id="adv-editor" class="hidden"></div>
+  </div>
   <div class="sub">期間: <span id="period-label"></span><br>出勤できる日は「出勤できる」、休みたい日は「休み希望」を選んでください。夜に出勤できる場合は開始時間も選んでください。</div>
   <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
   <div id="weekend-counter" class="counter hidden"></div>
@@ -300,6 +325,7 @@
       document.getElementById('view-' + v).classList.toggle('hidden', v !== name);
     });
     if (name === 'table') loadShiftTable();
+    if (name === 'shift') loadAdvanceCalendar();
     if (name === 'history') loadWorkHistory();
     if (name === 'emergency') loadMyShifts();
     window.scrollTo(0, 0);
@@ -592,6 +618,151 @@
     document.getElementById('weekend-counter').textContent =
       '土日の夜の休み希望（今回の提出分）: 土曜 ' + sat + '日 / 日曜 ' + sun + '日' +
       ' ※土日の夜は月に半分以上の出勤が約束になっています';
+  }
+
+  // ===== 先行申告カレンダー（2026-11-16追加） =====
+  var ADV_OFFS = null, ADV_ME = '', ADV_MONTH = '', ADV_MONTHS = [], ADV_EDIT_OPEN = false, ADV_MY = {};
+  var ADV_SHORT = { '清水真子': '清水', '宮﨑紅葉': '宮﨑', '森田有稀': '森田', '大城菜々実': '大城', '髙橋和': '髙橋', '秦美沙姫': '秦', '前田心輝': '前田', '夛賀裕也': '夛賀', '坂井勝': '坂井' };
+  var ADV_CLOSED = [['2026-12-30', '2027-01-05']];
+  function advTodayJst() { var j = new Date(Date.now() + 9 * 3600 * 1000); return j.getUTCFullYear() + '-' + ('0' + (j.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + j.getUTCDate()).slice(-2); }
+  function advNowJstStr() { var j = new Date(Date.now() + 9 * 3600 * 1000); return advTodayJst() + ' ' + ('0' + j.getUTCHours()).slice(-2) + ':' + ('0' + j.getUTCMinutes()).slice(-2); }
+  function advAddDays(iso, n) { var p = iso.split('-'); var d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + n)); return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2); }
+  function advDow(iso) { var p = iso.split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).getUTCDay(); }
+  function advInClosedRange(iso) { for (var i = 0; i < ADV_CLOSED.length; i++) { if (iso >= ADV_CLOSED[i][0] && iso <= ADV_CLOSED[i][1]) return true; } return false; }
+  function advIsClosed(iso) { return advDow(iso) === 3 || advInClosedRange(iso); }
+  // 対象区分（GAS側と同じ規則）: 髙橋和は朝のみ、夛賀裕也は夜のみ、学生は朝は土日祝のみ
+  function advApplicable(name, iso) {
+    var dow = advDow(iso);
+    var wk = (dow === 0 || dow === 6 || HOLIDAYS[iso] === 1);
+    if (name === '髙橋和') return ['am'];
+    if (name === '夛賀裕也') return ['pm'];
+    return wk ? ['am', 'pm'] : ['pm'];
+  }
+  // その日が属する期間（木〜火）の締切＝期間開始の10日前の月曜23:30を過ぎているか
+  function advLocked(iso) {
+    var offset = (advDow(iso) + 7 - 4) % 7;
+    var mon = advAddDays(iso, -offset - 10);
+    return advNowJstStr() >= (mon + ' 23:30');
+  }
+  function loadAdvanceCalendar() {
+    var wrap = document.getElementById('adv-cal');
+    if (ADV_OFFS) { renderAdvTabs(); renderAdvCalendar(); return; }
+    var cb = 'advCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok') { wrap.innerHTML = '<div class="sub">カレンダーを読み込めませんでした。</div>'; return; }
+      ADV_OFFS = res.offs || {}; ADV_ME = res.fullName || '';
+      var base = advTodayJst().slice(0, 7).split('-');
+      ADV_MONTHS = [0, 1, 2].map(function (k) { var d = new Date(Date.UTC(+base[0], +base[1] - 1 + k, 1)); return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2); });
+      ADV_MONTH = ADV_MONTHS[0];
+      renderAdvTabs(); renderAdvCalendar();
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=advanceoff&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.onerror = function () { wrap.innerHTML = '<div class="sub">カレンダーを読み込めませんでした。</div>'; };
+    document.body.appendChild(s);
+  }
+  function renderAdvTabs() {
+    document.getElementById('adv-tabs').innerHTML = ADV_MONTHS.map(function (m) {
+      var p = m.split('-');
+      return '<button class="adv-tab' + (m === ADV_MONTH ? ' on' : '') + '" onclick="advSetMonth(\'' + m + '\')">' + (+p[0]) + '年' + (+p[1]) + '月</button>';
+    }).join('');
+  }
+  function advSetMonth(m) {
+    ADV_MONTH = m; ADV_EDIT_OPEN = false;
+    document.getElementById('adv-editor').classList.add('hidden');
+    renderAdvTabs(); renderAdvCalendar();
+  }
+  function renderAdvCalendar() {
+    var wrap = document.getElementById('adv-cal');
+    var first = ADV_MONTH + '-01';
+    var gridStart = advAddDays(first, -advDow(first));
+    var today = advTodayJst();
+    var html = '<table class="adv-table"><tr><th class="sun">日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th class="sat">土</th></tr>';
+    for (var w = 0; w < 6; w++) {
+      html += '<tr>';
+      for (var c = 0; c < 7; c++) {
+        var iso = advAddDays(gridStart, w * 7 + c);
+        var cls = (c === 0 ? 'sun' : '') + (c === 6 ? ' sat' : '');
+        if (iso.slice(0, 7) !== ADV_MONTH) { html += '<td class="adv-cell out ' + cls + '"></td>'; continue; }
+        var inner = '<div class="adv-dnum">' + (+iso.slice(8)) + '</div>';
+        if (advIsClosed(iso)) {
+          inner += '<div class="adv-closed">' + (advInClosedRange(iso) ? '休業' : '定休日') + '</div>';
+        } else {
+          var dayOffs = (ADV_OFFS && ADV_OFFS[iso]) || {};
+          var am = [], pm = [];
+          Object.keys(dayOffs).forEach(function (name) {
+            var segs = dayOffs[name] || [];
+            var short = ADV_SHORT[name] || name;
+            if (segs.indexOf('am') >= 0) am.push(short);
+            if (segs.indexOf('pm') >= 0) pm.push(short);
+          });
+          if (am.length) inner += '<div class="adv-off">朝× ' + am.join('・') + '</div>';
+          if (pm.length) inner += '<div class="adv-off">夜× ' + pm.join('・') + '</div>';
+        }
+        if (iso < today) cls += ' past';
+        html += '<td class="adv-cell ' + cls + '">' + inner + '</td>';
+      }
+      html += '</tr>';
+    }
+    wrap.innerHTML = html + '</table>';
+  }
+  function toggleAdvEditor() {
+    if (!ADV_OFFS) { loadAdvanceCalendar(); return; }
+    ADV_EDIT_OPEN = !ADV_EDIT_OPEN;
+    var ed = document.getElementById('adv-editor');
+    ed.classList.toggle('hidden', !ADV_EDIT_OPEN);
+    if (ADV_EDIT_OPEN) { initAdvMy(); renderAdvEditor(); }
+  }
+  function initAdvMy() {
+    ADV_MY = {};
+    var p = ADV_MONTH.split('-');
+    var last = new Date(Date.UTC(+p[0], +p[1], 0)).getUTCDate();
+    for (var d = 1; d <= last; d++) {
+      var iso = ADV_MONTH + '-' + ('0' + d).slice(-2);
+      if (advIsClosed(iso)) continue;
+      ADV_MY[iso] = (((ADV_OFFS || {})[iso] || {})[ADV_ME] || []).slice();
+    }
+  }
+  function renderAdvEditor() {
+    var ed = document.getElementById('adv-editor');
+    if (!ADV_ME) { ed.innerHTML = '<div class="sub">登録が確認できないため、申告できません。</div>'; return; }
+    var dows = ['日', '月', '火', '水', '木', '金', '土'];
+    var html = '<div class="sub">出られない日の「朝」「夜」を押してください（赤が申告中）。その週の月曜23:30を過ぎた日は変更できません。</div>';
+    Object.keys(ADV_MY).sort().forEach(function (iso) {
+      var cur = ADV_MY[iso];
+      var app = advApplicable(ADV_ME, iso);
+      var locked = advLocked(iso) || iso < advTodayJst();
+      html += '<div class="adv-ed-row"><span>' + (+iso.slice(5, 7)) + '/' + (+iso.slice(8)) + '（' + dows[advDow(iso)] + '）</span>';
+      if (app.indexOf('am') >= 0) html += '<button class="adv-chip' + (cur.indexOf('am') >= 0 ? ' on' : '') + '"' + (locked ? ' disabled' : '') + ' onclick="advToggle(\'' + iso + '\',\'am\',this)">朝</button>';
+      if (app.indexOf('pm') >= 0) html += '<button class="adv-chip' + (cur.indexOf('pm') >= 0 ? ' on' : '') + '"' + (locked ? ' disabled' : '') + ' onclick="advToggle(\'' + iso + '\',\'pm\',this)">夜</button>';
+      if (locked) html += '<span class="adv-lock">締切済み</span>';
+      html += '</div>';
+    });
+    html += '<button class="submit" onclick="submitAdvanceOff()">この内容で保存する</button>';
+    ed.innerHTML = html;
+  }
+  function advToggle(iso, seg, btn) {
+    var arr = ADV_MY[iso] || (ADV_MY[iso] = []);
+    var i = arr.indexOf(seg);
+    if (i >= 0) arr.splice(i, 1); else arr.push(seg);
+    btn.classList.toggle('on');
+  }
+  function submitAdvanceOff() {
+    var entries = Object.keys(ADV_MY).map(function (iso) { return { date: iso, segs: ADV_MY[iso] }; });
+    if (!confirm('先行申告を保存します。よろしいですか？')) return;
+    if (postInFlight) return;
+    postInFlight = true;
+    fetch(WEB_APP_URL, {
+      method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ formType: 'advanceoff', entries: entries, accessToken: liff.getAccessToken() })
+    }).then(function () {
+      postInFlight = false;
+      ADV_OFFS = null; ADV_EDIT_OPEN = false;
+      document.getElementById('adv-editor').classList.add('hidden');
+      loadAdvanceCalendar();
+      alert('保存しました。');
+    }).catch(function () { postInFlight = false; alert('保存に失敗しました。もう一度お試しください。'); });
   }
 
   var registered = null;
