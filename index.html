@@ -12,6 +12,7 @@
   .menu-btn { display: block; width: 100%; padding: 16px; margin: 10px 0; font-size: 16px;
     background: #06c755; color: #fff; border: none; border-radius: 8px; }
   .menu-btn.secondary { background: #fff; color: #222; border: 2px solid #888; box-shadow: 0 2px 6px rgba(0,0,0,.18); }
+  .menu-btn.seasonal { background: #fff8ec; color: #9a6200; border: 2px solid #e8a33d; box-shadow: 0 2px 6px rgba(0,0,0,.18); font-weight: bold; }
   .menu-btn.emergency { background: #b71c1c; color: #fff; border: 3px solid #5f0000; font-weight: bold;
     font-size: 17px; padding: 18px 16px; margin-top: 26px; box-shadow: 0 3px 8px rgba(0,0,0,.4); letter-spacing: .06em; }
   .emg-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 8px 0; font-size: 15px; }
@@ -28,7 +29,7 @@
   .row { display: flex; align-items: center; gap: 10px; margin: 4px 0; font-size: 14px; }
   .row .label { width: 2em; font-weight: bold; }
   label.choice { display: inline-flex; align-items: center; gap: 4px; }
-  select, input[type="date"], textarea { font-size: 15px; padding: 6px; border: 1px solid #bbb; border-radius: 6px; }
+  select, input[type="date"], input[type="text"], textarea { font-size: 15px; padding: 6px; border: 1px solid #bbb; border-radius: 6px; }
   textarea { width: 100%; box-sizing: border-box; min-height: 64px; }
   .field { margin: 12px 0; }
   .field .flabel { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
@@ -85,6 +86,7 @@
   <h1>じゅうじゅう亭 連絡フォーム</h1>
   <div class="sub"><span id="hello-name"></span>さん、こんにちは。用件を選んでください。</div>
   <button class="menu-btn" onclick="show('timecard')">タイムカード</button>
+  <button class="menu-btn seasonal" onclick="show('fuyo')">扶養控除等申告書の情報入力（12月5日まで）</button>
   <button class="menu-btn secondary" onclick="show('shift')">シフトを提出する</button>
   <button class="menu-btn" onclick="show('table')">シフトを確認する</button>
   <button class="menu-btn secondary" onclick="show('history')">勤務履歴</button>
@@ -162,6 +164,55 @@
     <textarea id="resign-reason" placeholder="空欄でも問題ありません"></textarea>
   </div>
   <button class="submit" onclick="submitResign()">申請する</button>
+</div>
+
+<!-- 扶養控除等申告書（令和9年分） -->
+<div id="view-fuyo" class="hidden">
+  <button class="back" onclick="show('home')">← もどる</button>
+  <h1>扶養控除等申告書の情報入力</h1>
+  <div class="sub">令和9年分の「給与所得者の扶養控除等（異動）申告書」を作るための情報です。<span class="warn">提出期限は12月5日（土）です。</span></div>
+  <div id="fuyo-status" class="sub"></div>
+  <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
+  <div class="field">
+    <div class="flabel">氏名</div>
+    <input type="text" id="fuyo-name" placeholder="例: 清水 真子">
+  </div>
+  <div class="field">
+    <div class="flabel">郵便番号</div>
+    <input type="text" id="fuyo-postal" inputmode="numeric" placeholder="例: 870-0123">
+  </div>
+  <div class="field">
+    <div class="flabel">住所（令和9年1月1日時点＝今住んでいる住所）</div>
+    <textarea id="fuyo-address" placeholder="例: 大分県大分市明野北○-○-○"></textarea>
+  </div>
+  <div class="field">
+    <div class="flabel">生年月日（西暦で入力してください）</div>
+    <input type="date" id="fuyo-birth">
+  </div>
+  <div class="field">
+    <div class="flabel">世帯主の氏名</div>
+    <input type="text" id="fuyo-head" placeholder="例: 清水 太郎">
+  </div>
+  <div class="field">
+    <div class="flabel">世帯主は、あなたから見て誰ですか？</div>
+    <div>
+      <label class="choice"><input type="radio" name="fuyo-rel" value="自分" onchange="toggleFuyoRel()"> 自分</label>
+      <label class="choice"><input type="radio" name="fuyo-rel" value="父" onchange="toggleFuyoRel()"> 父</label>
+      <label class="choice"><input type="radio" name="fuyo-rel" value="母" onchange="toggleFuyoRel()"> 母</label>
+      <label class="choice"><input type="radio" name="fuyo-rel" value="その他" onchange="toggleFuyoRel()"> その他</label>
+    </div>
+    <input type="text" id="fuyo-rel-text" class="hidden" placeholder="例: 祖母、兄 など">
+    <div class="sub" style="margin-top:6px;">※申告書の「続柄」は「あなたから見た関係」で書きます。住民票の続柄とは逆向きになるので、間違えないように選んでください。</div>
+  </div>
+  <div class="field">
+    <div class="flabel">法律上、結婚していますか？</div>
+    <div>
+      <label class="choice"><input type="radio" name="fuyo-spouse" value="はい"> はい</label>
+      <label class="choice"><input type="radio" name="fuyo-spouse" value="いいえ"> いいえ</label>
+    </div>
+  </div>
+  <div style="background:#f5f5f5;border:1px solid #ccc;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.6;margin:8px 0;">個人番号（マイナンバー）を書く欄は、このフォームにはありません。後日、印刷した申告書の紙に、ご自身で手書きしていただきます。</div>
+  <button class="submit" onclick="submitFuyo()">提出する</button>
 </div>
 
 <!-- タイムカード -->
@@ -321,13 +372,14 @@
   var profile = null;
 
   function show(name) {
-    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history', 'emergency'].forEach(function (v) {
+    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history', 'emergency', 'fuyo'].forEach(function (v) {
       document.getElementById('view-' + v).classList.toggle('hidden', v !== name);
     });
     if (name === 'table') loadShiftTable();
     if (name === 'shift') loadAdvanceCalendar();
     if (name === 'history') loadWorkHistory();
     if (name === 'emergency') loadMyShifts();
+    if (name === 'fuyo') loadFuyo();
     window.scrollTo(0, 0);
   }
 
@@ -885,6 +937,78 @@
     emgPending = null;
     closeEmgConfirm();
     post({ formType: 'emergency', items: pending.items, reason: pending.reason });
+  }
+
+  function toggleFuyoRel() {
+    var sel = document.querySelector('input[name="fuyo-rel"]:checked');
+    var txt = document.getElementById('fuyo-rel-text');
+    if (sel && sel.value === 'その他') txt.classList.remove('hidden'); else txt.classList.add('hidden');
+  }
+
+  function setFuyoRadio(name, value) {
+    var rs = document.querySelectorAll('input[name="' + name + '"]');
+    for (var i = 0; i < rs.length; i++) rs[i].checked = (rs[i].value === value);
+  }
+
+  function loadFuyo() {
+    var status = document.getElementById('fuyo-status');
+    status.textContent = '読み込み中…';
+    var nameInput = document.getElementById('fuyo-name');
+    if (!nameInput.value && profile) nameInput.value = profile.fullName || NAME_MAP[profile.displayName] || '';
+    var cb = 'fuyoCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok') { status.textContent = ''; return; }
+      if (res.submitted && res.entry) {
+        var e = res.entry;
+        status.innerHTML = '<span style="color:#0a7d2c;font-weight:bold;">提出済みです</span>（' + (res.updated || '') + '）。内容を直す場合は、そのまま直して再提出してください。';
+        document.getElementById('fuyo-name').value = e.fullName || '';
+        document.getElementById('fuyo-postal').value = e.postal || '';
+        document.getElementById('fuyo-address').value = e.address || '';
+        document.getElementById('fuyo-birth').value = e.birth || '';
+        document.getElementById('fuyo-head').value = e.headName || '';
+        if (e.relation === '本人') setFuyoRadio('fuyo-rel', '自分');
+        else if (e.relation === '父') setFuyoRadio('fuyo-rel', '父');
+        else if (e.relation === '母') setFuyoRadio('fuyo-rel', '母');
+        else { setFuyoRadio('fuyo-rel', 'その他'); document.getElementById('fuyo-rel-text').value = e.relation || ''; }
+        toggleFuyoRel();
+        setFuyoRadio('fuyo-spouse', e.spouse === '有' ? 'はい' : 'いいえ');
+      } else {
+        status.textContent = 'まだ提出されていません。12月5日（土）までに提出してください。';
+      }
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=fuyostatus&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    document.body.appendChild(s);
+  }
+
+  function submitFuyo() {
+    var fullName = document.getElementById('fuyo-name').value.trim();
+    var postal = document.getElementById('fuyo-postal').value.trim();
+    var address = document.getElementById('fuyo-address').value.trim();
+    var birth = document.getElementById('fuyo-birth').value;
+    var headName = document.getElementById('fuyo-head').value.trim();
+    var relSel = document.querySelector('input[name="fuyo-rel"]:checked');
+    var relText = document.getElementById('fuyo-rel-text').value.trim();
+    var spouseSel = document.querySelector('input[name="fuyo-spouse"]:checked');
+    if (!fullName) { alert('氏名を入力してください。'); return; }
+    if (postal.replace(/[^0-9]/g, '').length !== 7) { alert('郵便番号は7桁で入力してください。'); return; }
+    if (!address) { alert('住所を入力してください。'); return; }
+    if (!birth) { alert('生年月日を入力してください。'); return; }
+    if (!headName) { alert('世帯主の氏名を入力してください。'); return; }
+    if (!relSel) { alert('「世帯主は、あなたから見て誰ですか？」を選んでください。'); return; }
+    if (relSel.value === 'その他' && !relText) { alert('続柄（その他）を入力してください。'); return; }
+    if (!spouseSel) { alert('「法律上、結婚していますか？」を選んでください。'); return; }
+    var relation = relSel.value === '自分' ? '本人' : (relSel.value === 'その他' ? relText : relSel.value);
+    var spouse = spouseSel.value === 'はい' ? '有' : '無';
+    var summary = 'この内容で提出します。よろしいですか？\n\n氏名: ' + fullName + '\n郵便番号: ' + postal + '\n住所: ' + address + '\n生年月日: ' + birth + '\n世帯主の氏名: ' + headName + '\n続柄: ' + relation + '\n配偶者: ' + spouse;
+    if (!confirm(summary)) return;
+    post({
+      formType: 'fuyo',
+      fullName: fullName, postal: postal, address: address, birth: birth,
+      headName: headName, relationSelect: relSel.value, relationText: relText,
+      spouseAnswer: spouseSel.value
+    });
   }
 
   function submitResign() {
