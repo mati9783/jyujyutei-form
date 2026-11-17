@@ -211,6 +211,14 @@
       <label class="choice"><input type="radio" name="fuyo-spouse" value="いいえ"> いいえ</label>
     </div>
   </div>
+  <div class="field">
+    <div class="flabel">あなたの収入で生活を支えている家族はいますか？</div>
+    <div>
+      <label class="choice"><input type="radio" name="fuyo-family" value="はい"> はい</label>
+      <label class="choice"><input type="radio" name="fuyo-family" value="いいえ"> いいえ</label>
+    </div>
+    <div class="sub" style="margin-top:6px;">育てている子どもや、仕送りをしている親などが当てはまります。親に支えてもらっている人は『いいえ』です。</div>
+  </div>
   <div style="background:#f5f5f5;border:1px solid #ccc;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.6;margin:8px 0;">個人番号（マイナンバー）を書く欄は、このフォームにはありません。後日、印刷した申告書の紙に、ご自身で手書きしていただきます。</div>
   <button class="submit" onclick="submitFuyo()">提出する</button>
 </div>
@@ -973,6 +981,7 @@
         else { setFuyoRadio('fuyo-rel', 'その他'); document.getElementById('fuyo-rel-text').value = e.relation || ''; }
         toggleFuyoRel();
         setFuyoRadio('fuyo-spouse', e.spouse === '有' ? 'はい' : 'いいえ');
+        if (e.supportedFamily) setFuyoRadio('fuyo-family', e.supportedFamily === '有' ? 'はい' : 'いいえ');
       } else {
         status.textContent = 'まだ提出されていません。12月5日（土）までに提出してください。';
       }
@@ -991,6 +1000,7 @@
     var relSel = document.querySelector('input[name="fuyo-rel"]:checked');
     var relText = document.getElementById('fuyo-rel-text').value.trim();
     var spouseSel = document.querySelector('input[name="fuyo-spouse"]:checked');
+    var familySel = document.querySelector('input[name="fuyo-family"]:checked');
     if (!fullName) { alert('氏名を入力してください。'); return; }
     if (postal.replace(/[^0-9]/g, '').length !== 7) { alert('郵便番号は7桁で入力してください。'); return; }
     if (!address) { alert('住所を入力してください。'); return; }
@@ -999,15 +1009,17 @@
     if (!relSel) { alert('「世帯主は、あなたから見て誰ですか？」を選んでください。'); return; }
     if (relSel.value === 'その他' && !relText) { alert('続柄（その他）を入力してください。'); return; }
     if (!spouseSel) { alert('「法律上、結婚していますか？」を選んでください。'); return; }
+    if (!familySel) { alert('「あなたの収入で生活を支えている家族はいますか？」を選んでください。'); return; }
     var relation = relSel.value === '自分' ? '本人' : (relSel.value === 'その他' ? relText : relSel.value);
     var spouse = spouseSel.value === 'はい' ? '有' : '無';
-    var summary = 'この内容で提出します。よろしいですか？\n\n氏名: ' + fullName + '\n郵便番号: ' + postal + '\n住所: ' + address + '\n生年月日: ' + birth + '\n世帯主の氏名: ' + headName + '\n続柄: ' + relation + '\n配偶者: ' + spouse;
+    var family = familySel.value === 'はい' ? '有' : '無';
+    var summary = 'この内容で提出します。よろしいですか？\n\n氏名: ' + fullName + '\n郵便番号: ' + postal + '\n住所: ' + address + '\n生年月日: ' + birth + '\n世帯主の氏名: ' + headName + '\n続柄: ' + relation + '\n配偶者: ' + spouse + '\n収入で生活を支えている家族: ' + family;
     if (!confirm(summary)) return;
     post({
       formType: 'fuyo',
       fullName: fullName, postal: postal, address: address, birth: birth,
       headName: headName, relationSelect: relSel.value, relationText: relText,
-      spouseAnswer: spouseSel.value
+      spouseAnswer: spouseSel.value, supportedFamilyAnswer: familySel.value
     });
   }
 
