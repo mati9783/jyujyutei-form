@@ -297,11 +297,23 @@
   document.querySelectorAll('[data-soon]').forEach(function(el){
     el.addEventListener('click', showToast);
   });
+  function showScreen(name){
+    home.classList.toggle('on', name === 'home');
+    tc.classList.toggle('on', name === 'timecard');
+    window.scrollTo(0,0);
+  }
+  history.replaceState({ screen: 'home' }, '');
   document.getElementById('go-timecard').addEventListener('click', function(){
-    home.classList.remove('on'); tc.classList.add('on'); window.scrollTo(0,0);
+    history.pushState({ screen: 'timecard' }, '');
+    showScreen('timecard');
   });
   document.getElementById('back-home').addEventListener('click', function(){
-    tc.classList.remove('on'); home.classList.add('on'); window.scrollTo(0,0);
+    history.back();
+  });
+  window.addEventListener('popstate', function(e){
+    overlay.classList.remove('on');
+    var s = (e.state && e.state.screen) || 'home';
+    showScreen(s);
   });
   document.querySelectorAll('[data-toggle]').forEach(function(el){
     el.addEventListener('click', function(){ el.classList.toggle('on'); });
@@ -313,7 +325,7 @@
   });
   document.getElementById('close-overlay').addEventListener('click', function(){
     overlay.classList.remove('on');
-    tc.classList.remove('on'); home.classList.add('on'); window.scrollTo(0,0);
+    history.back();
   });
 </script>
 </body>
