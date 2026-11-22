@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>スタッフアプリ UIテスト</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yellow:#ffe600; --cyan:#19d3ff; --pink:#ff3d8a; --purple:#8b5bff;
+    --green:#37e08b; --orange:#ff9f1c; --red:#ff4747; --gray:#9aa3b2;
+    --bg:#13131b; --ink:#17171f;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"M PLUS Rounded 1c",sans-serif; background:var(--bg); color:#fff;
+    min-height:100vh; overflow-x:hidden; position:relative;
+  }
+  /* 背景のインク飛沫 */
+  .splat{position:fixed; border-radius:50%; opacity:.5; z-index:0; pointer-events:none;}
+  .splat::after{content:""; position:absolute; border-radius:50%; background:inherit;}
+  .s1{width:210px;height:210px;background:var(--purple);top:-70px;right:-60px;transform:rotate(20deg);}
+  .s1::after{width:60px;height:60px;left:-24px;top:110px;}
+  .s2{width:150px;height:150px;background:var(--cyan);bottom:6%;left:-70px;opacity:.35;}
+  .s2::after{width:44px;height:44px;right:-16px;top:16px;}
+  .s3{width:90px;height:90px;background:var(--pink);top:44%;right:-46px;opacity:.3;}
+  .wrap{position:relative; z-index:1; max-width:480px; margin:0 auto; padding:14px 14px 40px;}
+  .testbar{
+    background:repeating-linear-gradient(45deg,#222 0 14px,#2c2c2c 14px 28px);
+    border:2px dashed var(--yellow); color:var(--yellow);
+    font-weight:700; font-size:12px; text-align:center; padding:6px 8px; border-radius:10px; margin-bottom:14px;
+  }
+  header.top{ text-align:center; margin:6px 0 4px; }
+  .logo{
+    display:inline-block; background:var(--yellow); color:var(--ink);
+    font-weight:800; font-size:27px; letter-spacing:.02em; line-height:1.15;
+    padding:10px 20px 12px; border-radius:18px 22px 16px 24px;
+    transform:rotate(-2deg); box-shadow:0 6px 0 rgba(0,0,0,.35);
+    border:3px solid var(--ink);
+  }
+  .logo small{display:block; font-size:13px; font-weight:800; letter-spacing:.35em; margin-top:2px;}
+  .player{
+    display:flex; align-items:center; gap:10px; margin:16px 2px 14px;
+    background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25);
+    border-radius:14px; padding:9px 12px;
+  }
+  .avatar{
+    width:42px;height:42px;border-radius:50%; background:var(--cyan);
+    display:flex;align-items:center;justify-content:center; font-weight:800; color:var(--ink); font-size:19px;
+    border:3px solid var(--ink); flex:none;
+  }
+  .player .nm{font-weight:800; font-size:16px;}
+  .player .lv{margin-left:auto; background:var(--pink); color:#fff; font-weight:800; font-size:12px;
+    padding:4px 10px; border-radius:999px; transform:rotate(2deg); border:2px solid var(--ink);}
+  .menu{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px;}
+  .card{
+    border:3px solid var(--ink); border-radius:18px; padding:14px 12px 12px; color:var(--ink);
+    box-shadow:0 5px 0 rgba(0,0,0,.4); cursor:pointer; position:relative; overflow:hidden;
+    transition:transform .08s ease;
+  }
+  .card:active{transform:scale(.96);}
+  .card .ic{
+    width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.85); border:2.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center; font-size:23px; font-weight:800; margin-bottom:8px;
+  }
+  .card .t{font-weight:800; font-size:17px; line-height:1.25;}
+  .card .s{font-size:11.5px; font-weight:700; opacity:.75; margin-top:3px; line-height:1.3;}
+  .card.wide{grid-column:1 / -1;}
+  .c-yellow{background:var(--yellow);} .c-cyan{background:var(--cyan);} .c-pink{background:var(--pink); color:#fff;}
+  .c-purple{background:var(--purple); color:#fff;} .c-green{background:var(--green);} .c-orange{background:var(--orange);}
+  .c-red{background:var(--red); color:#fff;} .c-gray{background:#d7dce4;}
+  .tilt-l{transform:rotate(-1deg);} .tilt-r{transform:rotate(1deg);}
+  .foot{margin-top:20px; text-align:center; font-size:11px; color:rgba(255,255,255,.55); font-weight:700;}
+  /* 画面切り替え */
+  .screen{display:none;} .screen.on{display:block; animation:pop .18s ease;}
+  @keyframes pop{from{transform:scale(.97); opacity:.4;} to{transform:scale(1); opacity:1;}}
+  .backbtn{
+    display:inline-flex; align-items:center; gap:6px; background:#fff; color:var(--ink); border:3px solid var(--ink);
+    font-weight:800; font-size:14px; border-radius:999px; padding:6px 14px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.35);
+  }
+  .scr-title{font-weight:800; font-size:22px; margin:14px 0 4px; transform:rotate(-1deg); display:inline-block;
+    background:var(--cyan); color:var(--ink); padding:5px 14px; border-radius:12px; border:3px solid var(--ink);}
+  .panel{background:#fff; color:var(--ink); border:3px solid var(--ink); border-radius:18px; padding:16px 14px; margin-top:14px;
+    box-shadow:0 6px 0 rgba(0,0,0,.4);}
+  .panel h3{margin:0 0 6px; font-size:15px; font-weight:800;}
+  .datebig{font-size:20px; font-weight:800; margin-bottom:10px;}
+  .seg{border-top:2px dashed #cfd4dd; padding:12px 0 4px; margin-top:10px;}
+  .seg:first-of-type{border-top:none; margin-top:0;}
+  .timerow{display:flex; align-items:center; gap:8px; margin:8px 0;}
+  .timerow .lab{font-weight:800; width:34px; flex:none;}
+  .chip{
+    flex:1; text-align:center; background:#eef1f6; border:2.5px solid var(--ink); border-radius:12px;
+    font-weight:800; font-size:17px; padding:9px 0;
+  }
+  .chip.sel{background:var(--yellow);}
+  .arrow{font-weight:800; color:#8a93a3;}
+  .toggle{display:inline-block; margin-top:6px; background:#eef1f6; border:2.5px solid var(--ink); border-radius:999px;
+    font-weight:800; font-size:13px; padding:6px 14px; cursor:pointer;}
+  .toggle.on{background:var(--green);}
+  .sendbtn{
+    display:block; width:100%; margin-top:18px; background:var(--pink); color:#fff; border:3.5px solid var(--ink);
+    border-radius:16px; font-family:inherit; font-weight:800; font-size:20px; padding:15px 0; cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.45); letter-spacing:.08em;
+  }
+  .sendbtn:active{transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.45);}
+  /* 完了オーバーレイ */
+  .overlay{
+    position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; flex-direction:column;
+    background:rgba(10,10,16,.72);
+  }
+  .overlay.on{display:flex;}
+  .burst{position:absolute; width:340px; height:340px; border-radius:50%; background:var(--yellow);
+    animation:burst .45s ease-out; opacity:.9;}
+  .burst::after{content:""; position:absolute; inset:38px; border-radius:50%; background:var(--cyan);}
+  @keyframes burst{0%{transform:scale(0) rotate(0deg);} 70%{transform:scale(1.15) rotate(24deg);} 100%{transform:scale(1) rotate(12deg);}}
+  .stamp{
+    position:relative; z-index:2; background:#fff; color:var(--red); border:5px solid var(--red);
+    font-weight:800; font-size:34px; padding:12px 26px; border-radius:14px; transform:rotate(-7deg);
+    animation:stamp .35s .25s ease-out backwards; letter-spacing:.06em; text-align:center; line-height:1.2;
+  }
+  .stamp small{display:block; font-size:14px; color:var(--ink); letter-spacing:.02em; margin-top:4px;}
+  @keyframes stamp{0%{transform:rotate(-7deg) scale(2.4); opacity:0;} 100%{transform:rotate(-7deg) scale(1); opacity:1;}}
+  .overlay .msg{position:relative; z-index:2; margin-top:20px; font-weight:800; font-size:15px; text-align:center; line-height:1.6;}
+  .overlay .closebtn{position:relative; z-index:2; margin-top:16px; background:#fff; color:var(--ink); border:3px solid var(--ink);
+    font-family:inherit; font-weight:800; font-size:16px; border-radius:999px; padding:10px 30px; cursor:pointer;}
+  .toast{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(80px); z-index:60;
+    background:#fff; color:var(--ink); border:3px solid var(--ink); border-radius:999px; font-weight:800; font-size:14px;
+    padding:10px 20px; box-shadow:0 5px 0 rgba(0,0,0,.4); transition:transform .25s ease; white-space:nowrap;
+  }
+  .toast.on{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="splat s1"></div><div class="splat s2"></div><div class="splat s3"></div>
+
+<div class="wrap">
+  <div class="testbar">TEST画面 ― これはUIのテストです。実際の送信は行われません</div>
+
+  <!-- ホーム画面 -->
+  <section id="scr-home" class="screen on">
+    <header class="top">
+      <div class="logo">じゅうじゅう亭<small>スタッフアプリ</small></div>
+    </header>
+    <div class="player">
+      <div class="avatar">サ</div>
+      <div>
+        <div class="nm">サンプルさん</div>
+        <div style="font-size:11.5px; font-weight:700; opacity:.8;">お疲れ様です！今日も頑張りましょう</div>
+      </div>
+      <div class="lv">TEST</div>
+    </div>
+    <div class="menu">
+      <div class="card c-yellow tilt-l" data-soon>
+        <div class="ic">✎</div><div class="t">シフトを提出する</div><div class="s">休み希望・出勤できる日を送る</div>
+      </div>
+      <div class="card c-cyan tilt-r" id="go-timecard">
+        <div class="ic">⏱</div><div class="t">タイムカード</div><div class="s">出勤・退勤を記録する</div>
+      </div>
+      <div class="card c-pink tilt-r" data-soon>
+        <div class="ic">📋</div><div class="t">シフトを確認する</div><div class="s">確定したシフトを見る</div>
+      </div>
+      <div class="card c-purple tilt-l" data-soon>
+        <div class="ic">💰</div><div class="t">勤務履歴</div><div class="s">見込み給与もここで確認</div>
+      </div>
+      <div class="card c-green tilt-l" data-soon>
+        <div class="ic">🌴</div><div class="t">長期休み申請</div><div class="s">まとまったお休みの申請</div>
+      </div>
+      <div class="card c-orange tilt-r" data-soon>
+        <div class="ic">📅</div><div class="t">先行申告</div><div class="s">先の出勤できない日を申告</div>
+      </div>
+      <div class="card c-gray tilt-l" data-soon>
+        <div class="ic">📝</div><div class="t">扶養控除等申告書</div><div class="s">12月5日までに入力</div>
+      </div>
+      <div class="card c-red tilt-r" data-soon>
+        <div class="ic">🚨</div><div class="t">緊急連絡119番</div><div class="s">欠勤の連絡はこちら</div>
+      </div>
+    </div>
+    <div class="foot">じゅうじゅう亭 スタッフ専用アプリ（UIテスト版）</div>
+  </section>
+
+  <!-- タイムカード画面（モック） -->
+  <section id="scr-timecard" class="screen">
+    <button class="backbtn" id="back-home">← もどる</button>
+    <div><span class="scr-title">タイムカード</span></div>
+    <div class="panel">
+      <div class="datebig">11月22日（日）</div>
+      <div class="seg">
+        <h3>☀ 昼の部</h3>
+        <div class="timerow"><span class="lab">IN</span><span class="chip sel">9:00</span><span class="arrow">→</span><span class="lab">OUT</span><span class="chip">13:30</span></div>
+        <span class="toggle" data-toggle>一人勤務</span>
+      </div>
+      <div class="seg">
+        <h3>🌙 夜の部</h3>
+        <div class="timerow"><span class="lab">IN</span><span class="chip">17:30</span><span class="arrow">→</span><span class="lab">OUT</span><span class="chip">22:00</span></div>
+        <span class="toggle" data-toggle>一人勤務</span>
+      </div>
+      <button class="sendbtn" id="send-demo">送信する！</button>
+    </div>
+    <div class="foot">これは入力画面のイメージです。数字はサンプルです</div>
+  </section>
+</div>
+
+<!-- 完了演出 -->
+<div class="overlay" id="overlay">
+  <div class="burst"></div>
+  <div class="stamp">受付完了！<small>お疲れ様でした</small></div>
+  <div class="msg">記録しました。<br>内容は「勤務履歴」から確認できます。</div>
+  <button class="closebtn" id="close-overlay">とじる</button>
+</div>
+
+<div class="toast" id="toast">テスト画面では、ここは動きません</div>
+
+<script>
+  var home = document.getElementById('scr-home');
+  var tc = document.getElementById('scr-timecard');
+  var overlay = document.getElementById('overlay');
+  var toast = document.getElementById('toast');
+  var toastTimer = null;
+  function showToast(){
+    toast.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove('on'); }, 1800);
+  }
+  document.querySelectorAll('[data-soon]').forEach(function(el){
+    el.addEventListener('click', showToast);
+  });
+  document.getElementById('go-timecard').addEventListener('click', function(){
+    home.classList.remove('on'); tc.classList.add('on'); window.scrollTo(0,0);
+  });
+  document.getElementById('back-home').addEventListener('click', function(){
+    tc.classList.remove('on'); home.classList.add('on'); window.scrollTo(0,0);
+  });
+  document.querySelectorAll('[data-toggle]').forEach(function(el){
+    el.addEventListener('click', function(){ el.classList.toggle('on'); });
+  });
+  document.getElementById('send-demo').addEventListener('click', function(){
+    overlay.classList.remove('on');
+    void overlay.offsetWidth;
+    overlay.classList.add('on');
+  });
+  document.getElementById('close-overlay').addEventListener('click', function(){
+    overlay.classList.remove('on');
+    tc.classList.remove('on'); home.classList.add('on'); window.scrollTo(0,0);
+  });
+</script>
+</body>
+</html>
