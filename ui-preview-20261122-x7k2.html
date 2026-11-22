@@ -235,10 +235,16 @@
     <div class="quest">
       <span class="quest-head">⚔ クエスト発生中!!</span>
       <div class="quest-card">
-        <div class="quest-date">11月21日(土) 9:00-14:30</div>
+        <div class="quest-date">12月3日(木) 9:00-14:00</div>
         <div class="quest-desc">昼の部 スタッフ1名ぼしゅう！</div>
         <div class="quest-reward">報酬：まかないチケット ×1</div>
-        <button class="quest-btn" id="quest-join">立候補する！</button>
+        <button class="quest-btn quest-join">立候補する！</button>
+      </div>
+      <div class="quest-card">
+        <div class="quest-date">12月4日(金) 9:00-14:00</div>
+        <div class="quest-desc">昼の部 スタッフ1名ぼしゅう！</div>
+        <div class="quest-reward">報酬：まかないチケット ×1</div>
+        <button class="quest-btn quest-join">立候補する！</button>
       </div>
     </div>
 
@@ -381,9 +387,11 @@
     var s = (e.state && e.state.screen) || 'home';
     showScreen(s);
   });
-  document.getElementById('quest-join').addEventListener('click', function(e){
-    pressFx(this, e.clientX, e.clientY);
-    setTimeout(showToast, 220);
+  document.querySelectorAll('.quest-join').forEach(function(el){
+    el.addEventListener('click', function(e){
+      pressFx(el, e.clientX, e.clientY);
+      setTimeout(showToast, 220);
+    });
   });
   document.querySelectorAll('[data-toggle]').forEach(function(el){
     el.addEventListener('click', function(){ el.classList.toggle('on'); });
