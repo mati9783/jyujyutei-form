@@ -55,6 +55,20 @@
   }
   .sound-toggle.off{background:#9aa3ab; color:#333;}
   .sound-toggle:active{transform:scale(.94);}
+  /* 送信音セレクト（試作用） */
+  .ssp-box{
+    margin:16px 0 4px; background:rgba(0,0,0,.35); border:2px dashed rgba(255,255,255,.5);
+    border-radius:14px; padding:10px 12px 12px; text-align:center;
+  }
+  .ssp-label{font-size:12.5px; font-weight:800; letter-spacing:.05em; opacity:.95;}
+  .ssp-btns{display:flex; gap:8px; justify-content:center; margin-top:9px;}
+  .ssp{
+    font-family:inherit; font-weight:800; font-size:15px; padding:9px 22px; border-radius:999px;
+    border:3px solid var(--ink); background:#fff; color:var(--ink); cursor:pointer;
+    box-shadow:0 3px 0 rgba(0,0,0,.4);
+  }
+  .ssp.on{background:var(--yellow);}
+  .ssp:active{transform:scale(.93);}
   .avatar{
     width:42px;height:42px;border-radius:50%; background:var(--cyan);
     display:flex;align-items:center;justify-content:center; font-weight:800; color:var(--ink); font-size:19px;
@@ -340,6 +354,14 @@
         <div class="timerow"><span class="lab">IN</span><span class="chip">17:30</span><span class="arrow">→</span><span class="lab">OUT</span><span class="chip">22:00</span></div>
         <span class="toggle" data-toggle>一人勤務</span>
       </div>
+      <div class="ssp-box">
+        <div class="ssp-label">🔔 送信音セレクト（タップで試聴できます）</div>
+        <div class="ssp-btns">
+          <button class="ssp on" data-ss="1">音 1</button>
+          <button class="ssp" data-ss="2">音 2</button>
+          <button class="ssp" data-ss="3">音 3</button>
+        </div>
+      </div>
       <button class="sendbtn" id="send-demo">送信する！</button>
     </div>
     <div class="foot">これは入力画面のイメージです。数字はサンプルです</div>
@@ -408,6 +430,40 @@
     tone(659, 659, 0.10, 0.16, 0.09);
     tone(784, 1046, 0.24, 0.18, 0.18);
   }
+  /* 送信音の候補3パターン */
+  var sendSound = parseInt(storeGet('jyujyutei-ui-send-sound') || '1', 10);
+  if ([1,2,3].indexOf(sendSound) < 0) sendSound = 1;
+  function playSendPattern(n){
+    if (n === 2){
+      tone(1318, 1318, 0.16, 0.12, 0, 'sine');
+      tone(1568, 1568, 0.16, 0.12, 0.07, 'sine');
+      tone(2093, 2093, 0.34, 0.13, 0.14, 'sine');
+      tone(2637, 2637, 0.28, 0.06, 0.14, 'sine');
+    } else if (n === 3){
+      tone(500, 1000, 0.08, 0.16, 0);
+      tone(880, 880, 0.09, 0.15, 0.10);
+      tone(1320, 1320, 0.24, 0.16, 0.19);
+    } else {
+      tone(523, 523, 0.09, 0.16, 0);
+      tone(659, 659, 0.09, 0.16, 0.08);
+      tone(784, 784, 0.09, 0.16, 0.16);
+      tone(1046, 1046, 0.28, 0.18, 0.24);
+    }
+  }
+  function paintSsp(){
+    document.querySelectorAll('.ssp').forEach(function(b){
+      b.classList.toggle('on', parseInt(b.getAttribute('data-ss'), 10) === sendSound);
+    });
+  }
+  paintSsp();
+  document.querySelectorAll('.ssp').forEach(function(b){
+    b.addEventListener('click', function(){
+      sendSound = parseInt(b.getAttribute('data-ss'), 10);
+      storeSet('jyujyutei-ui-send-sound', String(sendSound));
+      paintSsp();
+      playSendPattern(sendSound);
+    });
+  });
   var stBtn = document.getElementById('sound-toggle');
   function paintSoundBtn(){
     stBtn.classList.toggle('off', !soundOn);
@@ -478,7 +534,7 @@
     overlay.classList.remove('on');
     void overlay.offsetWidth;
     overlay.classList.add('on');
-    playSend();
+    playSendPattern(sendSound);
   });
   document.getElementById('close-overlay').addEventListener('click', function(){
     overlay.classList.remove('on');
