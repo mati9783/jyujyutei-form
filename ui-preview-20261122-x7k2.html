@@ -54,24 +54,66 @@
   .player .nm{font-weight:800; font-size:16px;}
   .player .lv{margin-left:auto; background:var(--pink); color:#fff; font-weight:800; font-size:12px;
     padding:4px 10px; border-radius:999px; transform:rotate(2deg); border:2px solid var(--ink);}
-  .menu{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px;}
+  /* ボタンの基本 */
   .card{
-    border:3px solid var(--ink); border-radius:18px; padding:14px 12px 12px; color:var(--ink);
+    border:3px solid var(--ink); border-radius:18px; color:var(--ink);
     box-shadow:0 5px 0 rgba(0,0,0,.4); cursor:pointer; position:relative; overflow:hidden;
     transition:transform .08s ease;
   }
   .card:active{transform:scale(.96);}
   .card .ic{
-    width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.85); border:2.5px solid var(--ink);
-    display:flex;align-items:center;justify-content:center; font-size:23px; font-weight:800; margin-bottom:8px;
+    border-radius:12px;background:rgba(255,255,255,.85); border:2.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center; font-weight:800; flex:none;
   }
-  .card .t{font-weight:800; font-size:17px; line-height:1.25;}
-  .card .s{font-size:11.5px; font-weight:700; opacity:.75; margin-top:3px; line-height:1.3;}
-  .card.wide{grid-column:1 / -1;}
+  .card .t{font-weight:800; line-height:1.25;}
+  .card .s{font-weight:700; opacity:.75; line-height:1.3;}
   .c-yellow{background:var(--yellow);} .c-cyan{background:var(--cyan);} .c-pink{background:var(--pink); color:#fff;}
   .c-purple{background:var(--purple); color:#fff;} .c-green{background:var(--green);} .c-orange{background:var(--orange);}
   .c-red{background:var(--red); color:#fff;} .c-gray{background:#d7dce4;}
   .tilt-l{transform:rotate(-1deg);} .tilt-r{transform:rotate(1deg);}
+  /* 最重要：横長の大ボタン */
+  .tier-big{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+  .tier-big .card{display:flex; align-items:center; gap:14px; padding:16px 16px;}
+  .tier-big .ic{width:58px;height:58px;font-size:30px;border-radius:16px;}
+  .tier-big .t{font-size:21px;}
+  .tier-big .s{font-size:12.5px; margin-top:2px;}
+  .tier-big .go{margin-left:auto; font-size:24px; font-weight:800; opacity:.55; flex:none;}
+  /* 普通：2列 */
+  .tier-mid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;}
+  .tier-mid .card{padding:14px 12px 12px;}
+  .tier-mid .ic{width:44px;height:44px;font-size:23px;margin-bottom:8px;}
+  .tier-mid .t{font-size:17px;}
+  .tier-mid .s{font-size:11.5px; margin-top:3px;}
+  /* 小：2列コンパクト */
+  .tier-small{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;}
+  .tier-small .card{padding:10px 10px 9px; border-radius:14px; box-shadow:0 4px 0 rgba(0,0,0,.4); display:flex; align-items:center; gap:9px;}
+  .tier-small .ic{width:34px;height:34px;font-size:17px;border-radius:9px;}
+  .tier-small .t{font-size:14.5px;}
+  .tier-small .s{display:none;}
+  /* 非常ボタン */
+  .emergency{
+    margin-top:16px; background:var(--red); color:#fff; border:3.5px solid var(--ink); border-radius:18px;
+    box-shadow:0 6px 0 rgba(0,0,0,.45); cursor:pointer; overflow:hidden; transition:transform .08s ease;
+  }
+  .emergency:active{transform:scale(.97);}
+  .emergency .stripe{height:12px; background:repeating-linear-gradient(45deg,#17171f 0 14px,var(--yellow) 14px 28px);}
+  .emergency .inner{display:flex; align-items:center; gap:12px; padding:13px 16px 15px;}
+  .emergency .ic{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.9); border:2.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center; font-size:24px; flex:none;}
+  .emergency .t{font-weight:800; font-size:19px; line-height:1.2;}
+  .emergency .s{font-size:12px; font-weight:700; opacity:.9;}
+  /* 期間限定 */
+  .limited{margin-top:22px;}
+  .limited .divider{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .limited .divider::before,.limited .divider::after{content:""; flex:1; border-top:2.5px dashed rgba(255,255,255,.4);}
+  .limited .tag{background:var(--orange); color:var(--ink); font-weight:800; font-size:12.5px;
+    padding:4px 14px; border-radius:999px; border:2.5px solid var(--ink); transform:rotate(-1.5deg);}
+  .limited .card{display:flex; align-items:center; gap:12px; padding:13px 14px;}
+  .limited .ic{width:44px;height:44px;font-size:22px;}
+  .limited .t{font-size:16.5px;}
+  .limited .s{font-size:11.5px; margin-top:2px;}
+  .limited .badge{margin-left:auto; flex:none; background:var(--red); color:#fff; font-weight:800; font-size:12px;
+    padding:5px 10px; border-radius:999px; border:2.5px solid var(--ink); transform:rotate(2deg); text-align:center; line-height:1.25;}
   .foot{margin-top:20px; text-align:center; font-size:11px; color:rgba(255,255,255,.55); font-weight:700;}
   /* 画面切り替え */
   .screen{display:none;} .screen.on{display:block; animation:pop .18s ease;}
@@ -152,32 +194,60 @@
       </div>
       <div class="lv">TEST</div>
     </div>
-    <div class="menu">
-      <div class="card c-yellow tilt-l" data-soon>
-        <div class="ic">✎</div><div class="t">シフトを提出する</div><div class="s">休み希望・出勤できる日を送る</div>
+
+    <!-- 最重要 -->
+    <div class="tier-big">
+      <div class="card c-cyan tilt-l" id="go-timecard">
+        <div class="ic">⏱</div>
+        <div><div class="t">タイムカード</div><div class="s">出勤・退勤を記録する</div></div>
+        <div class="go">›</div>
       </div>
-      <div class="card c-cyan tilt-r" id="go-timecard">
-        <div class="ic">⏱</div><div class="t">タイムカード</div><div class="s">出勤・退勤を記録する</div>
+      <div class="card c-yellow tilt-r" data-soon>
+        <div class="ic">✎</div>
+        <div><div class="t">シフトを提出する</div><div class="s">休み希望・出勤できる日を送る</div></div>
+        <div class="go">›</div>
       </div>
+    </div>
+
+    <!-- 普通 -->
+    <div class="tier-mid">
       <div class="card c-pink tilt-r" data-soon>
         <div class="ic">📋</div><div class="t">シフトを確認する</div><div class="s">確定したシフトを見る</div>
       </div>
       <div class="card c-purple tilt-l" data-soon>
         <div class="ic">💰</div><div class="t">勤務履歴</div><div class="s">見込み給与もここで確認</div>
       </div>
+    </div>
+
+    <!-- 小 -->
+    <div class="tier-small">
       <div class="card c-green tilt-l" data-soon>
-        <div class="ic">🌴</div><div class="t">長期休み申請</div><div class="s">まとまったお休みの申請</div>
+        <div class="ic">🌴</div><div class="t">長期休み申請</div>
       </div>
       <div class="card c-orange tilt-r" data-soon>
-        <div class="ic">📅</div><div class="t">先行申告</div><div class="s">先の出勤できない日を申告</div>
-      </div>
-      <div class="card c-gray tilt-l" data-soon>
-        <div class="ic">📝</div><div class="t">扶養控除等申告書</div><div class="s">12月5日までに入力</div>
-      </div>
-      <div class="card c-red tilt-r" data-soon>
-        <div class="ic">🚨</div><div class="t">緊急連絡119番</div><div class="s">欠勤の連絡はこちら</div>
+        <div class="ic">📅</div><div class="t">先行申告</div>
       </div>
     </div>
+
+    <!-- 非常ボタン -->
+    <div class="emergency" data-soon>
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="ic">🚨</div>
+        <div><div class="t">緊急連絡119番</div><div class="s">欠勤の連絡はこちらから</div></div>
+      </div>
+    </div>
+
+    <!-- 期間限定 -->
+    <div class="limited">
+      <div class="divider"><span class="tag">期間限定</span></div>
+      <div class="card c-gray tilt-l" data-soon>
+        <div class="ic">📝</div>
+        <div><div class="t">扶養控除等申告書</div><div class="s">情報入力のお願い</div></div>
+        <div class="badge">12月5日<br>まで</div>
+      </div>
+    </div>
+
     <div class="foot">じゅうじゅう亭 スタッフ専用アプリ（UIテスト版）</div>
   </section>
 
