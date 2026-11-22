@@ -111,6 +111,51 @@
   }
   .panel-red{box-shadow:inset 0 0 0 3px #ff1e46, 0 5px 0 rgba(0,0,0,.35);}
   .sendbtn.red{background:#e8102e;}
+  /* 本番フォーム準拠パーツ */
+  .tsel{
+    font-family:inherit; font-weight:800; font-size:16px; color:var(--ink);
+    border:3px solid var(--ink); border-radius:10px; padding:8px 6px; background:#fff; cursor:pointer;
+  }
+  .tsel:disabled{opacity:.35; cursor:default;}
+  .timerow2{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
+  .pick.sm{min-width:0; padding:7px 13px; font-size:14px;}
+  .pickrow2{display:flex; gap:7px; flex-wrap:wrap; align-items:center;}
+  .dayblock{border-bottom:2px dashed rgba(23,23,31,.18); padding:11px 2px;}
+  .dayblock:last-of-type{border-bottom:none;}
+  .daydate{font-weight:800; font-size:16.5px; margin-bottom:7px;}
+  .daydate.sun{color:#e8102e;} .daydate.sat{color:#2470e0;}
+  .counterbox{background:#fff4d6; border:2.5px solid var(--ink); border-radius:10px; padding:9px 12px; font-size:12.5px; font-weight:700; line-height:1.6; margin-bottom:8px;}
+  .adv-jump{
+    width:100%; background:#fff; color:#0a9d4d; border:3px solid #0a9d4d; border-radius:12px;
+    font-family:inherit; font-weight:800; font-size:15px; padding:11px 0; cursor:pointer; margin-top:8px;
+    position:relative; overflow:hidden;
+  }
+  .adv-jump:active{transform:scale(.97);}
+  .mtabs{display:flex; gap:7px; margin:4px 0 10px;}
+  .mtab{flex:1; font-family:inherit; font-weight:800; font-size:14px; padding:8px 0; border-radius:999px; border:3px solid var(--ink); background:#fff; color:var(--ink); cursor:pointer;}
+  .mtab.on{background:var(--ink); color:#fff;}
+  .calrow{display:flex; gap:8px; align-items:flex-start; padding:8px 2px; border-bottom:2px dashed rgba(23,23,31,.15); font-size:13px; font-weight:700;}
+  .calrow .cd{width:64px; flex:none; font-weight:800;}
+  .namechip{display:inline-block; background:#ffe1e8; border:2px solid var(--ink); border-radius:999px; padding:1px 8px; font-size:11.5px; font-weight:800; margin:1px 2px;}
+  .stable{width:100%; border-collapse:collapse; font-size:11.5px; font-weight:700;}
+  .stable th,.stable td{border:2px solid rgba(23,23,31,.55); padding:4px 3px; text-align:center;}
+  .stable th{background:rgba(23,23,31,.08);}
+  .stable td.me{background:#fff4d6;}
+  .emg-warn{color:#b30000; font-weight:800; font-size:13px; line-height:1.65; margin:8px 0;}
+  .emg-example{background:#f6f6fa; border:2px dashed rgba(23,23,31,.35); border-radius:10px; padding:9px 12px; font-size:12.5px; font-weight:700; line-height:1.65;}
+  .logbox{border:2.5px solid rgba(23,23,31,.4); border-radius:10px; padding:10px 12px; font-size:12.5px; font-weight:700; line-height:1.7; margin-top:12px; background:#fff;}
+  .confirm-ov{
+    position:fixed; inset:0; background:rgba(10,10,20,.72); z-index:60; display:none;
+    align-items:center; justify-content:center; padding:18px;
+  }
+  .confirm-ov.on{display:flex;}
+  .confirm-box{background:#fff; color:var(--ink); border:4px solid #e8102e; border-radius:18px; padding:20px 18px; max-width:420px; width:100%; box-shadow:0 10px 0 rgba(0,0,0,.45);}
+  .confirm-box h2{margin:0 0 10px; font-size:20px; color:#b30000;}
+  .confirm-reason{background:#f6f6fa; border-radius:10px; padding:10px 12px; font-weight:700; font-size:13.5px; line-height:1.65; min-height:44px; margin:8px 0;}
+  .quiet-row{text-align:center; margin-top:16px;}
+  .quiet-link{background:none; border:none; font-family:inherit; font-size:13px; font-weight:700; color:rgba(255,255,255,.75); text-decoration:underline; cursor:pointer; padding:6px;}
+  input.finput{width:100%; box-sizing:border-box; font-family:inherit; font-size:14.5px;}
+  textarea.finput{width:100%; box-sizing:border-box; font-family:inherit; font-size:14.5px; resize:none;}
   .avatar{
     width:42px;height:42px;border-radius:50%; background:var(--cyan);
     display:flex;align-items:center;justify-content:center; font-weight:800; color:var(--ink); font-size:19px;
@@ -373,6 +418,10 @@
       </div>
     </div>
 
+    <div class="quiet-row">
+      <button class="quiet-link" data-go="scr-resign">退職を申請する</button>
+    </div>
+
     <div class="sound-row">
       <button class="sound-toggle" id="sound-toggle"><span id="st-ic">🔊</span><span id="st-tx">サウンド ON</span></button>
     </div>
@@ -385,18 +434,43 @@
     <button class="backbtn" data-back>← もどる</button>
     <div><span class="scr-title">タイムカード</span></div>
     <div class="panel">
-      <div class="datebig">11月22日（日）</div>
+      <div class="note">勤務した日付と時間を入れてください。基本は当日の分をその日に。入れ忘れた分は日付を変えて入れられます。同じ日付で送り直すと、新しい内容に置き換わります。</div>
+      <div class="flabel">日付</div>
+      <div class="finput">2026年11月22日(日)</div>
       <div class="seg">
-        <h3>☀ 昼の部</h3>
-        <div class="timerow"><span class="lab">IN</span><span class="chip sel">9:00</span><span class="arrow">→</span><span class="lab">OUT</span><span class="chip">13:30</span></div>
+        <h3>☀ 【昼】</h3>
+        <div class="flabel">出勤時間</div>
+        <div class="timerow2">
+          <select class="tsel"><option>--</option><option selected>9時</option><option>10時</option><option>11時</option><option>12時</option><option>直接入力</option></select>
+          <select class="tsel"><option>--</option><option selected>00分</option><option>05分</option><option>10分</option><option>15分</option><option>20分</option><option>25分</option><option>30分</option><option>35分</option><option>40分</option><option>45分</option><option>50分</option><option>55分</option></select>
+        </div>
+        <div class="flabel">退勤時間</div>
+        <div class="timerow2">
+          <select class="tsel"><option>--</option><option>12時</option><option selected>13時</option><option>14時</option><option>15時</option><option>直接入力</option></select>
+          <select class="tsel"><option>--</option><option>00分</option><option>05分</option><option>10分</option><option>15分</option><option>20分</option><option>25分</option><option selected>30分</option><option>35分</option><option>40分</option><option>45分</option><option>50分</option><option>55分</option></select>
+        </div>
         <span class="toggle" data-toggle>一人勤務</span>
       </div>
       <div class="seg">
-        <h3>🌙 夜の部</h3>
-        <div class="timerow"><span class="lab">IN</span><span class="chip">17:30</span><span class="arrow">→</span><span class="lab">OUT</span><span class="chip">22:00</span></div>
+        <h3>🌙 【夜】</h3>
+        <div class="flabel">出勤時間</div>
+        <div class="timerow2">
+          <select class="tsel"><option>--</option><option>17時</option><option>18時</option><option>19時</option><option>20時</option><option>直接入力</option></select>
+          <select class="tsel"><option>--</option><option>00分</option><option>05分</option><option>10分</option><option>15分</option><option>20分</option><option>25分</option><option>30分</option><option>35分</option><option>40分</option><option>45分</option><option>50分</option><option>55分</option></select>
+        </div>
+        <div class="flabel">退勤時間</div>
+        <div class="timerow2">
+          <select class="tsel"><option>--</option><option>19時</option><option>20時</option><option>21時</option><option>22時</option><option>23時</option><option>直接入力</option></select>
+          <select class="tsel"><option>--</option><option>00分</option><option>05分</option><option>10分</option><option>15分</option><option>20分</option><option>25分</option><option>30分</option><option>35分</option><option>40分</option><option>45分</option><option>50分</option><option>55分</option></select>
+        </div>
         <span class="toggle" data-toggle>一人勤務</span>
       </div>
-      <button class="sendbtn" id="send-demo">送信する！</button>
+      <div class="flabel">まかない金額（任意）</div>
+      <input type="number" class="finput" placeholder="円" inputmode="numeric" min="0">
+      <div class="flabel">備考（任意）</div>
+      <textarea class="farea" rows="2" placeholder="何かあれば書いてください"></textarea>
+      <button class="sendbtn">記録する</button>
+      <div class="note" style="margin-top:12px;">自分の記録と給与の見込みは、ホームの【勤務履歴】から確認できます。</div>
     </div>
     <div class="foot">これは入力画面のイメージです。数字はサンプルです</div>
   </section>
@@ -406,15 +480,48 @@
     <button class="backbtn" data-back>← もどる</button>
     <div><span class="scr-title">シフトを提出する</span></div>
     <div class="panel">
-      <div class="datebig">11月26日(木) 〜 12月1日(火)</div>
-      <div class="note">締切：11月24日(月) 23:30<br>出勤できる日は「〇」、休みたい日はタップして「休」にしてください。</div>
-      <div class="dayrow"><div class="dow">11/26<small>(木)</small></div><span class="seg-lab">朝</span><button class="pick on" data-alt="休">〇</button><span class="seg-lab">夜</span><button class="pick on" data-alt="休">〇</button></div>
-      <div class="dayrow"><div class="dow">11/27<small>(金)</small></div><span class="seg-lab">朝</span><button class="pick on" data-alt="休">〇</button><span class="seg-lab">夜</span><button class="pick on" data-alt="休">〇</button></div>
-      <div class="dayrow"><div class="dow">11/28<small>(土)</small></div><span class="seg-lab">朝</span><button class="pick on" data-alt="休">〇</button><span class="seg-lab">夜</span><button class="pick on" data-alt="休">〇</button></div>
-      <div class="dayrow"><div class="dow">11/29<small>(日)</small></div><span class="seg-lab">朝</span><button class="pick on" data-alt="休">〇</button><span class="seg-lab">夜</span><button class="pick on" data-alt="休">〇</button></div>
-      <div class="dayrow"><div class="dow">11/30<small>(月)</small></div><span class="seg-lab">朝</span><button class="pick on" data-alt="休">〇</button><span class="seg-lab">夜</span><button class="pick on" data-alt="休">〇</button></div>
-      <div class="dayrow"><div class="dow">12/1<small>(火)</small></div><span class="seg-lab">朝</span><button class="pick on" data-alt="休">〇</button><span class="seg-lab">夜</span><button class="pick on" data-alt="休">〇</button></div>
-      <button class="sendbtn" data-msg="提出しました。&lt;br&gt;内容は「シフトを確認する」で確認できます。">提出する！</button>
+      <div style="font-weight:800;font-size:16.5px;margin-bottom:6px;">📅 先行申告カレンダー</div>
+      <div class="note">先に分かっている「出勤できない日」が見えます。自分の出られない日は、先に登録しておいてください。休み希望は先着順で確定ではありません。</div>
+      <div class="calrow"><span class="cd">12/3(木)</span><span>朝× <span class="namechip">髙橋</span> ／ 夜× ―</span></div>
+      <div class="calrow"><span class="cd">12/4(金)</span><span>朝× <span class="namechip">髙橋</span> ／ 夜× ―</span></div>
+      <div class="calrow"><span class="cd">12/5(土)</span><span>朝× <span class="namechip">秦</span> ／ 夜× <span class="namechip">秦</span></span></div>
+      <button class="adv-jump" data-go="scr-advance">先の休みを申告・変更する</button>
+      <div class="datebig" style="margin-top:18px;">期間: 11月26日(木) 〜 12月1日(火)</div>
+      <div class="note">出勤できる日は「出勤できる」、休みたい日は「休み希望」を選んでください。夜に出勤できる場合は開始時間も選んでください。</div>
+      <div class="counterbox">土日の夜の休み希望（今回の提出分）: 土曜 0日 / 日曜 0日<br>※土日の夜は月に半分以上の出勤が約束になっています</div>
+      <div class="dayblock">
+        <div class="daydate">11月26日（木）</div>
+        <div class="pickrow2"><span class="seg-lab">朝</span><button class="pick sm" data-group="m0">出勤できる</button><button class="pick sm on" data-group="m0">休み希望</button></div>
+        <div class="pickrow2" style="margin-top:7px;"><span class="seg-lab">夜</span><button class="pick sm" data-group="n0">出勤できる</button><button class="pick sm on" data-group="n0">休み希望</button><select class="tsel night-select" data-i="0" disabled><option>17:30</option><option>18:00</option><option>18:30</option><option>19:00</option></select></div>
+      </div>
+      <div class="dayblock">
+        <div class="daydate">11月27日（金）</div>
+        <div class="pickrow2"><span class="seg-lab">朝</span><button class="pick sm" data-group="m1">出勤できる</button><button class="pick sm on" data-group="m1">休み希望</button></div>
+        <div class="pickrow2" style="margin-top:7px;"><span class="seg-lab">夜</span><button class="pick sm" data-group="n1">出勤できる</button><button class="pick sm on" data-group="n1">休み希望</button><select class="tsel night-select" data-i="1" disabled><option>17:30</option><option>18:00</option><option>18:30</option><option>19:00</option></select></div>
+      </div>
+      <div class="dayblock">
+        <div class="daydate sat">11月28日（土）</div>
+        <div class="pickrow2"><span class="seg-lab">朝</span><button class="pick sm" data-group="m2">出勤できる</button><button class="pick sm on" data-group="m2">休み希望</button></div>
+        <div class="pickrow2" style="margin-top:7px;"><span class="seg-lab">夜</span><button class="pick sm" data-group="n2">出勤できる</button><button class="pick sm on" data-group="n2">休み希望</button><select class="tsel night-select" data-i="2" disabled><option>17:30</option><option>18:00</option><option>18:30</option><option>19:00</option></select></div>
+      </div>
+      <div class="dayblock">
+        <div class="daydate sun">11月29日（日）</div>
+        <div class="pickrow2"><span class="seg-lab">朝</span><button class="pick sm" data-group="m3">出勤できる</button><button class="pick sm on" data-group="m3">休み希望</button></div>
+        <div class="pickrow2" style="margin-top:7px;"><span class="seg-lab">夜</span><button class="pick sm" data-group="n3">出勤できる</button><button class="pick sm on" data-group="n3">休み希望</button><select class="tsel night-select" data-i="3" disabled><option>17:30</option><option>18:00</option><option>18:30</option><option>19:00</option></select></div>
+      </div>
+      <div class="dayblock">
+        <div class="daydate">11月30日（月）</div>
+        <div class="pickrow2"><span class="seg-lab">朝</span><button class="pick sm" data-group="m4">出勤できる</button><button class="pick sm on" data-group="m4">休み希望</button></div>
+        <div class="pickrow2" style="margin-top:7px;"><span class="seg-lab">夜</span><button class="pick sm" data-group="n4">出勤できる</button><button class="pick sm on" data-group="n4">休み希望</button><select class="tsel night-select" data-i="4" disabled><option>17:30</option><option>18:00</option><option>18:30</option><option>19:00</option></select></div>
+      </div>
+      <div class="dayblock">
+        <div class="daydate">12月1日（火）</div>
+        <div class="pickrow2"><span class="seg-lab">朝</span><button class="pick sm" data-group="m5">出勤できる</button><button class="pick sm on" data-group="m5">休み希望</button></div>
+        <div class="pickrow2" style="margin-top:7px;"><span class="seg-lab">夜</span><button class="pick sm" data-group="n5">出勤できる</button><button class="pick sm on" data-group="n5">休み希望</button><select class="tsel night-select" data-i="5" disabled><option>17:30</option><option>18:00</option><option>18:30</option><option>19:00</option></select></div>
+      </div>
+      <div class="flabel">備考（任意）</div>
+      <textarea class="farea" rows="2" placeholder="例: 14日は18時30分からなら出勤できます"></textarea>
+      <button class="sendbtn" data-msg="提出しました。&lt;br&gt;内容は「シフトを確認する」で確認できます。">提出する</button>
     </div>
     <div class="foot">これは入力画面のイメージです。数字はサンプルです</div>
   </section>
@@ -424,14 +531,25 @@
     <button class="backbtn" data-back>← もどる</button>
     <div><span class="scr-title">シフトを確認する</span></div>
     <div class="panel">
-      <div class="datebig">11月19日(木) 〜 11月24日(火)</div>
-      <div class="note">あなたの確定シフトです。</div>
-      <div class="srow"><div class="dow">11/19<small>(木)</small></div><div class="stimes"><span>朝 ―</span><span>夜 17:30-22:00</span></div></div>
-      <div class="srow"><div class="dow">11/20<small>(金)</small></div><div class="stimes"><span>朝 ―</span><span>夜 ―</span></div></div>
-      <div class="srow"><div class="dow">11/21<small>(土)</small></div><div class="stimes"><span>朝 ―</span><span>夜 17:30-22:00</span></div></div>
+      <div class="note">期間: 11月19日(木) 〜 11月24日(火)</div>
+      <div style="font-weight:800;font-size:16px;margin:10px 0 4px;">あなたの出勤確定日</div>
+      <div class="note">今日以降、あなたが出勤する日です。</div>
+      <div class="srow"><div class="dow">11/21<small>(土)</small></div><div class="stimes"><span>夜 17:30-22:00</span></div></div>
       <div class="srow"><div class="dow">11/22<small>(日)</small></div><div class="stimes"><span>朝 9:00-14:30</span><span>夜 17:30-22:00</span></div></div>
-      <div class="srow"><div class="dow">11/23<small>(月・祝)</small></div><div class="stimes"><span>朝 ―</span><span>夜 ―</span></div></div>
-      <div class="srow"><div class="dow">11/24<small>(火)</small></div><div class="stimes"><span>朝 ―</span><span>夜 19:00-22:00</span></div></div>
+      <div class="srow"><div class="dow">11/24<small>(火)</small></div><div class="stimes"><span>夜 19:00-22:00</span></div></div>
+      <div style="font-weight:800;font-size:16px;margin:16px 0 4px;">全員のシフト表</div>
+      <div class="note">上段は朝（9時〜15時）、下段は夜（17時30分〜23時）の時間帯です。時間＝出勤、休＝休み希望、〇＝出勤できますがシフトに入っていません（18〇・19〇は、その時間から出勤できるという意味です）。</div>
+      <table class="stable">
+        <tr><th>名前</th><th>19(木)</th><th>20(金)</th><th>21(土)</th><th>22(日)</th><th>23(月・祝)</th><th>24(火)</th></tr>
+        <tr><td>髙橋和</td><td>9-14:30<br>―</td><td>9-14:30<br>―</td><td>―<br>―</td><td>―<br>―</td><td>―<br>―</td><td>9-14:30<br>―</td></tr>
+        <tr><td>夛賀裕也</td><td>―<br>―</td><td>―<br>―</td><td>―<br>―</td><td>―<br>―</td><td>―<br>―</td><td>―<br>―</td></tr>
+        <tr><td>大城菜々実</td><td>―<br>19-23</td><td>―<br>〇</td><td>―<br>〇</td><td>―<br>〇</td><td>―<br>〇</td><td>―<br>〇</td></tr>
+        <tr><td>清水真子</td><td>―<br>〇</td><td>―<br>17:30-23</td><td>―<br>〇</td><td>―<br>〇</td><td>9-14<br>17:30-23</td><td>―<br>17:30-23</td></tr>
+        <tr><td>前田心輝</td><td>―<br>休</td><td>―<br>休</td><td>―<br>17:30-22</td><td>―<br>17:30-22</td><td>9-13:30<br>17:30-22</td><td>―<br>19-22</td></tr>
+        <tr><td>森田有稀</td><td>―<br>休</td><td>―<br>19-22</td><td>―<br>17:30-22</td><td>9-14:30<br>17:30-22</td><td>―<br>休</td><td>―<br>休</td></tr>
+        <tr><td>宮﨑紅葉</td><td>―<br>〇</td><td>―<br>休</td><td>―<br>休</td><td>―<br>休</td><td>―<br>〇</td><td>―<br>〇</td></tr>
+        <tr><td>秦美沙姫</td><td>―<br>17:30-22</td><td>―<br>18〇</td><td>―<br>休</td><td>―<br>休</td><td>―<br>休</td><td>―<br>休</td></tr>
+      </table>
     </div>
     <div class="foot">これは確認画面のイメージです。数字はサンプルです</div>
   </section>
@@ -442,13 +560,22 @@
     <div><span class="scr-title">勤務履歴</span></div>
     <div class="ticket-banner">🎟 まかないチケット <b>× 2</b></div>
     <div class="panel">
-      <div class="datebig">2026年11月</div>
-      <div class="hrow"><div class="dow">11/3<small>(火・祝)</small></div><div class="hdet">夜 19:00-22:00</div><div class="hamt">¥3,600</div></div>
-      <div class="hrow"><div class="dow">11/15<small>(日)</small></div><div class="hdet">夜 18:30-21:40</div><div class="hamt">¥3,800</div></div>
-      <div class="hrow"><div class="dow">11/17<small>(火)</small></div><div class="hdet">夜 17:30-22:00</div><div class="hamt">¥4,950</div></div>
-      <div class="hrow"><div class="dow">11/21<small>(土)</small></div><div class="hdet">夜 17:30-22:00</div><div class="hamt">¥5,400</div></div>
-      <div class="totalbox"><span>見込み給与（11月）</span><b>¥17,750</b></div>
-      <div class="note">まかないチケットは、給与計算でまかない代1回分が自動で無料になります。</div>
+      <div class="note">勤務の記録と、その月の給与の見込みです。金額は見込みで、確定は月末の給与明細でお知らせします。</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0;">
+        <button class="mtab" style="flex:none;padding:8px 14px;">◀ 前の月</button>
+        <div style="font-weight:800;font-size:16.5px;">2026年11月</div>
+        <button class="mtab" style="flex:none;padding:8px 14px;opacity:.35;">次の月 ▶</button>
+      </div>
+      <div class="totalbox" style="display:block;">
+        <div style="font-size:12.5px;opacity:.85;">給与の見込み（支給予定）</div>
+        <div style="font-size:26px;font-weight:800;color:var(--yellow);">¥17,250</div>
+        <div style="font-size:13px;font-weight:700;">勤務分 ¥17,750 − まかない ¥500　／　勤務時間 15時間10分</div>
+      </div>
+      <div class="hrow"><div class="dow">11/3<small>(火)</small></div><div class="hdet">夜 19:00〜22:00（3時間）</div><div class="hamt">¥3,600</div></div>
+      <div class="hrow"><div class="dow">11/15<small>(日)</small></div><div class="hdet">夜 18:30〜21:40（3時間10分）<br><span style="font-size:12.5px;opacity:.7;">まかない ¥500</span></div><div class="hamt">¥3,800</div></div>
+      <div class="hrow"><div class="dow">11/17<small>(火)</small></div><div class="hdet">夜 17:30〜22:00（4時間30分）</div><div class="hamt">¥4,950</div></div>
+      <div class="hrow"><div class="dow">11/21<small>(土)</small></div><div class="hdet">夜 17:30〜22:00（4時間30分）</div><div class="hamt">¥5,400</div></div>
+      <div class="note" style="margin-top:10px;">まかないチケットは、給与計算でまかない代1回分が自動で無料になります。</div>
     </div>
     <div class="foot">これは確認画面のイメージです。数字はサンプルです</div>
   </section>
@@ -458,14 +585,16 @@
     <button class="backbtn" data-back>← もどる</button>
     <div><span class="scr-title">長期休み申請</span></div>
     <div class="panel">
-      <div class="note">1週間以上休む場合はこちらから申請してください。</div>
+      <div class="note">実習・研修、テスト期間、帰省など、先に分かっている長いお休みはこちらから申請してください。</div>
       <div class="flabel">開始日</div>
       <div class="finput">2026年12月24日(木)</div>
       <div class="flabel">終了日</div>
       <div class="finput">2026年12月27日(日)</div>
-      <div class="flabel">理由（任意）</div>
-      <textarea class="farea" rows="3" placeholder="例：帰省のため"></textarea>
-      <button class="sendbtn" data-msg="申請しました。&lt;br&gt;確認したら連絡します。">申請する！</button>
+      <div class="flabel">理由</div>
+      <select class="tsel" style="width:100%;"><option>実習・研修</option><option>テスト期間</option><option selected>帰省</option><option>旅行</option><option>その他</option></select>
+      <div class="flabel">詳細（任意）</div>
+      <textarea class="farea" rows="3" placeholder="例: 看護実習のため終日出勤できません"></textarea>
+      <button class="sendbtn" data-msg="申請しました。&lt;br&gt;確認したら連絡します。">申請する</button>
     </div>
     <div class="foot">これは入力画面のイメージです。数字はサンプルです</div>
   </section>
@@ -475,13 +604,20 @@
     <button class="backbtn" data-back>← もどる</button>
     <div><span class="scr-title">先行申告</span></div>
     <div class="panel">
-      <div class="note">先の予定が決まっている日は、早めに「出勤できません」を申告できます。タップで「×」になります。</div>
-      <div class="datebig">2026年12月</div>
+      <div class="note">先に分かっている「出勤できない日」が見えます。自分の出られない日は、先に登録しておいてください。休み希望は先着順で確定ではありません。変更は、その週の月曜23:30までできます。</div>
+      <div class="mtabs"><button class="mtab">11月</button><button class="mtab on">12月</button><button class="mtab">1月</button></div>
+      <div style="font-weight:800;margin-bottom:4px;">みんなの出勤できない日（12月）</div>
+      <div class="calrow"><span class="cd">12/3(木)</span><span>朝× <span class="namechip">髙橋</span> ／ 夜× ―</span></div>
+      <div class="calrow"><span class="cd">12/4(金)</span><span>朝× <span class="namechip">髙橋</span> ／ 夜× ―</span></div>
+      <div class="calrow"><span class="cd">12/5(土)</span><span>朝× <span class="namechip">秦</span> ／ 夜× <span class="namechip">秦</span></span></div>
+      <div class="calrow"><span class="cd">12/25(金)</span><span>朝× ― ／ 夜× <span class="namechip">清水</span><span class="namechip">宮﨑</span><span class="namechip">秦</span><span class="namechip">森田</span></span></div>
+      <div style="font-weight:800;margin:14px 0 4px;">自分の申告・変更</div>
+      <div class="note">出勤できない日は、タップして「×」にしてください。</div>
       <div class="dayrow"><div class="dow">12/19<small>(土)</small></div><span class="seg-lab">朝</span><button class="pick" data-alt="×">―</button><span class="seg-lab">夜</span><button class="pick" data-alt="×">―</button></div>
       <div class="dayrow"><div class="dow">12/20<small>(日)</small></div><span class="seg-lab">朝</span><button class="pick" data-alt="×">―</button><span class="seg-lab">夜</span><button class="pick" data-alt="×">―</button></div>
       <div class="dayrow"><div class="dow">12/24<small>(木)</small></div><span class="seg-lab">朝</span><button class="pick" data-alt="×">―</button><span class="seg-lab">夜</span><button class="pick" data-alt="×">―</button></div>
       <div class="dayrow"><div class="dow">12/25<small>(金)</small></div><span class="seg-lab">朝</span><button class="pick" data-alt="×">―</button><span class="seg-lab">夜</span><button class="pick" data-alt="×">―</button></div>
-      <button class="sendbtn" data-msg="申告しました。&lt;br&gt;ありがとうございます。">申告する！</button>
+      <button class="sendbtn" data-msg="保存しました。&lt;br&gt;ありがとうございます。">この内容で保存する</button>
     </div>
     <div class="foot">これは入力画面のイメージです。数字はサンプルです</div>
   </section>
@@ -491,12 +627,18 @@
     <button class="backbtn" data-back>← もどる</button>
     <div><span class="scr-title">緊急連絡119番</span></div>
     <div class="panel panel-red">
-      <div class="note">急に出勤できなくなったときの連絡用です。出勤できない日を選んでください。</div>
+      <div class="note">急遽出勤できなくなった時は、こちらから連絡してください。<br>※急遽出勤できない・他のスタッフにシフトを代わってほしい日をチェックしてください。</div>
       <button class="pick wide" >11月28日(土) 夜 17:30-22:00</button>
       <button class="pick wide" >11月29日(日) 夜 17:30-23:00</button>
       <div class="flabel">理由</div>
-      <textarea class="farea" rows="3" placeholder="例：熱が出たため"></textarea>
-      <button class="sendbtn red" data-msg="送信しました。&lt;br&gt;田中が代わりを探します。">送信する</button>
+      <div class="emg-warn">この内容がそのままグループLINEの募集に載ります。他のスタッフに知られたくない個人的なことは記載しないように!!</div>
+      <div class="emg-example">例：〇日の〇時から〇〇で出勤できなくなりました。大変、申し訳ないのですがシフトを代わっていただける方はいらっしゃいませんか？</div>
+      <div class="emg-warn">※警告1：インフルエンザ等の場合は、病院の領収書、もしくは処方された薬を写真で上げてもらう可能性があります。安易にインフルエンザやコロナを理由にするのは止めましょう。</div>
+      <div class="emg-warn">※警告2：不幸ごとの場合、会葬礼状を後日提出してもらう場合があります。むやみに親戚を殺すのは止めましょう。</div>
+      <textarea class="farea" id="emg-reason" rows="3" placeholder="ここに理由を書いてください"></textarea>
+      <button class="sendbtn red" data-emg="1">送信する</button>
+      <div class="note" style="margin-top:12px;">遅刻・早退の連絡は、「事務 たなか」へ直接LINEしてください。</div>
+      <div class="logbox">この機能を使用した場合は、下記のログが表示されます。<br><br>〇年〇月〇日：スタッフ名　使用理由：〇〇のため欠勤</div>
     </div>
     <div class="foot">これは入力画面のイメージです。数字はサンプルです</div>
   </section>
@@ -506,24 +648,44 @@
     <button class="backbtn" data-back>← もどる</button>
     <div><span class="scr-title">扶養控除等申告書</span></div>
     <div class="panel">
-      <div class="note">12月5日までに入力してください。個人番号（マイナンバー）を入力する欄はありません。印刷した紙に手書きしていただきます。</div>
+      <div class="note">令和9年分の「給与所得者の扶養控除等（異動）申告書」を作るための情報です。<b>提出期限は12月5日（土）です。</b></div>
       <div class="flabel">氏名</div>
-      <div class="finput">山田 次郎</div>
+      <input type="text" class="finput" placeholder="例: 山田 次郎">
       <div class="flabel">郵便番号</div>
-      <div class="finput">870-0000</div>
-      <div class="flabel">住所</div>
-      <div class="finput">大分市サンプル町1-1-1</div>
-      <div class="flabel">生年月日</div>
-      <div class="finput">2000年1月1日</div>
+      <input type="text" class="finput" placeholder="例: 870-0123" inputmode="numeric">
+      <div class="flabel">住所（令和9年1月1日時点＝今住んでいる住所）</div>
+      <textarea class="finput" rows="2" placeholder="例: 大分県大分市明野北○-○-○"></textarea>
+      <div class="flabel">生年月日（西暦で入力してください）</div>
+      <input type="date" class="finput">
       <div class="flabel">世帯主の氏名</div>
-      <div class="finput">山田 太郎</div>
-      <div class="flabel">あなたから見た世帯主との続柄</div>
-      <div class="finput">子</div>
-      <div class="flabel">配偶者の有無</div>
-      <div class="pickrow"><button class="pick" data-group="spouse">有</button><button class="pick on" data-group="spouse">無</button></div>
-      <button class="sendbtn" data-msg="入力を受け付けました。&lt;br&gt;ありがとうございます。">入力する！</button>
+      <input type="text" class="finput" placeholder="例: 山田 太郎">
+      <div class="flabel">世帯主は、あなたから見て誰ですか？</div>
+      <div class="pickrow"><button class="pick" data-group="fuyrel">自分</button><button class="pick" data-group="fuyrel">父</button><button class="pick" data-group="fuyrel">母</button><button class="pick" data-group="fuyrel">その他</button></div>
+      <div class="note" style="margin-top:8px;">※申告書の「続柄」は「あなたから見た関係」で書きます。住民票の続柄とは逆向きになるので、間違えないように選んでください。</div>
+      <div class="flabel">法律上、結婚していますか？</div>
+      <div class="pickrow"><button class="pick" data-group="fuy-spouse">はい</button><button class="pick" data-group="fuy-spouse">いいえ</button></div>
+      <div class="flabel">あなたの収入で生活を支えている家族はいますか？</div>
+      <div class="pickrow"><button class="pick" data-group="fuy-family">はい</button><button class="pick" data-group="fuy-family">いいえ</button></div>
+      <div class="note" style="margin-top:8px;">育てている子どもや、仕送りをしている親などが当てはまります。親に支えてもらっている人は『いいえ』です。</div>
+      <div class="logbox">個人番号（マイナンバー）を書く欄は、このフォームにはありません。後日、印刷した申告書の紙に、ご自身で手書きしていただきます。</div>
+      <button class="sendbtn" data-msg="提出しました。&lt;br&gt;ありがとうございます。">提出する</button>
     </div>
     <div class="foot">これは入力画面のイメージです。内容はサンプルです</div>
+  </section>
+
+  <!-- 退職申請画面（モック） -->
+  <section id="scr-resign" class="screen">
+    <button class="backbtn" data-back>← もどる</button>
+    <div><span class="scr-title">退職を申請する</span></div>
+    <div class="panel">
+      <div class="note">送信すると店長に届きます。<b>研修期間終了後の退職は、1ヶ月前までの申告がルールです。</b></div>
+      <div class="flabel">退職希望日（最終出勤日）</div>
+      <input type="date" class="finput">
+      <div class="flabel">理由（任意）</div>
+      <textarea class="farea" rows="3" placeholder="空欄でも問題ありません"></textarea>
+      <button class="sendbtn" data-msg="申請しました。&lt;br&gt;確認したら連絡します。">申請する</button>
+    </div>
+    <div class="foot">これは入力画面のイメージです</div>
   </section>
 
   <!-- クエスト詳細画面（モック） -->
@@ -552,6 +714,20 @@
   <div class="stamp"><span id="ov-stamp">受付完了！</span><small>お疲れ様でした</small></div>
   <div class="msg" id="ov-msg">記録しました。<br>内容は「勤務履歴」から確認できます。</div>
   <button class="closebtn" id="close-overlay">とじる</button>
+</div>
+
+<!-- 緊急連絡 送信前の確認 -->
+<div class="confirm-ov" id="emg-confirm">
+  <div class="confirm-box">
+    <h2>送信前の確認</h2>
+    <div class="emg-warn" style="font-size:14.5px;">この内容は、そのままグループLINEに載り、スタッフ全員に見られます。本当に送信しても良いですか？</div>
+    <div style="font-size:13.5px;font-weight:800;">使用ログが記録・表示されます。</div>
+    <div style="font-size:12.5px;font-weight:700;margin-top:10px;opacity:.7;">あなたが書いた理由</div>
+    <div class="confirm-reason" id="emg-confirm-reason">（理由が未入力です）</div>
+    <div id="emg-confirm-count" style="font-size:13px;font-weight:700;"></div>
+    <button class="sendbtn red" id="emg-confirm-send" data-msg="送信しました。&lt;br&gt;田中が代わりを探します。">共有されても送信する</button>
+    <button class="adv-jump" id="emg-confirm-back" style="color:var(--ink);border-color:var(--ink);">戻る</button>
+  </div>
 </div>
 
 <div class="toast" id="toast">テスト画面では、ここは動きません</div>
@@ -689,6 +865,16 @@
       setTimeout(function(){ goTo('scr-quest'); }, 300);
     });
   });
+  function syncNightSelects(){
+    document.querySelectorAll('.night-select').forEach(function(sel){
+      var g = 'n' + sel.getAttribute('data-i');
+      var work = false;
+      document.querySelectorAll('.pick[data-group="' + g + '"]').forEach(function(p){
+        if (p.classList.contains('on') && p.textContent === '出勤できる') work = true;
+      });
+      sel.disabled = !work;
+    });
+  }
   document.querySelectorAll('.pick').forEach(function(el){
     el.addEventListener('click', function(){
       playTap();
@@ -696,6 +882,7 @@
       if (group){
         document.querySelectorAll('.pick[data-group="' + group + '"]').forEach(function(p){ p.classList.remove('on'); });
         el.classList.add('on');
+        syncNightSelects();
         return;
       }
       el.classList.toggle('on');
@@ -721,7 +908,28 @@
     playSendPattern(1);
   }
   document.querySelectorAll('.sendbtn').forEach(function(el){
-    el.addEventListener('click', function(){ showOverlay(el); });
+    el.addEventListener('click', function(){
+      if (el.getAttribute('data-emg')){ openEmgConfirm(); return; }
+      showOverlay(el);
+    });
+  });
+  /* 緊急連絡の二重確認 */
+  var emgConfirm = document.getElementById('emg-confirm');
+  function openEmgConfirm(){
+    var reason = document.getElementById('emg-reason').value.trim();
+    document.getElementById('emg-confirm-reason').textContent = reason || '（理由が未入力です）';
+    var cnt = 0;
+    document.querySelectorAll('#scr-emergency .pick.wide.on').forEach(function(){ cnt++; });
+    document.getElementById('emg-confirm-count').textContent = cnt > 0 ? ('選択したシフト：' + cnt + '件') : '※シフトが選択されていません';
+    emgConfirm.classList.add('on');
+    playTap();
+  }
+  document.getElementById('emg-confirm-send').addEventListener('click', function(){
+    emgConfirm.classList.remove('on');
+  });
+  document.getElementById('emg-confirm-back').addEventListener('click', function(){
+    emgConfirm.classList.remove('on');
+    playTap();
   });
   document.getElementById('close-overlay').addEventListener('click', function(){
     overlay.classList.remove('on');
