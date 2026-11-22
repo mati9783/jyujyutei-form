@@ -2,109 +2,418 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet">
 <title>じゅうじゅう亭 連絡フォーム</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
-  body { font-family: sans-serif; margin: 0; padding: 16px; color: #222; background: #fafafa; }
-  h1 { font-size: 18px; margin: 0 0 4px; }
-  .sub { color: #666; font-size: 13px; margin-bottom: 16px; }
-  .menu-btn { display: block; width: 100%; padding: 16px; margin: 10px 0; font-size: 16px;
-    background: #06c755; color: #fff; border: none; border-radius: 8px; }
-  .menu-btn.secondary { background: #fff; color: #222; border: 2px solid #888; box-shadow: 0 2px 6px rgba(0,0,0,.18); }
-  .menu-btn.seasonal { background: #fff8ec; color: #9a6200; border: 2px solid #e8a33d; box-shadow: 0 2px 6px rgba(0,0,0,.18); font-weight: bold; }
-  .menu-btn.emergency { background: #b71c1c; color: #fff; border: 3px solid #5f0000; font-weight: bold;
-    font-size: 17px; padding: 18px 16px; margin-top: 26px; box-shadow: 0 3px 8px rgba(0,0,0,.4); letter-spacing: .06em; }
-  .emg-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 8px 0; font-size: 15px; }
-  .emg-item input { width: 20px; height: 20px; flex: none; }
-  .emg-warn { color: #b30000; font-weight: bold; font-size: 13px; line-height: 1.6; margin: 4px 0; }
-  .emg-example { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #444; line-height: 1.6; margin: 6px 0; }
-  .submit.emergency-submit { background: #b71c1c; }
-  .emg-confirm-reason { background: #fff; border: 2px solid #b71c1c; border-radius: 8px; padding: 12px; font-size: 15px; line-height: 1.6; margin: 8px 0; white-space: pre-wrap; word-break: break-word; }
-  .emg-confirm-box { background: #fff; border-radius: 10px; padding: 18px; max-width: 520px; margin: 24px auto; }
-  .day { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; margin: 8px 0; }
-  .day .date { font-weight: bold; margin-bottom: 6px; }
-  .day .date.sat { color: #1565c0; }
-  .day .date.sun { color: #d32f2f; }
-  .row { display: flex; align-items: center; gap: 10px; margin: 4px 0; font-size: 14px; }
-  .row .label { width: 2em; font-weight: bold; }
-  label.choice { display: inline-flex; align-items: center; gap: 4px; }
-  select, input[type="date"], input[type="text"], textarea { font-size: 15px; padding: 6px; border: 1px solid #bbb; border-radius: 6px; }
-  textarea { width: 100%; box-sizing: border-box; min-height: 64px; }
-  .field { margin: 12px 0; }
-  .field .flabel { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
-  .submit { display: block; width: 100%; padding: 14px; margin-top: 16px; font-size: 16px;
-    background: #06c755; color: #fff; border: none; border-radius: 8px; }
-  .back { display: inline-block; margin-bottom: 12px; color: #06c755; font-size: 18px; font-weight: bold; background: none; border: none; padding: 10px 12px 10px 0; }
-  .counter { background: #fff7e6; border: 1px solid #f0d9a0; border-radius: 8px; padding: 10px 12px; font-size: 14px; margin: 10px 0; }
-  .adv-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
-  .adv-table th { font-size: 12px; color: #666; padding: 3px 0; }
-  .adv-table th.sun { color: #d32f2f; } .adv-table th.sat { color: #1565c0; }
-  .adv-cell { border: 1px solid #ddd; background: #fff; vertical-align: top; height: 62px; padding: 3px; width: 14.28%; }
-  .adv-cell.out { background: #f4f4f4; }
-  .adv-cell.past { opacity: .45; }
-  .adv-cell.sun .adv-dnum { color: #d32f2f; } .adv-cell.sat .adv-dnum { color: #1565c0; }
-  .adv-dnum { font-weight: bold; font-size: 13px; }
-  .adv-off { font-size: 10px; line-height: 1.4; }
-  .adv-closed { font-size: 10px; color: #999; }
-  .adv-tab { padding: 6px 10px; margin: 0 6px 4px 0; border: 1px solid #06c755; background: #fff; color: #06c755; border-radius: 16px; font-size: 13px; }
-  .adv-tab.on { background: #06c755; color: #fff; }
-  .adv-chip { padding: 6px 14px; margin-left: 8px; border: 1px solid #d32f2f; background: #fff; color: #d32f2f; border-radius: 16px; font-size: 13px; }
-  .adv-chip.on { background: #d32f2f; color: #fff; }
-  .adv-chip:disabled { opacity: .4; }
-  .adv-ed-row { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; margin: 6px 0; font-size: 14px; }
-  .adv-lock { font-size: 11px; color: #999; margin-left: 8px; }
-  .shift-wrap { overflow-x: auto; background: #fff; border: 1px solid #ddd; border-radius: 8px; }
-  table.shift { border-collapse: collapse; font-size: 13px; white-space: nowrap; }
-  table.shift th, table.shift td { border: 1px solid #e0e0e0; padding: 6px 8px; text-align: center; min-width: 50px; height: 22px; }
-  table.shift th { border-bottom: 2px solid #9e9e9e; }
-  table.shift td.name { border-bottom: 2px solid #9e9e9e; }
-  table.shift tr.end td { border-bottom: 2px solid #9e9e9e; }
-  table.shift th.name, table.shift td.name { position: sticky; left: 0; background: #fff; text-align: left; font-weight: bold; min-width: 74px; }
-  table.shift td.name { vertical-align: middle; }
-  table.shift .sat { color: #1565c0; }
-  table.shift .sun { color: #d32f2f; }
-  table.shift tr.me td { background: #e8f7ee; }
-  table.shift tr.me td.name { background: #e8f7ee; }
-  .legend { font-size: 12px; color: #666; margin: 8px 0; line-height: 1.7; }
-  .seg-title { font-weight: bold; font-size: 15px; margin: 16px 0 2px; }
-  .time-row { display: flex; align-items: center; gap: 8px; }
-  .hist-item { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 8px 12px; margin: 6px 0; font-size: 14px; }
-  .warn { color: #b30000; font-size: 13px; }
-  .reg-notice { background: #fdecea; border: 1px solid #e5a09b; border-radius: 8px; padding: 10px 12px; font-size: 14px; margin: 10px 0; line-height: 1.6; }
-  .submit:disabled { background: #aaa; }
-  .hidden { display: none; }
-  .done { text-align: center; padding: 40px 0; font-size: 16px; line-height: 1.8; }
+  :root{
+    --yellow:#ffe600; --cyan:#19d3ff; --pink:#ff3d8a; --purple:#8b5bff;
+    --green:#37e08b; --orange:#ff9f1c; --red:#ff4747; --gray:#9aa3b2;
+    --bg:#13131b; --ink:#17171f;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"M PLUS Rounded 1c",sans-serif; background:var(--bg); color:#fff;
+    min-height:100vh; overflow-x:hidden; position:relative;
+  }
+  .splat{position:fixed; border-radius:50%; opacity:.5; z-index:0; pointer-events:none;}
+  .splat::after{content:""; position:absolute; border-radius:50%; background:inherit;}
+  .s1{width:210px;height:210px;background:var(--purple);top:-70px;right:-60px;transform:rotate(20deg);}
+  .s1::after{width:60px;height:60px;left:-24px;top:110px;}
+  .s2{width:150px;height:150px;background:var(--cyan);bottom:6%;left:-70px;opacity:.35;}
+  .s2::after{width:44px;height:44px;right:-16px;top:16px;}
+  .s3{width:90px;height:90px;background:var(--pink);top:44%;right:-46px;opacity:.3;}
+  .wrap{position:relative; z-index:1; max-width:480px; margin:0 auto; padding:14px 14px 40px;}
+  .hidden{display:none !important;}
+  div[id^="view-"]:not(.hidden){animation:pop .18s ease;}
+  @keyframes pop{from{transform:scale(.97); opacity:.4;} to{transform:scale(1); opacity:1;}}
+  header.top{text-align:center; margin:6px 0 4px;}
+  .logo{
+    display:inline-block; background:var(--yellow); color:var(--ink);
+    font-weight:800; font-size:27px; letter-spacing:.02em; line-height:1.15;
+    padding:10px 20px 12px; border-radius:18px 22px 16px 24px;
+    transform:rotate(-2deg); box-shadow:0 6px 0 rgba(0,0,0,.35);
+    border:3px solid var(--ink);
+  }
+  .logo small{display:block; font-size:13px; font-weight:800; letter-spacing:.35em; margin-top:2px;}
+  .player{
+    display:flex; align-items:center; gap:10px; margin:16px 2px 14px;
+    background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25);
+    border-radius:14px; padding:9px 12px;
+  }
+  .avatar{
+    width:42px;height:42px;border-radius:50%; background:var(--cyan);
+    display:flex;align-items:center;justify-content:center; font-weight:800; color:var(--ink); font-size:19px;
+    border:3px solid var(--ink); flex:none;
+  }
+  .player .nm{font-weight:800; font-size:16px;}
+  .sound-row{display:flex; justify-content:center; margin-top:20px;}
+  .sound-toggle{
+    display:flex; align-items:center; gap:6px; flex:none;
+    font-family:inherit; font-weight:800; font-size:13.5px; letter-spacing:.03em;
+    padding:10px 14px; border-radius:999px; border:3px solid var(--ink); cursor:pointer;
+    background:#3ddc5a; color:var(--ink); box-shadow:0 3px 0 rgba(0,0,0,.45);
+  }
+  .sound-toggle.off{background:#9aa3ab; color:#333;}
+  .sound-toggle:active{transform:scale(.94);}
+  .card{
+    border:3px solid var(--ink); border-radius:18px; color:var(--ink);
+    box-shadow:0 5px 0 rgba(0,0,0,.4); cursor:pointer; position:relative; overflow:hidden;
+    transition:transform .08s ease;
+  }
+  .card:active{transform:scale(.96);}
+  .card.pressing{transform:scale(.92) !important; filter:brightness(1.13);}
+  .ink-pop{
+    position:absolute; width:16px; height:16px; margin:-8px 0 0 -8px; border-radius:50%;
+    background:rgba(255,255,255,.55); pointer-events:none; z-index:3;
+    animation:inkpop .45s ease-out forwards;
+  }
+  @keyframes inkpop{from{transform:scale(1); opacity:.75;} to{transform:scale(10); opacity:0;}}
+  .card .ic{
+    border-radius:12px;background:rgba(255,255,255,.85); border:2.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center; font-weight:800; flex:none;
+  }
+  .card .t{font-weight:800; line-height:1.25;}
+  .card .s{font-weight:700; opacity:.75; line-height:1.3;}
+  .c-yellow{background:var(--yellow);} .c-cyan{background:var(--cyan);} .c-pink{background:var(--pink); color:#fff;}
+  .c-purple{background:var(--purple); color:#fff;} .c-green{background:var(--green);} .c-orange{background:var(--orange);}
+  .c-red{background:var(--red); color:#fff;} .c-gray{background:#d7dce4;}
+  .tilt-l{transform:rotate(-1deg);} .tilt-r{transform:rotate(1deg);}
+  .tier-big{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+  .tier-big .card{display:flex; align-items:center; gap:14px; padding:16px 16px;}
+  .tier-big .ic{width:58px;height:58px;font-size:30px;border-radius:16px;}
+  .tier-big .t{font-size:21px;}
+  .tier-big .s{font-size:12.5px; margin-top:2px;}
+  .tier-big .go{margin-left:auto; font-size:24px; font-weight:800; opacity:.55; flex:none;}
+  .tier-mid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;}
+  .tier-mid .card{padding:14px 12px 12px;}
+  .tier-mid .ic{width:44px;height:44px;font-size:23px;margin-bottom:8px;}
+  .tier-mid .t{font-size:17px;}
+  .tier-mid .s{font-size:11.5px; margin-top:3px;}
+  .tier-small{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;}
+  .tier-small .card{padding:10px 10px 9px; border-radius:14px; box-shadow:0 4px 0 rgba(0,0,0,.4); display:flex; align-items:center; gap:9px;}
+  .tier-small .ic{width:34px;height:34px;font-size:17px;border-radius:9px;}
+  .tier-small .t{font-size:14.5px;}
+  .tier-small .s{font-size:10.5px; margin-top:1px;}
+  .quest{
+    margin-top:16px; background:linear-gradient(135deg,#ff9f1c,#ff3d8a); border:3.5px solid var(--ink);
+    border-radius:18px; box-shadow:0 6px 0 rgba(0,0,0,.45); padding:12px 12px 13px; transform:rotate(-.5deg);
+    position:relative; overflow:hidden;
+  }
+  .quest-head{
+    display:inline-block; background:var(--ink); color:var(--yellow); font-weight:800; font-size:16.5px;
+    padding:5px 14px; border-radius:999px; letter-spacing:.04em; animation:pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.07);}}
+  .quest-card{
+    background:#fff; color:var(--ink); border:4px solid var(--ink); border-radius:14px;
+    margin-top:10px; padding:14px 15px; position:relative; overflow:hidden;
+    box-shadow:
+      inset 0 0 0 4px #ffe600,
+      inset 0 0 0 9px #ff1e46,
+      0 0 16px rgba(255,30,70,.55),
+      0 4px 0 rgba(0,0,0,.35);
+  }
+  .quest-date{font-weight:800; font-size:18.5px; line-height:1.3;}
+  .quest-desc{font-weight:700; font-size:13px; opacity:.8; margin-top:2px;}
+  .quest-reward{
+    display:inline-block; margin-top:9px; background:var(--yellow); border:2.5px solid var(--ink);
+    font-weight:800; font-size:13px; padding:4px 12px; border-radius:999px; transform:rotate(-1deg);
+  }
+  .quest-btn{
+    display:block; width:100%; margin-top:11px; background:var(--pink); color:#fff; border:3px solid var(--ink);
+    border-radius:12px; font-family:inherit; font-weight:800; font-size:16.5px; padding:11px 0; cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.4); letter-spacing:.05em; position:relative; overflow:hidden;
+  }
+  .quest-btn.pressing{transform:scale(.95); filter:brightness(1.12);}
+  .quest-btn.joined{background:#9aa3ab; cursor:default;}
+  .emergency{
+    margin-top:16px; background:var(--red); color:#fff; border:3.5px solid var(--ink); border-radius:18px;
+    box-shadow:0 6px 0 rgba(0,0,0,.45); cursor:pointer; overflow:hidden; transition:transform .08s ease;
+    position:relative;
+  }
+  .emergency:active{transform:scale(.97);}
+  .emergency.pressing{transform:scale(.96); filter:brightness(1.12);}
+  .emergency .stripe{height:12px; background:repeating-linear-gradient(45deg,#17171f 0 14px,var(--yellow) 14px 28px);}
+  .emergency .inner{display:flex; align-items:center; gap:12px; padding:13px 16px 15px;}
+  .emergency .ic{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.9); border:2.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center; font-size:24px; flex:none;}
+  .emergency .t{font-weight:800; font-size:19px; line-height:1.2;}
+  .emergency .s{font-size:12px; font-weight:700; opacity:.9;}
+  .limited{margin-top:22px;}
+  .limited .divider{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .limited .divider::before,.limited .divider::after{content:""; flex:1; border-top:2.5px dashed rgba(255,255,255,.4);}
+  .limited .tag{background:var(--orange); color:var(--ink); font-weight:800; font-size:12.5px;
+    padding:4px 14px; border-radius:999px; border:2.5px solid var(--ink); transform:rotate(-1.5deg);}
+  .limited .card{display:flex; align-items:center; gap:12px; padding:13px 14px;}
+  .limited .ic{width:44px;height:44px;font-size:22px;}
+  .limited .t{font-size:16.5px;}
+  .limited .s{font-size:11.5px; margin-top:2px;}
+  .limited .badge{margin-left:auto; flex:none; background:var(--red); color:#fff; font-weight:800; font-size:12px;
+    padding:5px 10px; border-radius:999px; border:2.5px solid var(--ink); transform:rotate(2deg); text-align:center; line-height:1.25;}
+  .quiet-row{text-align:center; margin-top:16px;}
+  .quiet-link{background:none; border:none; font-family:inherit; font-size:13px; font-weight:700; color:rgba(255,255,255,.75); text-decoration:underline; cursor:pointer; padding:6px;}
+  .foot{margin-top:20px; text-align:center; font-size:11px; color:rgba(255,255,255,.55); font-weight:700;}
+  .backbtn{
+    display:inline-flex; align-items:center; gap:6px; background:#fff; color:var(--ink); border:3px solid var(--ink);
+    font-family:inherit; font-weight:800; font-size:14px; border-radius:999px; padding:6px 14px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.35);
+  }
+  .scr-title{font-weight:800; font-size:22px; margin:14px 0 4px; transform:rotate(-1deg); display:inline-block;
+    background:var(--cyan); color:var(--ink); padding:5px 14px; border-radius:12px; border:3px solid var(--ink);}
+  .panel{background:#fff; color:var(--ink); border:3px solid var(--ink); border-radius:18px; padding:16px 14px; margin-top:14px;
+    box-shadow:0 6px 0 rgba(0,0,0,.4);}
+  .panel-red{box-shadow:inset 0 0 0 3px #ff1e46, 0 5px 0 rgba(0,0,0,.35);}
+  .panel h3{margin:0 0 6px; font-size:15px; font-weight:800;}
+  .note{font-size:13px; font-weight:700; line-height:1.65; background:rgba(23,23,31,.06); border-radius:10px; padding:10px 12px; margin-bottom:8px;}
+  .sub{color:#5a6272; font-size:13px; font-weight:700; line-height:1.6; margin-bottom:12px;}
+  .panel .sub{color:#5a6272;}
+  #view-loading{color:#fff; font-weight:700; padding-top:30px;}
+  #view-loading .sub, #view-loading div{color:rgba(255,255,255,.8);}
+  .warn{color:#b30000; font-weight:800;}
+  .flabel{font-weight:800; font-size:13px; margin:14px 0 5px; opacity:.85;}
+  .field{margin:12px 0;}
+  .field .flabel{margin-top:0;}
+  select, input[type="date"], input[type="text"], input[type="number"], input[type="time"], textarea{
+    font-family:inherit; font-weight:700; font-size:15px; color:var(--ink);
+    border:2.5px solid var(--ink); border-radius:10px; padding:8px 10px; background:#fff;
+  }
+  select{font-weight:800; cursor:pointer;}
+  select:disabled{opacity:.35; cursor:default;}
+  textarea{width:100%; box-sizing:border-box; min-height:64px; resize:vertical;}
+  input[type="text"]{width:100%; box-sizing:border-box;}
+  label.choice{
+    display:inline-flex; align-items:center; gap:6px; background:#fff; border:2.5px solid var(--ink);
+    border-radius:999px; padding:7px 14px; font-weight:800; font-size:14px; cursor:pointer; margin:2px 2px 2px 0;
+  }
+  label.choice input{width:18px; height:18px; accent-color:#e8102e; flex:none;}
+  label.choice:has(input:checked){background:var(--yellow);}
+  .row{display:flex; align-items:center; gap:8px; margin:6px 0; font-size:14px; flex-wrap:wrap;}
+  .row .label{width:2em; font-weight:800; flex:none;}
+  .day{border-bottom:2px dashed rgba(23,23,31,.18); padding:11px 2px;}
+  .day:last-of-type{border-bottom:none;}
+  .day .date{font-weight:800; font-size:16.5px; margin-bottom:7px;}
+  .day .date.sat{color:#2470e0;}
+  .day .date.sun{color:#e8102e;}
+  .submit, .sendbtn{
+    display:block; width:100%; margin-top:18px; background:var(--pink); color:#fff; border:3.5px solid var(--ink);
+    border-radius:16px; font-family:inherit; font-weight:800; font-size:20px; padding:15px 0; cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.45); letter-spacing:.08em;
+  }
+  .submit:active, .sendbtn:active{transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.45);}
+  .submit:disabled{background:#9aa3ab; cursor:default;}
+  .submit.emergency-submit, .sendbtn.red{background:#e8102e;}
+  .menu-btn.secondary{
+    display:block; width:100%; margin-top:12px; background:#fff; color:var(--ink); border:3px solid var(--ink);
+    border-radius:12px; font-family:inherit; font-weight:800; font-size:16px; padding:12px 0; cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.35);
+  }
+  .counter, .counterbox{background:#fff4d6; border:2.5px solid var(--ink); border-radius:10px; padding:9px 12px; font-size:12.5px; font-weight:700; line-height:1.6; margin:10px 0;}
+  .reg-notice{background:#ffe1e8; border:2.5px solid var(--ink); border-radius:10px; padding:10px 12px; font-size:13.5px; font-weight:700; margin:10px 0; line-height:1.6; color:#8f0023;}
+  .seg-title{font-weight:800; font-size:16px; margin:18px 0 4px;}
+  .time-row{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
+  .legend{font-size:12px; color:#5a6272; font-weight:700; margin:8px 0; line-height:1.7;}
+  .adv-table{width:100%; border-collapse:collapse; margin:8px 0;}
+  .adv-table th{font-size:12px; color:#5a6272; padding:3px 0;}
+  .adv-table th.sun{color:#e8102e;} .adv-table th.sat{color:#2470e0;}
+  .adv-cell{border:2px solid rgba(23,23,31,.25); background:#fff; vertical-align:top; height:62px; padding:3px; width:14.28%;}
+  .adv-cell.out{background:#f4f4f7;}
+  .adv-cell.past{opacity:.45;}
+  .adv-cell.sun .adv-dnum{color:#e8102e;} .adv-cell.sat .adv-dnum{color:#2470e0;}
+  .adv-dnum{font-weight:800; font-size:13px;}
+  .adv-off{font-size:10px; line-height:1.4; font-weight:700;}
+  .adv-closed{font-size:10px; color:#999; font-weight:700;}
+  .adv-tab, .mtab{
+    font-family:inherit; font-weight:800; font-size:14px; padding:8px 14px; border-radius:999px;
+    border:3px solid var(--ink); background:#fff; color:var(--ink); cursor:pointer; margin:0 6px 4px 0;
+  }
+  .adv-tab.on, .mtab.on{background:var(--ink); color:#fff;}
+  .adv-chip{
+    font-family:inherit; background:#fff; border:3px solid var(--ink); border-radius:999px; color:#b30000;
+    font-weight:800; font-size:14px; min-width:54px; padding:6px 14px; margin-left:8px; cursor:pointer;
+    box-shadow:0 3px 0 rgba(0,0,0,.3);
+  }
+  .adv-chip.on{background:#ff5d73; color:#fff;}
+  .adv-chip:disabled{opacity:.4;}
+  .adv-ed-row{display:flex; align-items:center; gap:6px; padding:9px 2px; border-bottom:2px dashed rgba(23,23,31,.18); font-size:14px; font-weight:700;}
+  .adv-lock{font-size:11px; color:#999; margin-left:8px;}
+  .adv-jump{
+    width:100%; background:#fff; color:#0a9d4d; border:3px solid #0a9d4d; border-radius:12px;
+    font-family:inherit; font-weight:800; font-size:15px; padding:11px 0; cursor:pointer; margin-top:8px;
+    position:relative; overflow:hidden;
+  }
+  .adv-jump:active{transform:scale(.97);}
+  .shift-wrap{overflow-x:auto; background:#fff; border:3px solid var(--ink); border-radius:12px;}
+  table.shift{border-collapse:collapse; font-size:12.5px; font-weight:700; white-space:nowrap;}
+  table.shift th, table.shift td{border:2px solid rgba(23,23,31,.35); padding:5px 6px; text-align:center; min-width:46px; height:22px;}
+  table.shift th{background:rgba(23,23,31,.07);}
+  table.shift th.name, table.shift td.name{position:sticky; left:0; background:#fff; text-align:left; font-weight:800; min-width:74px;}
+  table.shift .sat{color:#2470e0;}
+  table.shift .sun{color:#e8102e;}
+  table.shift tr.me td{background:#fff4d6;}
+  table.shift tr.me td.name{background:#fff4d6;}
+  .hrow{padding:10px 2px; border-bottom:2px dashed rgba(23,23,31,.18);}
+  .hrow:last-of-type{border-bottom:none;}
+  .hl1{display:flex; align-items:baseline; gap:8px;}
+  .hdow{font-weight:800; font-size:15.5px; width:76px; flex:none;}
+  .hdow small{font-size:11px; opacity:.7; margin-left:2px;}
+  .hdow.sat{color:#2470e0;} .hdow.sun{color:#e8102e;}
+  .hseg{flex:1; font-weight:700; font-size:14.5px;}
+  .hseg2{font-weight:700; font-size:14.5px; padding-left:84px;}
+  .hl2{display:flex; align-items:baseline; gap:8px; padding-left:84px; font-weight:700; font-size:13.5px; opacity:.85;}
+  .hl2 span:first-child{flex:1;}
+  .hl3{padding-left:84px; font-size:13px; font-weight:700; opacity:.7;}
+  .hamt{font-weight:800; font-size:15px;}
+  .totalbox{display:block; background:var(--ink); color:#fff; border-radius:12px; padding:13px 15px; margin:6px 0 4px; font-weight:800; font-size:14px;}
+  .ticket-banner{
+    margin:0 0 12px; background:linear-gradient(135deg,#ffd23e,#ffb03a); border:3px solid var(--ink);
+    border-radius:14px; padding:11px 15px; font-weight:800; font-size:15px; box-shadow:0 4px 0 rgba(0,0,0,.4);
+    transform:rotate(-.5deg); color:var(--ink);
+  }
+  .ticket-banner b{font-size:19px;}
+  .emg-item{display:flex; align-items:center; gap:10px; background:#fff; border:2.5px solid var(--ink); border-radius:12px; padding:12px; margin:8px 0; font-size:15px; font-weight:700; cursor:pointer;}
+  .emg-item input{width:20px; height:20px; flex:none; accent-color:#e8102e;}
+  .emg-warn{color:#b30000; font-weight:800; font-size:13px; line-height:1.65; margin:8px 0;}
+  .emg-example{background:#f6f6fa; border:2px dashed rgba(23,23,31,.35); border-radius:10px; padding:9px 12px; font-size:12.5px; font-weight:700; line-height:1.65;}
+  .emg-confirm-reason{background:#f6f6fa; border-radius:10px; padding:10px 12px; font-weight:700; font-size:14.5px; line-height:1.65; min-height:44px; margin:8px 0; white-space:pre-wrap; word-break:break-word;}
+  .emg-confirm-box{background:#fff; color:var(--ink); border:4px solid #e8102e; border-radius:18px; padding:20px 18px; max-width:420px; width:100%; margin:24px auto; box-shadow:0 10px 0 rgba(0,0,0,.45); box-sizing:border-box;}
+  .emg-confirm-box h1{margin:0 0 10px; font-size:20px; color:#b30000;}
+  .emg-logbox{border:2.5px solid rgba(23,23,31,.4); border-radius:10px; padding:10px 12px; font-size:12.5px; font-weight:700; line-height:1.7; margin-top:12px; background:#fff;}
+  .done{text-align:center; padding:40px 0; font-size:16px; line-height:1.8; color:#fff; font-weight:700;}
+  .overlay{
+    position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; flex-direction:column;
+    background:rgba(10,10,16,.72);
+  }
+  .overlay.on{display:flex;}
+  .burst{position:absolute; width:340px; height:340px; border-radius:50%; background:var(--yellow);
+    animation:burst .45s ease-out; opacity:.9;}
+  .burst::after{content:""; position:absolute; inset:38px; border-radius:50%; background:var(--cyan);}
+  @keyframes burst{0%{transform:scale(0) rotate(0deg);} 70%{transform:scale(1.15) rotate(24deg);} 100%{transform:scale(1) rotate(12deg);}}
+  .stamp{
+    position:relative; z-index:2; background:#fff; color:var(--red); border:5px solid var(--red);
+    font-weight:800; font-size:34px; padding:12px 26px; border-radius:14px; transform:rotate(-7deg);
+    animation:stamp .35s .25s ease-out backwards; letter-spacing:.06em; text-align:center; line-height:1.2;
+  }
+  .stamp small{display:block; font-size:14px; color:var(--ink); letter-spacing:.02em; margin-top:4px;}
+  @keyframes stamp{0%{transform:rotate(-7deg) scale(2.4); opacity:0;} 100%{transform:rotate(-7deg) scale(1); opacity:1;}}
+  .overlay .msg{position:relative; z-index:2; margin-top:20px; font-weight:800; font-size:15px; text-align:center; line-height:1.6; color:#fff;}
+  .overlay .closebtn{position:relative; z-index:2; margin-top:16px; background:#fff; color:var(--ink); border:3px solid var(--ink);
+    font-family:inherit; font-weight:800; font-size:16px; border-radius:999px; padding:10px 30px; cursor:pointer;}
 </style>
 </head>
 <body>
+<div class="splat s1"></div><div class="splat s2"></div><div class="splat s3"></div>
+<div class="wrap">
 
 <div id="view-loading">読み込み中…<div id="debug" style="margin-top:12px;font-size:12px;color:#888;white-space:pre-wrap;"></div></div>
 
 <!-- ホーム -->
 <div id="view-home" class="hidden">
-  <h1>じゅうじゅう亭 連絡フォーム</h1>
-  <div class="sub"><span id="hello-name"></span>さん、こんにちは。用件を選んでください。</div>
-  <button class="menu-btn" onclick="show('timecard')">タイムカード</button>
-  <button class="menu-btn seasonal" onclick="show('fuyo')">扶養控除等申告書の情報入力（12月5日まで）</button>
-  <button class="menu-btn secondary" onclick="show('shift')">シフトを提出する</button>
-  <button class="menu-btn" onclick="show('table')">シフトを確認する</button>
-  <button class="menu-btn secondary" onclick="show('history')">勤務履歴</button>
-  <button class="menu-btn" onclick="show('long')">長期休みを申請する</button>
-  <button class="menu-btn secondary" onclick="show('resign')">退職を申請する</button>
-  <button class="menu-btn emergency" onclick="show('emergency')">緊急連絡119番</button>
+  <header class="top">
+    <div class="logo">じゅうじゅう亭<small>スタッフアプリ</small></div>
+  </header>
+  <div class="player">
+    <div class="avatar" id="hello-avatar">？</div>
+    <div>
+      <div class="nm"><span id="hello-name"></span>さん</div>
+      <div style="font-size:11.5px; font-weight:700; opacity:.8;">お疲れ様です！今日も頑張りましょう</div>
+    </div>
+  </div>
+
+  <div id="quest-board"></div>
+
+  <div class="tier-big">
+    <div class="card c-cyan tilt-l" onclick="cardGo(this,event,'timecard')">
+      <div class="ic">⏱</div>
+      <div><div class="t">タイムカード</div><div class="s">出勤・退勤を記録する</div></div>
+      <div class="go">›</div>
+    </div>
+    <div class="card c-yellow tilt-r" onclick="cardGo(this,event,'shift')">
+      <div class="ic">✎</div>
+      <div><div class="t">シフトを提出する</div><div class="s">休み希望・出勤できる日を送る</div></div>
+      <div class="go">›</div>
+    </div>
+  </div>
+
+  <div class="tier-mid">
+    <div class="card c-pink tilt-r" onclick="cardGo(this,event,'table')">
+      <div class="ic">📋</div><div class="t">シフトを確認する</div><div class="s">確定したシフトを見る</div>
+    </div>
+    <div class="card c-purple tilt-l" onclick="cardGo(this,event,'history','money')">
+      <div class="ic">💰</div><div class="t">勤務履歴</div><div class="s">見込み給与もここで確認</div>
+    </div>
+  </div>
+
+  <div class="tier-small">
+    <div class="card c-green tilt-l" onclick="cardGo(this,event,'long')">
+      <div class="ic">🌴</div>
+      <div><div class="t">長期休み申請</div><div class="s">1週間以上休む場合</div></div>
+    </div>
+    <div class="card c-orange tilt-r" onclick="cardGo(this,event,'shift',null,true)">
+      <div class="ic">📅</div>
+      <div><div class="t">先行申告</div><div class="s">早めに休み希望の提出</div></div>
+    </div>
+  </div>
+
+  <div class="emergency" onclick="cardGo(this,event,'emergency','emergency')">
+    <div class="stripe"></div>
+    <div class="inner">
+      <div class="ic">🚨</div>
+      <div><div class="t">緊急連絡119番</div><div class="s">欠勤の連絡はこちらから</div></div>
+    </div>
+  </div>
+
+  <div class="limited">
+    <div class="divider"><span class="tag">期間限定</span></div>
+    <div class="card c-gray tilt-l" onclick="cardGo(this,event,'fuyo')">
+      <div class="ic">📝</div>
+      <div><div class="t">扶養控除等申告書</div><div class="s">情報入力のお願い</div></div>
+      <div class="badge">12月5日<br>まで</div>
+    </div>
+  </div>
+
+  <div class="quiet-row">
+    <button class="quiet-link" onclick="navTo('resign')">退職を申請する</button>
+  </div>
+
+  <div class="sound-row">
+    <button class="sound-toggle" id="sound-toggle" onclick="toggleSound()"><span id="st-ic">🔊</span><span id="st-tx">サウンド ON</span></button>
+  </div>
+
+  <div class="foot">じゅうじゅう亭 スタッフ専用アプリ</div>
+</div>
+
+<!-- クエスト詳細 -->
+<div id="view-quest" class="hidden">
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">クエスト</span></div>
+  <div class="quest" style="margin-top:14px;">
+    <span class="quest-head">⚔ クエスト発生中!!</span>
+    <div class="quest-card">
+      <div class="quest-date" id="quest-date"></div>
+      <div class="quest-desc" id="quest-desc"></div>
+      <div class="quest-reward">報酬：まかないチケット ×1</div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px;">
+    <div class="note">立候補しても即確定にはなりません。田中が確認してから確定します。決まったら連絡します。</div>
+    <button class="sendbtn" id="quest-submit" onclick="submitQuest()">立候補する！</button>
+  </div>
 </div>
 
 <!-- シフト提出 -->
 <div id="view-shift" class="hidden">
-  <button class="back" onclick="show('home')">← もどる</button>
-  <h1>シフト提出</h1>
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">シフトを提出する</span></div>
+  <div class="panel">
   <div id="adv-block" style="margin-bottom:16px;">
     <div style="font-weight:bold;font-size:16px;">先行申告カレンダー</div>
     <div class="sub">先に分かっている「出勤できない日」が見えます。自分の出られない日は、先に登録しておいてください。休み希望は先着順で確定ではありません。</div>
     <div id="adv-tabs"></div>
     <div id="adv-cal"><div class="sub">カレンダーを読み込み中…</div></div>
-    <button class="submit" style="background:#fff;color:#06c755;border:2px solid #06c755;" onclick="toggleAdvEditor()">先の休みを申告・変更する</button>
+    <button class="adv-jump" onclick="toggleAdvEditor()">先の休みを申告・変更する</button>
     <div id="adv-editor" class="hidden"></div>
   </div>
   <div class="sub">期間: <span id="period-label"></span><br>出勤できる日は「出勤できる」、休みたい日は「休み希望」を選んでください。夜に出勤できる場合は開始時間も選んでください。</div>
@@ -116,12 +425,14 @@
     <textarea id="shift-note" placeholder="例: 14日は18時30分からなら出勤できます"></textarea>
   </div>
   <button class="submit" onclick="submitShift()">提出する</button>
+  </div>
 </div>
 
 <!-- 長期休み申請 -->
 <div id="view-long" class="hidden">
-  <button class="back" onclick="show('home')">← もどる</button>
-  <h1>長期休みの申請</h1>
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">長期休み申請</span></div>
+  <div class="panel">
   <div class="sub">実習・研修、テスト期間、帰省など、先に分かっている長いお休みはこちらから申請してください。</div>
   <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
   <div class="field">
@@ -147,12 +458,14 @@
     <textarea id="long-detail" placeholder="例: 看護実習のため終日出勤できません"></textarea>
   </div>
   <button class="submit" onclick="submitLong()">申請する</button>
+  </div>
 </div>
 
 <!-- 退職申請 -->
 <div id="view-resign" class="hidden">
-  <button class="back" onclick="show('home')">← もどる</button>
-  <h1>退職の申請</h1>
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">退職を申請する</span></div>
+  <div class="panel">
   <div class="sub">送信すると店長に届きます。<span class="warn">研修期間終了後の退職は、1ヶ月前までの申告がルールです。</span></div>
   <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
   <div class="field">
@@ -164,12 +477,14 @@
     <textarea id="resign-reason" placeholder="空欄でも問題ありません"></textarea>
   </div>
   <button class="submit" onclick="submitResign()">申請する</button>
+  </div>
 </div>
 
 <!-- 扶養控除等申告書（令和9年分） -->
 <div id="view-fuyo" class="hidden">
-  <button class="back" onclick="show('home')">← もどる</button>
-  <h1>扶養控除等申告書の情報入力</h1>
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">扶養控除等申告書</span></div>
+  <div class="panel">
   <div class="sub">令和9年分の「給与所得者の扶養控除等（異動）申告書」を作るための情報です。<span class="warn">提出期限は12月5日（土）です。</span></div>
   <div id="fuyo-status" class="sub"></div>
   <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
@@ -219,14 +534,16 @@
     </div>
     <div class="sub" style="margin-top:6px;">育てている子どもや、仕送りをしている親などが当てはまります。親に支えてもらっている人は『いいえ』です。</div>
   </div>
-  <div style="background:#f5f5f5;border:1px solid #ccc;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.6;margin:8px 0;">個人番号（マイナンバー）を書く欄は、このフォームにはありません。後日、印刷した申告書の紙に、ご自身で手書きしていただきます。</div>
+  <div class="note">個人番号（マイナンバー）を書く欄は、このフォームにはありません。後日、印刷した申告書の紙に、ご自身で手書きしていただきます。</div>
   <button class="submit" onclick="submitFuyo()">提出する</button>
+  </div>
 </div>
 
 <!-- タイムカード -->
 <div id="view-timecard" class="hidden">
-  <button class="back" onclick="show('home')">← もどる</button>
-  <h1>タイムカード</h1>
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">タイムカード</span></div>
+  <div class="panel">
   <div class="sub">勤務した日付と時間を入れてください。基本は当日の分をその日に。入れ忘れた分は日付を変えて入れられます。同じ日付で送り直すと、新しい内容に置き換わります。</div>
   <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
   <div class="field">
@@ -267,12 +584,14 @@
   </div>
   <button class="submit" onclick="submitTimecard()">記録する</button>
   <div class="sub" style="margin-top:14px;">自分の記録と給与の見込みは、ホームの【勤務履歴】から確認できます。</div>
+  </div>
 </div>
 
 <!-- シフト確認 -->
 <div id="view-table" class="hidden">
-  <button class="back" onclick="show('home')">← もどる</button>
-  <h1>確定シフト</h1>
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">シフトを確認する</span></div>
+  <div class="panel">
   <div class="sub">期間: <span id="shift-period-label"></span></div>
   <div class="seg-title" style="margin-top:6px;">あなたの出勤確定日</div>
   <div class="sub" style="margin-bottom:6px;">今日以降、あなたが出勤する日です。</div>
@@ -280,25 +599,30 @@
   <div class="seg-title" style="margin-top:20px;">全員のシフト表</div>
   <div class="legend">上段は朝（9時〜15時）、下段は夜（17時30分〜23時）の時間帯です。<br>時間＝出勤、休＝休み希望、〇＝出勤できますがシフトに入っていません（18〇・19〇は、その時間から出勤できるという意味です）。</div>
   <div id="shift-table-wrap"></div>
+  </div>
 </div>
 
 <!-- 勤務履歴 -->
 <div id="view-history" class="hidden">
-  <button class="back" onclick="show('home')">← もどる</button>
-  <h1>勤務履歴</h1>
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">勤務履歴</span></div>
+  <div class="panel">
   <div class="sub">勤務の記録と、その月の給与の見込みです。金額は見込みで、確定は月末の給与明細でお知らせします。</div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0;">
-    <button id="hist-prev" class="back" style="margin:0;" onclick="stepHistoryMonth(-1)">◀ 前の月</button>
-    <div id="hist-month-label" style="font-weight:bold;font-size:16px;"></div>
-    <button id="hist-next" class="back" style="margin:0;" onclick="stepHistoryMonth(1)">次の月 ▶</button>
+    <button id="hist-prev" class="mtab" style="flex:none;" onclick="stepHistoryMonth(-1)">◀ 前の月</button>
+    <div id="hist-month-label" style="font-weight:800;font-size:16.5px;"></div>
+    <button id="hist-next" class="mtab" style="flex:none;" onclick="stepHistoryMonth(1)">次の月 ▶</button>
   </div>
+  <div id="hist-tickets"></div>
   <div id="hist-body"><div class="sub">読み込み中…</div></div>
+  </div>
 </div>
 
 <!-- 緊急連絡 -->
 <div id="view-emergency" class="hidden">
-  <button class="back" onclick="show('home')">← もどる</button>
-  <h1 style="color:#b71c1c;">緊急連絡119番</h1>
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">緊急連絡119番</span></div>
+  <div class="panel panel-red">
   <div class="sub">急遽出勤できなくなった時は、こちらから連絡してください。<br>※急遽出勤できない・他のスタッフにシフトを代わってほしい日をチェックしてください。</div>
   <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
   <div id="emg-list"><div class="sub">読み込み中…</div></div>
@@ -312,11 +636,12 @@
   </div>
   <button class="submit emergency-submit" onclick="submitEmergency()">送信する</button>
   <div class="sub" style="margin-top:14px;">遅刻・早退の連絡は、「事務 たなか」へ直接LINEしてください。</div>
-  <div style="margin-top:14px;padding:12px;background:#fff;border:1px solid #ddd;border-radius:8px;font-size:13px;line-height:1.7;color:#444;">
+  <div class="emg-logbox">
     <div style="border-top:2px dashed #bbb;margin-bottom:10px;"></div>
     この機能を使用した場合は、下記のログが表示されます。<br><br>
     〇年〇月〇日：スタッフ名　使用理由：〇〇のため欠勤
     <div style="border-bottom:2px dashed #bbb;margin-top:10px;"></div>
+  </div>
   </div>
 </div>
 
@@ -337,6 +662,15 @@
 <!-- 完了 -->
 <div id="view-done" class="hidden">
   <div class="done">送信しました。<br>確認したら、こちらから連絡します。<br>ありがとうございました。</div>
+</div>
+</div>
+
+<!-- 完了演出 -->
+<div class="overlay" id="done-overlay">
+  <div class="burst"></div>
+  <div class="stamp"><span id="ov-stamp">受付完了！</span><small>お疲れ様でした</small></div>
+  <div class="msg" id="ov-msg">送信しました。</div>
+  <button class="closebtn" id="close-overlay" onclick="closeDoneOverlay()">とじる</button>
 </div>
 
 <script>
@@ -380,7 +714,7 @@
   var profile = null;
 
   function show(name) {
-    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history', 'emergency', 'fuyo'].forEach(function (v) {
+    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history', 'emergency', 'fuyo', 'quest'].forEach(function (v) {
       document.getElementById('view-' + v).classList.toggle('hidden', v !== name);
     });
     if (name === 'table') loadShiftTable();
@@ -388,6 +722,7 @@
     if (name === 'history') loadWorkHistory();
     if (name === 'emergency') loadMyShifts();
     if (name === 'fuyo') loadFuyo();
+    if (name === 'home') loadQuests();
     window.scrollTo(0, 0);
   }
 
@@ -571,6 +906,12 @@
 
   function fmtYen(n) { return '¥' + Number(n).toLocaleString('ja-JP'); }
   function fmtMins(mins) { return Math.floor(mins / 60) + ':' + ('0' + (mins % 60)).slice(-2); }
+  function fmtDur(mins) {
+    var h = Math.floor(mins / 60), m = mins % 60;
+    if (h && m) return h + '時間' + m + '分';
+    if (h) return h + '時間';
+    return m + '分';
+  }
 
   function loadWorkHistory() {
     if (!histMonth) histMonth = currentMonthStr();
@@ -585,13 +926,20 @@
       delete window[cb];
       if (!res || res.status !== 'ok') { body.innerHTML = '<div class="sub">読み込めませんでした。</div>'; return; }
       var t = res.totals || { pay: 0, makanai: 0, estimate: 0, mins: 0 };
-      var html = '<div class="day" style="background:#e8f7ee;">'
-        + '<div style="font-size:13px;color:#666;">給与の見込み（支給予定）</div>'
-        + '<div style="font-size:24px;font-weight:bold;">' + fmtYen(t.estimate) + '</div>'
-        + '<div style="font-size:13px;color:#444;">勤務分 ' + fmtYen(t.pay) + ' − まかない ' + fmtYen(t.makanai)
-        + '　／　勤務時間 ' + fmtMins(t.mins) + '</div>'
-        + (res.pending ? '<div style="font-size:13px;color:#b30000;margin-top:4px;">確認中の記録が' + res.pending + '件あり、合計に入っていません。</div>' : '')
-        + '</div>';
+      var tk = document.getElementById('hist-tickets');
+      if (tk) {
+        tk.innerHTML = (typeof res.tickets === 'number')
+          ? '<div class="ticket-banner">🎟 まかないチケット <b>× ' + res.tickets + '</b></div>' : '';
+      }
+      var html = '<div class="totalbox">'
+        + '<div style="font-size:12.5px;opacity:.85;">給与の見込み（支給予定）</div>'
+        + '<div style="font-size:26px;font-weight:800;color:var(--yellow);">' + fmtYen(t.estimate) + '</div>'
+        + '<div style="font-size:13px;font-weight:700;">勤務分 ' + fmtYen(t.pay) + ' − まかない ' + fmtYen(t.makanai)
+        + '　／　勤務時間 ' + fmtDur(t.mins) + '</div>'
+        + (t.makanaiWaived ? '<div style="font-size:13px;font-weight:700;color:var(--yellow);margin-top:2px;">まかないチケットで ' + fmtYen(t.makanaiWaived) + ' 無料になりました</div>' : '')
+        + (res.pending ? '<div style="font-size:13px;color:#ff9db1;margin-top:4px;">確認中の記録が' + res.pending + '件あり、合計に入っていません。</div>' : '')
+        + '</div>'
+        + '<div class="note" style="margin-top:10px;">まかないチケットは、給与計算でまかない代1回分が自動で無料になります。</div>';
       if (!res.days || res.days.length === 0) {
         html += '<div class="sub">この月の記録はありません。</div>';
       }
@@ -600,17 +948,25 @@
         var pp = d.date.split('-');
         var dt = new Date(Number(pp[0]), Number(pp[1]) - 1, Number(pp[2]));
         var cls = dt.getDay() === 6 ? 'sat' : (dt.getDay() === 0 ? 'sun' : '');
-        html += '<div class="day"><div class="date ' + cls + '">' + Number(pp[1]) + '/' + Number(pp[2]) + '（' + dowNames[dt.getDay()] + '）'
-          + '<span style="float:right;">' + (d.dayPay ? fmtYen(d.dayPay) : '―') + '</span></div>';
-        d.segments.forEach(function (sg) {
-          html += '<div style="font-size:14px;margin:3px 0;">' + sg.seg + ' ' + sg.in + '〜' + sg.out
-            + '（' + fmtMins(sg.mins) + '）'
+        var dateHtml = Number(pp[1]) + '/' + Number(pp[2]) + '<small>(' + dowNames[dt.getDay()] + ')</small>';
+        html += '<div class="hrow">';
+        d.segments.forEach(function (sg, si) {
+          var dur = '（' + fmtDur(sg.mins) + '）'
             + (sg.solo ? ' 一人勤務' : '')
             + (sg.pending ? ' <span style="color:#b30000;font-weight:bold;">確認中</span>' : '')
-            + (sg.note ? '　「' + sg.note + '」' : '')
-            + '</div>';
+            + (sg.note ? '　「' + sg.note + '」' : '');
+          var amt = '<span class="hamt">' + (d.dayPay ? fmtYen(d.dayPay) : '―') + '</span>';
+          if (si === 0) {
+            html += '<div class="hl1"><span class="hdow ' + cls + '">' + dateHtml + '</span>'
+              + '<span class="hseg">' + sg.seg + ' ' + sg.in + '〜' + sg.out + '</span>'
+              + (d.makanai ? '' : amt) + '</div>';
+            html += '<div class="hl2"><span>' + dur + '</span>' + (d.makanai ? amt : '') + '</div>';
+          } else {
+            html += '<div class="hseg2">' + sg.seg + ' ' + sg.in + '〜' + sg.out + '</div>';
+            html += '<div class="hl2"><span>' + dur + '</span></div>';
+          }
         });
-        if (d.makanai) html += '<div style="font-size:13px;color:#666;">まかない ' + fmtYen(d.makanai) + '</div>';
+        if (d.makanai) html += '<div class="hl3">まかない ' + fmtYen(d.makanai) + (d.makanaiFree ? '（チケットで無料）' : '') + '</div>';
         html += '</div>';
       });
       body.innerHTML = html;
@@ -706,7 +1062,7 @@
   }
   function loadAdvanceCalendar() {
     var wrap = document.getElementById('adv-cal');
-    if (ADV_OFFS) { renderAdvTabs(); renderAdvCalendar(); return; }
+    if (ADV_OFFS) { renderAdvTabs(); renderAdvCalendar(); if (ADV_AUTO_OPEN) { ADV_AUTO_OPEN = false; toggleAdvEditor(); } return; }
     var cb = 'advCb_' + Date.now();
     window[cb] = function (res) {
       delete window[cb];
@@ -716,6 +1072,7 @@
       ADV_MONTHS = [0, 1, 2].map(function (k) { var d = new Date(Date.UTC(+base[0], +base[1] - 1 + k, 1)); return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2); });
       ADV_MONTH = ADV_MONTHS[0];
       renderAdvTabs(); renderAdvCalendar();
+      if (ADV_AUTO_OPEN) { ADV_AUTO_OPEN = false; toggleAdvEditor(); }
     };
     var s = document.createElement('script');
     s.src = WEB_APP_URL + '?action=advanceoff&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
@@ -821,6 +1178,7 @@
       ADV_OFFS = null; ADV_EDIT_OPEN = false;
       document.getElementById('adv-editor').classList.add('hidden');
       loadAdvanceCalendar();
+      playSendSound();
       alert('保存しました。');
     }).catch(function () { postInFlight = false; alert('保存に失敗しました。もう一度お試しください。'); });
   }
@@ -853,7 +1211,7 @@
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
-    }).then(function () { postInFlight = false; show('done'); })
+    }).then(function () { postInFlight = false; showDone(payload.formType); })
       .catch(function () { postInFlight = false; alert('送信に失敗しました。もう一度お試しください。'); });
   }
 
@@ -1058,15 +1416,185 @@
       if (!p) return;
       profile = p;
       document.getElementById('hello-name').textContent = p.displayName;
+      document.getElementById('hello-avatar').textContent = (p.displayName || '？').charAt(0);
       buildShiftForm();
       buildTimecardForm();
       checkRegistration();
+      history.replaceState({ view: 'home' }, '');
       show('home');
     }).catch(function (err) {
       dbg('初期化に失敗: ' + (err && err.message ? err.message : err));
       document.getElementById('view-loading').firstChild.textContent =
         '読み込みに失敗しました。';
     });
+  }
+
+  // ===== ゲーム風UI: サウンド・画面遷移・クエスト（2026-11-23追加） =====
+  function storeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function storeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+  var soundOn = (storeGet('jyujyutei-ui-sound') !== 'off');
+  var audioCtx = null;
+  function ensureCtx() {
+    if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { } }
+    if (audioCtx && audioCtx.state === 'suspended') { audioCtx.resume(); }
+  }
+  function tone(fFrom, fTo, dur, vol, delay, type) {
+    if (!soundOn) return;
+    ensureCtx(); if (!audioCtx) return;
+    var t0 = audioCtx.currentTime + (delay || 0);
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type || 'triangle';
+    o.frequency.setValueAtTime(fFrom, t0);
+    o.frequency.exponentialRampToValueAtTime(Math.max(fTo, 1), t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol || 0.16, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0 + dur + 0.05);
+  }
+  function playTap() { tone(520, 900, 0.09, 0.16, 0); }
+  function playEmergencySound() {
+    for (var i = 0; i < 3; i++) {
+      tone(700, 700, 0.11, 0.17, i * 0.24);
+      tone(960, 960, 0.11, 0.17, i * 0.24 + 0.12);
+    }
+  }
+  function playMoneySound() {
+    tone(1500, 1500, 0.04, 0.10, 0, 'square');
+    tone(1568, 1568, 0.30, 0.13, 0.05);
+    tone(2093, 2093, 0.40, 0.12, 0.05);
+    tone(2637, 2637, 0.34, 0.07, 0.05);
+  }
+  function playSendSound() {
+    tone(523, 523, 0.09, 0.16, 0);
+    tone(659, 659, 0.09, 0.16, 0.08);
+    tone(784, 784, 0.09, 0.16, 0.16);
+    tone(1046, 1046, 0.28, 0.18, 0.24);
+  }
+  function paintSoundBtn() {
+    var btn = document.getElementById('sound-toggle');
+    if (!btn) return;
+    btn.classList.toggle('off', !soundOn);
+    document.getElementById('st-ic').textContent = soundOn ? '🔊' : '🔇';
+    document.getElementById('st-tx').textContent = soundOn ? 'サウンド ON' : 'サウンド OFF';
+  }
+  function toggleSound() {
+    soundOn = !soundOn;
+    storeSet('jyujyutei-ui-sound', soundOn ? 'on' : 'off');
+    paintSoundBtn();
+    if (soundOn) playTap();
+  }
+  paintSoundBtn();
+
+  var navDepth = 0;
+  function navTo(name) {
+    navDepth++;
+    history.pushState({ view: name }, '');
+    show(name);
+  }
+  function goBack() {
+    playTap();
+    if (navDepth > 0) { history.back(); }
+    else { show('home'); }
+  }
+  window.addEventListener('popstate', function (e) {
+    if (navDepth > 0) navDepth--;
+    var v = (e.state && e.state.view) || 'home';
+    show(v);
+  });
+  function pressFx(el, x, y) {
+    el.classList.add('pressing');
+    var r = el.getBoundingClientRect();
+    var s = document.createElement('span');
+    s.className = 'ink-pop';
+    s.style.left = (x - r.left) + 'px';
+    s.style.top = (y - r.top) + 'px';
+    el.appendChild(s);
+    setTimeout(function () { el.classList.remove('pressing'); }, 190);
+    setTimeout(function () { s.remove(); }, 480);
+  }
+  var ADV_AUTO_OPEN = false;
+  function cardGo(el, ev, view, sound, advOpen) {
+    if (sound === 'emergency') { pressFx(el, ev.clientX, ev.clientY); playEmergencySound(); }
+    else if (sound === 'money') { pressFx(el, ev.clientX, ev.clientY); playMoneySound(); }
+    else { playTap(); pressFx(el, ev.clientX, ev.clientY); }
+    if (advOpen) ADV_AUTO_OPEN = true;
+    setTimeout(function () { navTo(view); }, 300);
+  }
+
+  var DONE_INFO = {
+    timecard: { stamp: '受付完了！', msg: '記録しました。<br>内容は「勤務履歴」から確認できます。' },
+    shift: { stamp: '受付完了！', msg: '提出しました。<br>確認したら連絡します。' },
+    long: { stamp: '受付完了！', msg: '申請しました。<br>確認したら連絡します。' },
+    resign: { stamp: '受付完了！', msg: '申請しました。' },
+    emergency: { stamp: '受付完了！', msg: '送信しました。<br>田中が代わりを探します。' },
+    fuyo: { stamp: '受付完了！', msg: '提出しました。<br>ありがとうございました。' },
+    quest: { stamp: '立候補しました！', msg: '田中が確認してから確定します。<br>決まったら連絡しますね。' }
+  };
+  function showDone(formType) {
+    var info = DONE_INFO[formType] || { stamp: '受付完了！', msg: '送信しました。<br>確認したら、こちらから連絡します。<br>ありがとうございました。' };
+    document.getElementById('ov-stamp').textContent = info.stamp;
+    document.getElementById('ov-msg').innerHTML = info.msg;
+    var ov = document.getElementById('done-overlay');
+    ov.classList.remove('on');
+    void ov.offsetWidth;
+    ov.classList.add('on');
+    playSendSound();
+  }
+  function closeDoneOverlay() {
+    document.getElementById('done-overlay').classList.remove('on');
+    playTap();
+    goBack();
+  }
+
+  // ===== クエスト =====
+  var QUESTS = [];
+  var questCurrent = null;
+  function questDateLabel(q) {
+    var p = q.date.split('-');
+    return Number(p[1]) + '月' + Number(p[2]) + '日(' + q.dow + ') ' + q.start + '-' + q.end;
+  }
+  function loadQuests() {
+    var board = document.getElementById('quest-board');
+    if (!board || typeof liff === 'undefined' || !liff.getAccessToken) return;
+    var cb = 'questCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok' || !res.quests || res.quests.length === 0) { board.innerHTML = ''; return; }
+      QUESTS = res.quests;
+      var html = '<div class="quest"><span class="quest-head">⚔ クエスト発生中!!</span>';
+      QUESTS.forEach(function (q, i) {
+        html += '<div class="quest-card"><div class="quest-date">' + questDateLabel(q) + '</div>'
+          + '<div class="quest-desc">' + q.label + '</div>'
+          + '<div class="quest-reward">報酬：' + q.reward + '</div>'
+          + (q.joined
+            ? '<button class="quest-btn joined" disabled>立候補済み</button>'
+            : '<button class="quest-btn" onclick="openQuest(event,' + i + ')">立候補する！</button>')
+          + '</div>';
+      });
+      html += '</div>';
+      board.innerHTML = html;
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=quests&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.onerror = function () { board.innerHTML = ''; };
+    document.body.appendChild(s);
+  }
+  function openQuest(ev, i) {
+    var q = QUESTS[i];
+    if (!q) return;
+    var btn = ev.currentTarget;
+    playTap();
+    if (btn) pressFx(btn, ev.clientX, ev.clientY);
+    questCurrent = q;
+    document.getElementById('quest-date').textContent = questDateLabel(q);
+    document.getElementById('quest-desc').textContent = q.label;
+    setTimeout(function () { navTo('quest'); }, 300);
+  }
+  function submitQuest() {
+    if (!questCurrent) return;
+    if (!confirm('このクエストに立候補します。よろしいですか？\n立候補しても即確定にはなりません。')) return;
+    post({ formType: 'quest', questId: questCurrent.id });
   }
 </script>
 </body>
