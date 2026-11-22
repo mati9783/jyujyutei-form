@@ -61,6 +61,15 @@
     transition:transform .08s ease;
   }
   .card:active{transform:scale(.96);}
+  .card.pressing{transform:scale(.92) !important; filter:brightness(1.13);}
+  .emergency{position:relative;}
+  .emergency.pressing{transform:scale(.96); filter:brightness(1.12);}
+  .ink-pop{
+    position:absolute; width:16px; height:16px; margin:-8px 0 0 -8px; border-radius:50%;
+    background:rgba(255,255,255,.55); pointer-events:none; z-index:3;
+    animation:inkpop .45s ease-out forwards;
+  }
+  @keyframes inkpop{from{transform:scale(1); opacity:.75;} to{transform:scale(10); opacity:0;}}
   .card .ic{
     border-radius:12px;background:rgba(255,255,255,.85); border:2.5px solid var(--ink);
     display:flex;align-items:center;justify-content:center; font-weight:800; flex:none;
@@ -294,8 +303,22 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ toast.classList.remove('on'); }, 1800);
   }
+  function pressFx(el, x, y){
+    el.classList.add('pressing');
+    var r = el.getBoundingClientRect();
+    var s = document.createElement('span');
+    s.className = 'ink-pop';
+    s.style.left = (x - r.left) + 'px';
+    s.style.top = (y - r.top) + 'px';
+    el.appendChild(s);
+    setTimeout(function(){ el.classList.remove('pressing'); }, 190);
+    setTimeout(function(){ s.remove(); }, 480);
+  }
   document.querySelectorAll('[data-soon]').forEach(function(el){
-    el.addEventListener('click', showToast);
+    el.addEventListener('click', function(e){
+      pressFx(el, e.clientX, e.clientY);
+      setTimeout(showToast, 200);
+    });
   });
   function showScreen(name){
     home.classList.toggle('on', name === 'home');
@@ -303,9 +326,12 @@
     window.scrollTo(0,0);
   }
   history.replaceState({ screen: 'home' }, '');
-  document.getElementById('go-timecard').addEventListener('click', function(){
-    history.pushState({ screen: 'timecard' }, '');
-    showScreen('timecard');
+  document.getElementById('go-timecard').addEventListener('click', function(e){
+    pressFx(this, e.clientX, e.clientY);
+    setTimeout(function(){
+      history.pushState({ screen: 'timecard' }, '');
+      showScreen('timecard');
+    }, 300);
   });
   document.getElementById('back-home').addEventListener('click', function(){
     history.back();
