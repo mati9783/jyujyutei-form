@@ -354,14 +354,6 @@
         <div class="timerow"><span class="lab">IN</span><span class="chip">17:30</span><span class="arrow">→</span><span class="lab">OUT</span><span class="chip">22:00</span></div>
         <span class="toggle" data-toggle>一人勤務</span>
       </div>
-      <div class="ssp-box">
-        <div class="ssp-label">🔔 送信音セレクト（タップで試聴できます）</div>
-        <div class="ssp-btns">
-          <button class="ssp on" data-ss="1">音 1</button>
-          <button class="ssp" data-ss="2">音 2</button>
-          <button class="ssp" data-ss="3">音 3</button>
-        </div>
-      </div>
       <button class="sendbtn" id="send-demo">送信する！</button>
     </div>
     <div class="foot">これは入力画面のイメージです。数字はサンプルです</div>
@@ -430,9 +422,7 @@
     tone(659, 659, 0.10, 0.16, 0.09);
     tone(784, 1046, 0.24, 0.18, 0.18);
   }
-  /* 送信音の候補3パターン */
-  var sendSound = parseInt(storeGet('jyujyutei-ui-send-sound') || '1', 10);
-  if ([1,2,3].indexOf(sendSound) < 0) sendSound = 1;
+  /* 送信音（2026-11-22に坂井が「音1」を採用） */
   function playSendPattern(n){
     if (n === 2){
       tone(1318, 1318, 0.16, 0.12, 0, 'sine');
@@ -450,20 +440,7 @@
       tone(1046, 1046, 0.28, 0.18, 0.24);
     }
   }
-  function paintSsp(){
-    document.querySelectorAll('.ssp').forEach(function(b){
-      b.classList.toggle('on', parseInt(b.getAttribute('data-ss'), 10) === sendSound);
-    });
-  }
-  paintSsp();
-  document.querySelectorAll('.ssp').forEach(function(b){
-    b.addEventListener('click', function(){
-      sendSound = parseInt(b.getAttribute('data-ss'), 10);
-      storeSet('jyujyutei-ui-send-sound', String(sendSound));
-      paintSsp();
-      playSendPattern(sendSound);
-    });
-  });
+
   var stBtn = document.getElementById('sound-toggle');
   function paintSoundBtn(){
     stBtn.classList.toggle('off', !soundOn);
@@ -534,7 +511,7 @@
     overlay.classList.remove('on');
     void overlay.offsetWidth;
     overlay.classList.add('on');
-    playSendPattern(sendSound);
+    playSendPattern(1);
   });
   document.getElementById('close-overlay').addEventListener('click', function(){
     overlay.classList.remove('on');
