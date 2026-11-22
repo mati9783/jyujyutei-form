@@ -42,10 +42,19 @@
   }
   .logo small{display:block; font-size:13px; font-weight:800; letter-spacing:.35em; margin-top:2px;}
   .player{
-    display:flex; align-items:center; gap:10px; margin:16px 2px 14px;
+    display:flex; align-items:center; gap:10px; flex:1; min-width:0;
     background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25);
     border-radius:14px; padding:9px 12px;
   }
+  .top-row{display:flex; align-items:center; gap:10px; margin:16px 2px 14px;}
+  .sound-toggle{
+    display:flex; align-items:center; gap:6px; flex:none;
+    font-family:inherit; font-weight:800; font-size:13.5px; letter-spacing:.03em;
+    padding:10px 14px; border-radius:999px; border:3px solid var(--ink); cursor:pointer;
+    background:#3ddc5a; color:var(--ink); box-shadow:0 3px 0 rgba(0,0,0,.45);
+  }
+  .sound-toggle.off{background:#9aa3ab; color:#333;}
+  .sound-toggle:active{transform:scale(.94);}
   .avatar{
     width:42px;height:42px;border-radius:50%; background:var(--cyan);
     display:flex;align-items:center;justify-content:center; font-weight:800; color:var(--ink); font-size:19px;
@@ -227,13 +236,16 @@
     <header class="top">
       <div class="logo">じゅうじゅう亭<small>スタッフアプリ</small></div>
     </header>
-    <div class="player">
-      <div class="avatar">サ</div>
-      <div>
-        <div class="nm">サンプルさん</div>
-        <div style="font-size:11.5px; font-weight:700; opacity:.8;">お疲れ様です！今日も頑張りましょう</div>
+    <div class="top-row">
+      <div class="player">
+        <div class="avatar">サ</div>
+        <div>
+          <div class="nm">サンプルさん</div>
+          <div style="font-size:11.5px; font-weight:700; opacity:.8;">お疲れ様です！今日も頑張りましょう</div>
+        </div>
+        <div class="lv">TEST</div>
       </div>
-      <div class="lv">TEST</div>
+      <button class="sound-toggle" id="sound-toggle"><span id="st-ic">🔊</span><span id="st-tx">サウンド ON</span></button>
     </div>
 
     <!-- クエスト -->
@@ -354,7 +366,51 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ toast.classList.remove('on'); }, 1800);
   }
+  /* サウンド（WebAudioで合成。BGMなし） */
+  function storeGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function storeSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+  var soundOn = (storeGet('jyujyutei-ui-sound') !== 'off');
+  var audioCtx = null;
+  function ensureCtx(){
+    if (!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} }
+    if (audioCtx && audioCtx.state === 'suspended'){ audioCtx.resume(); }
+  }
+  function tone(fFrom, fTo, dur, vol, delay){
+    if (!soundOn) return;
+    ensureCtx(); if (!audioCtx) return;
+    var t0 = audioCtx.currentTime + (delay || 0);
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(fFrom, t0);
+    o.frequency.exponentialRampToValueAtTime(Math.max(fTo, 1), t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol || 0.16, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0 + dur + 0.05);
+  }
+  function playTap(){ tone(520, 900, 0.09, 0.16, 0); }
+  function playSend(){
+    tone(523, 523, 0.10, 0.16, 0);
+    tone(659, 659, 0.10, 0.16, 0.09);
+    tone(784, 1046, 0.24, 0.18, 0.18);
+  }
+  var stBtn = document.getElementById('sound-toggle');
+  function paintSoundBtn(){
+    stBtn.classList.toggle('off', !soundOn);
+    document.getElementById('st-ic').textContent = soundOn ? '🔊' : '🔇';
+    document.getElementById('st-tx').textContent = soundOn ? 'サウンド ON' : 'サウンド OFF';
+  }
+  paintSoundBtn();
+  stBtn.addEventListener('click', function(){
+    soundOn = !soundOn;
+    storeSet('jyujyutei-ui-sound', soundOn ? 'on' : 'off');
+    paintSoundBtn();
+    if (soundOn) playTap();
+  });
+
   function pressFx(el, x, y){
+    playTap();
     el.classList.add('pressing');
     var r = el.getBoundingClientRect();
     var s = document.createElement('span');
@@ -385,6 +441,7 @@
     }, 300);
   });
   document.getElementById('back-home').addEventListener('click', function(){
+    playTap();
     history.back();
   });
   window.addEventListener('popstate', function(e){
@@ -399,12 +456,13 @@
     });
   });
   document.querySelectorAll('[data-toggle]').forEach(function(el){
-    el.addEventListener('click', function(){ el.classList.toggle('on'); });
+    el.addEventListener('click', function(){ el.classList.toggle('on'); playTap(); });
   });
   document.getElementById('send-demo').addEventListener('click', function(){
     overlay.classList.remove('on');
     void overlay.offsetWidth;
     overlay.classList.add('on');
+    playSend();
   });
   document.getElementById('close-overlay').addEventListener('click', function(){
     overlay.classList.remove('on');
