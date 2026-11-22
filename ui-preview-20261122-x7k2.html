@@ -42,11 +42,11 @@
   }
   .logo small{display:block; font-size:13px; font-weight:800; letter-spacing:.35em; margin-top:2px;}
   .player{
-    display:flex; align-items:center; gap:10px; flex:1; min-width:0;
+    display:flex; align-items:center; gap:10px; margin:16px 2px 14px;
     background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25);
     border-radius:14px; padding:9px 12px;
   }
-  .top-row{display:flex; align-items:center; gap:10px; margin:16px 2px 14px;}
+  .sound-row{display:flex; justify-content:center; margin-top:20px;}
   .sound-toggle{
     display:flex; align-items:center; gap:6px; flex:none;
     font-family:inherit; font-weight:800; font-size:13.5px; letter-spacing:.03em;
@@ -236,16 +236,13 @@
     <header class="top">
       <div class="logo">じゅうじゅう亭<small>スタッフアプリ</small></div>
     </header>
-    <div class="top-row">
-      <div class="player">
-        <div class="avatar">サ</div>
-        <div>
-          <div class="nm">サンプルさん</div>
-          <div style="font-size:11.5px; font-weight:700; opacity:.8;">お疲れ様です！今日も頑張りましょう</div>
-        </div>
-        <div class="lv">TEST</div>
+    <div class="player">
+      <div class="avatar">サ</div>
+      <div>
+        <div class="nm">サンプルさん</div>
+        <div style="font-size:11.5px; font-weight:700; opacity:.8;">お疲れ様です！今日も頑張りましょう</div>
       </div>
-      <button class="sound-toggle" id="sound-toggle"><span id="st-ic">🔊</span><span id="st-tx">サウンド ON</span></button>
+      <div class="lv">TEST</div>
     </div>
 
     <!-- クエスト -->
@@ -284,7 +281,7 @@
       <div class="card c-pink tilt-r" data-soon>
         <div class="ic">📋</div><div class="t">シフトを確認する</div><div class="s">確定したシフトを見る</div>
       </div>
-      <div class="card c-purple tilt-l" data-soon>
+      <div class="card c-purple tilt-l" data-soon data-sound="money">
         <div class="ic">💰</div><div class="t">勤務履歴</div><div class="s">見込み給与もここで確認</div>
       </div>
     </div>
@@ -302,7 +299,7 @@
     </div>
 
     <!-- 非常ボタン -->
-    <div class="emergency" data-soon>
+    <div class="emergency" data-soon data-sound="emergency">
       <div class="stripe"></div>
       <div class="inner">
         <div class="ic">🚨</div>
@@ -318,6 +315,10 @@
         <div><div class="t">扶養控除等申告書</div><div class="s">情報入力のお願い</div></div>
         <div class="badge">12月5日<br>まで</div>
       </div>
+    </div>
+
+    <div class="sound-row">
+      <button class="sound-toggle" id="sound-toggle"><span id="st-ic">🔊</span><span id="st-tx">サウンド ON</span></button>
     </div>
 
     <div class="foot">じゅうじゅう亭 スタッフ専用アプリ（UIテスト版）</div>
@@ -375,12 +376,12 @@
     if (!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} }
     if (audioCtx && audioCtx.state === 'suspended'){ audioCtx.resume(); }
   }
-  function tone(fFrom, fTo, dur, vol, delay){
+  function tone(fFrom, fTo, dur, vol, delay, type){
     if (!soundOn) return;
     ensureCtx(); if (!audioCtx) return;
     var t0 = audioCtx.currentTime + (delay || 0);
     var o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.type = 'triangle';
+    o.type = type || 'triangle';
     o.frequency.setValueAtTime(fFrom, t0);
     o.frequency.exponentialRampToValueAtTime(Math.max(fTo, 1), t0 + dur);
     g.gain.setValueAtTime(0.0001, t0);
@@ -390,6 +391,18 @@
     o.start(t0); o.stop(t0 + dur + 0.05);
   }
   function playTap(){ tone(520, 900, 0.09, 0.16, 0); }
+  function playEmergency(){
+    for (var i = 0; i < 3; i++){
+      tone(700, 700, 0.11, 0.17, i * 0.24);
+      tone(960, 960, 0.11, 0.17, i * 0.24 + 0.12);
+    }
+  }
+  function playMoney(){
+    tone(1500, 1500, 0.04, 0.10, 0, 'square');
+    tone(1568, 1568, 0.30, 0.13, 0.05);
+    tone(2093, 2093, 0.40, 0.12, 0.05);
+    tone(2637, 2637, 0.34, 0.07, 0.05);
+  }
   function playSend(){
     tone(523, 523, 0.10, 0.16, 0);
     tone(659, 659, 0.10, 0.16, 0.09);
@@ -409,8 +422,8 @@
     if (soundOn) playTap();
   });
 
-  function pressFx(el, x, y){
-    playTap();
+  function pressFx(el, x, y, mute){
+    if (!mute) playTap();
     el.classList.add('pressing');
     var r = el.getBoundingClientRect();
     var s = document.createElement('span');
@@ -423,7 +436,10 @@
   }
   document.querySelectorAll('[data-soon]').forEach(function(el){
     el.addEventListener('click', function(e){
-      pressFx(el, e.clientX, e.clientY);
+      var kind = el.getAttribute('data-sound');
+      pressFx(el, e.clientX, e.clientY, !!kind);
+      if (kind === 'emergency') playEmergency();
+      else if (kind === 'money') playMoney();
       setTimeout(showToast, 200);
     });
   });
