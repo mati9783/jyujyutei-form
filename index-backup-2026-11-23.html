@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet">
+<title>じゅうじゅう亭 連絡フォーム</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+  :root{
+    --yellow:#ffe600; --cyan:#19d3ff; --pink:#ff3d8a; --purple:#8b5bff;
+    --green:#37e08b; --orange:#ff9f1c; --red:#ff4747; --gray:#9aa3b2;
+    --bg:#13131b; --ink:#17171f;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"M PLUS Rounded 1c",sans-serif; background:var(--bg); color:#fff;
+    min-height:100vh; overflow-x:hidden; position:relative;
+  }
+  .splat{position:fixed; border-radius:50%; opacity:.5; z-index:0; pointer-events:none;}
+  .splat::after{content:""; position:absolute; border-radius:50%; background:inherit;}
+  .s1{width:210px;height:210px;background:var(--purple);top:-70px;right:-60px;transform:rotate(20deg);}
+  .s1::after{width:60px;height:60px;left:-24px;top:110px;}
+  .s2{width:150px;height:150px;background:var(--cyan);bottom:6%;left:-70px;opacity:.35;}
+  .s2::after{width:44px;height:44px;right:-16px;top:16px;}
+  .s3{width:90px;height:90px;background:var(--pink);top:44%;right:-46px;opacity:.3;}
+  .wrap{position:relative; z-index:1; max-width:480px; margin:0 auto; padding:14px 14px 40px;}
+  .hidden{display:none !important;}
+  div[id^="view-"]:not(.hidden){animation:pop .18s ease;}
+  @keyframes pop{from{transform:scale(.97); opacity:.4;} to{transform:scale(1); opacity:1;}}
+  header.top{text-align:center; margin:6px 0 4px;}
+  .logo{
+    display:inline-block; background:var(--yellow); color:var(--ink);
+    font-weight:800; font-size:27px; letter-spacing:.02em; line-height:1.15;
+    padding:10px 20px 12px; border-radius:18px 22px 16px 24px;
+    transform:rotate(-2deg); box-shadow:0 6px 0 rgba(0,0,0,.35);
+    border:3px solid var(--ink);
+  }
+  .logo small{display:block; font-size:13px; font-weight:800; letter-spacing:.35em; margin-top:2px;}
+  .player{
+    display:flex; align-items:center; gap:10px; margin:16px 2px 14px;
+    background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25);
+    border-radius:14px; padding:9px 12px;
+  }
+  .avatar{
+    width:42px;height:42px;border-radius:50%; background:var(--cyan);
+    display:flex;align-items:center;justify-content:center; font-weight:800; color:var(--ink); font-size:19px;
+    border:3px solid var(--ink); flex:none;
+  }
+  .player .nm{font-weight:800; font-size:16px;}
+  .sound-row{display:flex; justify-content:center; margin-top:20px;}
+  .sound-toggle{
+    display:flex; align-items:center; gap:6px; flex:none;
+    font-family:inherit; font-weight:800; font-size:13.5px; letter-spacing:.03em;
+    padding:10px 14px; border-radius:999px; border:3px solid var(--ink); cursor:pointer;
+    background:#3ddc5a; color:var(--ink); box-shadow:0 3px 0 rgba(0,0,0,.45);
+  }
+  .sound-toggle.off{background:#9aa3ab; color:#333;}
+  .sound-toggle:active{transform:scale(.94);}
+  .card{
+    border:3px solid var(--ink); border-radius:18px; color:var(--ink);
+    box-shadow:0 5px 0 rgba(0,0,0,.4); cursor:pointer; position:relative; overflow:hidden;
+    transition:transform .08s ease;
+  }
+  .card:active{transform:scale(.96);}
+  .card.pressing{transform:scale(.92) !important; filter:brightness(1.13);}
+  .ink-pop{
+    position:absolute; width:16px; height:16px; margin:-8px 0 0 -8px; border-radius:50%;
+    background:rgba(255,255,255,.55); pointer-events:none; z-index:3;
+    animation:inkpop .45s ease-out forwards;
+  }
+  @keyframes inkpop{from{transform:scale(1); opacity:.75;} to{transform:scale(10); opacity:0;}}
+  .card .ic{
+    border-radius:12px;background:rgba(255,255,255,.85); border:2.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center; font-weight:800; flex:none;
+  }
+  .card .t{font-weight:800; line-height:1.25;}
+  .card .s{font-weight:700; opacity:.75; line-height:1.3;}
+  .c-yellow{background:var(--yellow);} .c-cyan{background:var(--cyan);} .c-pink{background:var(--pink); color:#fff;}
+  .c-purple{background:var(--purple); color:#fff;} .c-green{background:var(--green);} .c-orange{background:var(--orange);}
+  .c-red{background:var(--red); color:#fff;} .c-gray{background:#d7dce4;}
+  .tilt-l{transform:rotate(-1deg);} .tilt-r{transform:rotate(1deg);}
+  .tier-big{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+  .tier-big .card{display:flex; align-items:center; gap:14px; padding:16px 16px;}
+  .tier-big .ic{width:58px;height:58px;font-size:30px;border-radius:16px;}
+  .tier-big .t{font-size:21px;}
+  .tier-big .s{font-size:12.5px; margin-top:2px;}
+  .tier-big .go{margin-left:auto; font-size:24px; font-weight:800; opacity:.55; flex:none;}
+  .tier-mid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;}
+  .tier-mid .card{padding:14px 12px 12px;}
+  .tier-mid .ic{width:44px;height:44px;font-size:23px;margin-bottom:8px;}
+  .tier-mid .t{font-size:17px;}
+  .tier-mid .s{font-size:11.5px; margin-top:3px;}
+  .tier-small{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;}
+  .tier-small .card{padding:10px 10px 9px; border-radius:14px; box-shadow:0 4px 0 rgba(0,0,0,.4); display:flex; align-items:center; gap:9px;}
+  .tier-small .ic{width:34px;height:34px;font-size:17px;border-radius:9px;}
+  .tier-small .t{font-size:14.5px;}
+  .tier-small .s{font-size:10.5px; margin-top:1px;}
+  .quest{
+    margin-top:16px; background:linear-gradient(135deg,#ff9f1c,#ff3d8a); border:3.5px solid var(--ink);
+    border-radius:18px; box-shadow:0 6px 0 rgba(0,0,0,.45); padding:12px 12px 13px; transform:rotate(-.5deg);
+    position:relative; overflow:hidden;
+  }
+  .quest-head{
+    display:inline-block; background:var(--ink); color:var(--yellow); font-weight:800; font-size:16.5px;
+    padding:5px 14px; border-radius:999px; letter-spacing:.04em; animation:pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.07);}}
+  .quest-card{
+    background:#fff; color:var(--ink); border:4px solid var(--ink); border-radius:14px;
+    margin-top:10px; padding:14px 15px; position:relative; overflow:hidden;
+    box-shadow:
+      inset 0 0 0 4px #ffe600,
+      inset 0 0 0 9px #ff1e46,
+      0 0 16px rgba(255,30,70,.55),
+      0 4px 0 rgba(0,0,0,.35);
+  }
+  .quest-date{font-weight:800; font-size:18.5px; line-height:1.3;}
+  .quest-desc{font-weight:700; font-size:13px; opacity:.8; margin-top:2px;}
+  .quest-reward{
+    display:inline-block; margin-top:9px; background:var(--yellow); border:2.5px solid var(--ink);
+    font-weight:800; font-size:13px; padding:4px 12px; border-radius:999px; transform:rotate(-1deg);
+  }
+  .quest-btn{
+    display:block; width:100%; margin-top:11px; background:var(--pink); color:#fff; border:3px solid var(--ink);
+    border-radius:12px; font-family:inherit; font-weight:800; font-size:16.5px; padding:11px 0; cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.4); letter-spacing:.05em; position:relative; overflow:hidden;
+  }
+  .quest-btn.pressing{transform:scale(.95); filter:brightness(1.12);}
+  .quest-btn.joined{background:#9aa3ab; cursor:default;}
+  .emergency{
+    margin-top:16px; background:var(--red); color:#fff; border:3.5px solid var(--ink); border-radius:18px;
+    box-shadow:0 6px 0 rgba(0,0,0,.45); cursor:pointer; overflow:hidden; transition:transform .08s ease;
+    position:relative;
+  }
+  .emergency:active{transform:scale(.97);}
+  .emergency.pressing{transform:scale(.96); filter:brightness(1.12);}
+  .emergency .stripe{height:12px; background:repeating-linear-gradient(45deg,#17171f 0 14px,var(--yellow) 14px 28px);}
+  .emergency .inner{display:flex; align-items:center; gap:12px; padding:13px 16px 15px;}
+  .emergency .ic{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.9); border:2.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center; font-size:24px; flex:none;}
+  .emergency .t{font-weight:800; font-size:19px; line-height:1.2;}
+  .emergency .s{font-size:12px; font-weight:700; opacity:.9;}
+  .limited{margin-top:22px;}
+  .limited .divider{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .limited .divider::before,.limited .divider::after{content:""; flex:1; border-top:2.5px dashed rgba(255,255,255,.4);}
+  .limited .tag{background:var(--orange); color:var(--ink); font-weight:800; font-size:12.5px;
+    padding:4px 14px; border-radius:999px; border:2.5px solid var(--ink); transform:rotate(-1.5deg);}
+  .limited .card{display:flex; align-items:center; gap:12px; padding:13px 14px;}
+  .limited .ic{width:44px;height:44px;font-size:22px;}
+  .limited .t{font-size:16.5px;}
+  .limited .s{font-size:11.5px; margin-top:2px;}
+  .limited .badge{margin-left:auto; flex:none; background:var(--red); color:#fff; font-weight:800; font-size:12px;
+    padding:5px 10px; border-radius:999px; border:2.5px solid var(--ink); transform:rotate(2deg); text-align:center; line-height:1.25;}
+  .quiet-row{text-align:center; margin-top:16px;}
+  .quiet-link{background:none; border:none; font-family:inherit; font-size:13px; font-weight:700; color:rgba(255,255,255,.75); text-decoration:underline; cursor:pointer; padding:6px;}
+  .foot{margin-top:20px; text-align:center; font-size:11px; color:rgba(255,255,255,.55); font-weight:700;}
+  .backbtn{
+    display:inline-flex; align-items:center; gap:6px; background:#fff; color:var(--ink); border:3px solid var(--ink);
+    font-family:inherit; font-weight:800; font-size:14px; border-radius:999px; padding:6px 14px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.35);
+  }
+  .scr-title{font-weight:800; font-size:22px; margin:14px 0 4px; transform:rotate(-1deg); display:inline-block;
+    background:var(--cyan); color:var(--ink); padding:5px 14px; border-radius:12px; border:3px solid var(--ink);}
+  .panel{background:#fff; color:var(--ink); border:3px solid var(--ink); border-radius:18px; padding:16px 14px; margin-top:14px;
+    box-shadow:0 6px 0 rgba(0,0,0,.4);}
+  .panel-red{box-shadow:inset 0 0 0 3px #ff1e46, 0 5px 0 rgba(0,0,0,.35);}
+  .panel h3{margin:0 0 6px; font-size:15px; font-weight:800;}
+  .note{font-size:13px; font-weight:700; line-height:1.65; background:rgba(23,23,31,.06); border-radius:10px; padding:10px 12px; margin-bottom:8px;}
+  .sub{color:#5a6272; font-size:13px; font-weight:700; line-height:1.6; margin-bottom:12px;}
+  .panel .sub{color:#5a6272;}
+  #view-loading{color:#fff; font-weight:700; padding-top:30px;}
+  #view-loading .sub, #view-loading div{color:rgba(255,255,255,.8);}
+  .warn{color:#b30000; font-weight:800;}
+  .flabel{font-weight:800; font-size:13px; margin:14px 0 5px; opacity:.85;}
+  .field{margin:12px 0;}
+  .field .flabel{margin-top:0;}
+  select, input[type="date"], input[type="text"], input[type="number"], input[type="time"], textarea{
+    font-family:inherit; font-weight:700; font-size:15px; color:var(--ink);
+    border:2.5px solid var(--ink); border-radius:10px; padding:8px 10px; background:#fff;
+  }
+  select{font-weight:800; cursor:pointer;}
+  select:disabled{opacity:.35; cursor:default;}
+  textarea{width:100%; box-sizing:border-box; min-height:64px; resize:vertical;}
+  input[type="text"]{width:100%; box-sizing:border-box;}
+  label.choice{
+    display:inline-flex; align-items:center; gap:6px; background:#fff; border:2.5px solid var(--ink);
+    border-radius:999px; padding:7px 14px; font-weight:800; font-size:14px; cursor:pointer; margin:2px 2px 2px 0;
+  }
+  label.choice input{width:18px; height:18px; accent-color:#e8102e; flex:none;}
+  label.choice:has(input:checked){background:var(--yellow);}
+  .row{display:flex; align-items:center; gap:8px; margin:6px 0; font-size:14px; flex-wrap:wrap;}
+  .row .label{width:2em; font-weight:800; flex:none;}
+  .day{border-bottom:2px dashed rgba(23,23,31,.18); padding:11px 2px;}
+  .day:last-of-type{border-bottom:none;}
+  .day .date{font-weight:800; font-size:16.5px; margin-bottom:7px;}
+  .day .date.sat{color:#2470e0;}
+  .day .date.sun{color:#e8102e;}
+  .submit, .sendbtn{
+    display:block; width:100%; margin-top:18px; background:var(--pink); color:#fff; border:3.5px solid var(--ink);
+    border-radius:16px; font-family:inherit; font-weight:800; font-size:20px; padding:15px 0; cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.45); letter-spacing:.08em;
+  }
+  .submit:active, .sendbtn:active{transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.45);}
+  .submit:disabled{background:#9aa3ab; cursor:default;}
+  .submit.emergency-submit, .sendbtn.red{background:#e8102e;}
+  .menu-btn.secondary{
+    display:block; width:100%; margin-top:12px; background:#fff; color:var(--ink); border:3px solid var(--ink);
+    border-radius:12px; font-family:inherit; font-weight:800; font-size:16px; padding:12px 0; cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.35);
+  }
+  .counter, .counterbox{background:#fff4d6; border:2.5px solid var(--ink); border-radius:10px; padding:9px 12px; font-size:12.5px; font-weight:700; line-height:1.6; margin:10px 0;}
+  .reg-notice{background:#ffe1e8; border:2.5px solid var(--ink); border-radius:10px; padding:10px 12px; font-size:13.5px; font-weight:700; margin:10px 0; line-height:1.6; color:#8f0023;}
+  .seg-title{font-weight:800; font-size:16px; margin:18px 0 4px;}
+  .time-row{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
+  .legend{font-size:12px; color:#5a6272; font-weight:700; margin:8px 0; line-height:1.7;}
+  .adv-table{width:100%; border-collapse:collapse; margin:8px 0;}
+  .adv-table th{font-size:12px; color:#5a6272; padding:3px 0;}
+  .adv-table th.sun{color:#e8102e;} .adv-table th.sat{color:#2470e0;}
+  .adv-cell{border:2px solid rgba(23,23,31,.25); background:#fff; vertical-align:top; height:62px; padding:3px; width:14.28%;}
+  .adv-cell.out{background:#f4f4f7;}
+  .adv-cell.past{opacity:.45;}
+  .adv-cell.sun .adv-dnum{color:#e8102e;} .adv-cell.sat .adv-dnum{color:#2470e0;}
+  .adv-dnum{font-weight:800; font-size:13px;}
+  .adv-off{font-size:10px; line-height:1.4; font-weight:700;}
+  .adv-closed{font-size:10px; color:#999; font-weight:700;}
+  .adv-tab, .mtab{
+    font-family:inherit; font-weight:800; font-size:14px; padding:8px 14px; border-radius:999px;
+    border:3px solid var(--ink); background:#fff; color:var(--ink); cursor:pointer; margin:0 6px 4px 0;
+  }
+  .adv-tab.on, .mtab.on{background:var(--ink); color:#fff;}
+  .adv-chip{
+    font-family:inherit; background:#fff; border:3px solid var(--ink); border-radius:999px; color:#b30000;
+    font-weight:800; font-size:14px; min-width:54px; padding:6px 14px; margin-left:8px; cursor:pointer;
+    box-shadow:0 3px 0 rgba(0,0,0,.3);
+  }
+  .adv-chip.on{background:#ff5d73; color:#fff;}
+  .adv-chip:disabled{opacity:.4;}
+  .adv-ed-row{display:flex; align-items:center; gap:6px; padding:9px 2px; border-bottom:2px dashed rgba(23,23,31,.18); font-size:14px; font-weight:700;}
+  .adv-lock{font-size:11px; color:#999; margin-left:8px;}
+  .adv-jump{
+    width:100%; background:#fff; color:#0a9d4d; border:3px solid #0a9d4d; border-radius:12px;
+    font-family:inherit; font-weight:800; font-size:15px; padding:11px 0; cursor:pointer; margin-top:8px;
+    position:relative; overflow:hidden;
+  }
+  .adv-jump:active{transform:scale(.97);}
+  .shift-wrap{overflow-x:auto; background:#fff; border:3px solid var(--ink); border-radius:12px;}
+  table.shift{border-collapse:collapse; font-size:12.5px; font-weight:700; white-space:nowrap;}
+  table.shift th, table.shift td{border:2px solid rgba(23,23,31,.35); padding:5px 6px; text-align:center; min-width:46px; height:22px;}
+  table.shift th{background:rgba(23,23,31,.07);}
+  table.shift th.name, table.shift td.name{position:sticky; left:0; background:#fff; text-align:left; font-weight:800; min-width:74px;}
+  table.shift .sat{color:#2470e0;}
+  table.shift .sun{color:#e8102e;}
+  table.shift tr.me td{background:#fff4d6;}
+  table.shift tr.me td.name{background:#fff4d6;}
+  .hrow{padding:10px 2px; border-bottom:2px dashed rgba(23,23,31,.18);}
+  .hrow:last-of-type{border-bottom:none;}
+  .hl1{display:flex; align-items:baseline; gap:8px;}
+  .hdow{font-weight:800; font-size:15.5px; width:76px; flex:none;}
+  .hdow small{font-size:11px; opacity:.7; margin-left:2px;}
+  .hdow.sat{color:#2470e0;} .hdow.sun{color:#e8102e;}
+  .hseg{flex:1; font-weight:700; font-size:14.5px;}
+  .hseg2{font-weight:700; font-size:14.5px; padding-left:84px;}
+  .hl2{display:flex; align-items:baseline; gap:8px; padding-left:84px; font-weight:700; font-size:13.5px; opacity:.85;}
+  .hl2 span:first-child{flex:1;}
+  .hl3{padding-left:84px; font-size:13px; font-weight:700; opacity:.7;}
+  .hamt{font-weight:800; font-size:15px;}
+  .totalbox{display:block; background:var(--ink); color:#fff; border-radius:12px; padding:13px 15px; margin:6px 0 4px; font-weight:800; font-size:14px;}
+  .ticket-banner{
+    margin:0 0 12px; background:linear-gradient(135deg,#ffd23e,#ffb03a); border:3px solid var(--ink);
+    border-radius:14px; padding:11px 15px; font-weight:800; font-size:15px; box-shadow:0 4px 0 rgba(0,0,0,.4);
+    transform:rotate(-.5deg); color:var(--ink);
+  }
+  .ticket-banner b{font-size:19px;}
+  .emg-item{display:flex; align-items:center; gap:10px; background:#fff; border:2.5px solid var(--ink); border-radius:12px; padding:12px; margin:8px 0; font-size:15px; font-weight:700; cursor:pointer;}
+  .emg-item input{width:20px; height:20px; flex:none; accent-color:#e8102e;}
+  .emg-warn{color:#b30000; font-weight:800; font-size:13px; line-height:1.65; margin:8px 0;}
+  .emg-example{background:#f6f6fa; border:2px dashed rgba(23,23,31,.35); border-radius:10px; padding:9px 12px; font-size:12.5px; font-weight:700; line-height:1.65;}
+  .emg-confirm-reason{background:#f6f6fa; border-radius:10px; padding:10px 12px; font-weight:700; font-size:14.5px; line-height:1.65; min-height:44px; margin:8px 0; white-space:pre-wrap; word-break:break-word;}
+  .emg-confirm-box{background:#fff; color:var(--ink); border:4px solid #e8102e; border-radius:18px; padding:20px 18px; max-width:420px; width:100%; margin:24px auto; box-shadow:0 10px 0 rgba(0,0,0,.45); box-sizing:border-box;}
+  .emg-confirm-box h1{margin:0 0 10px; font-size:20px; color:#b30000;}
+  .emg-logbox{border:2.5px solid rgba(23,23,31,.4); border-radius:10px; padding:10px 12px; font-size:12.5px; font-weight:700; line-height:1.7; margin-top:12px; background:#fff;}
+  .done{text-align:center; padding:40px 0; font-size:16px; line-height:1.8; color:#fff; font-weight:700;}
+  .overlay{
+    position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; flex-direction:column;
+    background:rgba(10,10,16,.72);
+  }
+  .overlay.on{display:flex;}
+  .burst{position:absolute; width:340px; height:340px; border-radius:50%; background:var(--yellow);
+    animation:burst .45s ease-out; opacity:.9;}
+  .burst::after{content:""; position:absolute; inset:38px; border-radius:50%; background:var(--cyan);}
+  @keyframes burst{0%{transform:scale(0) rotate(0deg);} 70%{transform:scale(1.15) rotate(24deg);} 100%{transform:scale(1) rotate(12deg);}}
+  .stamp{
+    position:relative; z-index:2; background:#fff; color:var(--red); border:5px solid var(--red);
+    font-weight:800; font-size:34px; padding:12px 26px; border-radius:14px; transform:rotate(-7deg);
+    animation:stamp .35s .25s ease-out backwards; letter-spacing:.06em; text-align:center; line-height:1.2;
+  }
+  .stamp small{display:block; font-size:14px; color:var(--ink); letter-spacing:.02em; margin-top:4px;}
+  @keyframes stamp{0%{transform:rotate(-7deg) scale(2.4); opacity:0;} 100%{transform:rotate(-7deg) scale(1); opacity:1;}}
+  .overlay .msg{position:relative; z-index:2; margin-top:20px; font-weight:800; font-size:15px; text-align:center; line-height:1.6; color:#fff;}
+  .overlay .closebtn{position:relative; z-index:2; margin-top:16px; background:#fff; color:var(--ink); border:3px solid var(--ink);
+    font-family:inherit; font-weight:800; font-size:16px; border-radius:999px; padding:10px 30px; cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="splat s1"></div><div class="splat s2"></div><div class="splat s3"></div>
+<div class="wrap">
+
+<div id="view-loading">読み込み中…<div id="debug" style="margin-top:12px;font-size:12px;color:#888;white-space:pre-wrap;"></div></div>
+
+<!-- ホーム -->
+<div id="view-home" class="hidden">
+  <header class="top">
+    <div class="logo">じゅうじゅう亭<small>スタッフアプリ</small></div>
+  </header>
+  <div class="player">
+    <div class="avatar" id="hello-avatar">？</div>
+    <div>
+      <div class="nm"><span id="hello-name"></span>さん</div>
+      <div style="font-size:11.5px; font-weight:700; opacity:.8;">お疲れ様です！今日も頑張りましょう</div>
+    </div>
+  </div>
+
+  <div id="quest-board"></div>
+
+  <div class="tier-big">
+    <div class="card c-cyan tilt-l" onclick="cardGo(this,event,'timecard')">
+      <div class="ic">⏱</div>
+      <div><div class="t">タイムカード</div><div class="s">出勤・退勤を記録する</div></div>
+      <div class="go">›</div>
+    </div>
+    <div class="card c-yellow tilt-r" onclick="cardGo(this,event,'shift')">
+      <div class="ic">✎</div>
+      <div><div class="t">シフトを提出する</div><div class="s">休み希望・出勤できる日を送る</div></div>
+      <div class="go">›</div>
+    </div>
+  </div>
+
+  <div class="tier-mid">
+    <div class="card c-pink tilt-r" onclick="cardGo(this,event,'table')">
+      <div class="ic">📋</div><div class="t">シフトを確認する</div><div class="s">確定したシフトを見る</div>
+    </div>
+    <div class="card c-purple tilt-l" onclick="cardGo(this,event,'history','money')">
+      <div class="ic">💰</div><div class="t">勤務履歴</div><div class="s">見込み給与もここで確認</div>
+    </div>
+  </div>
+
+  <div class="tier-small">
+    <div class="card c-green tilt-l" onclick="cardGo(this,event,'long')">
+      <div class="ic">🌴</div>
+      <div><div class="t">長期休み申請</div><div class="s">1週間以上休む場合</div></div>
+    </div>
+    <div class="card c-orange tilt-r" onclick="cardGo(this,event,'shift',null,true)">
+      <div class="ic">📅</div>
+      <div><div class="t">先行申告</div><div class="s">早めに休み希望の提出</div></div>
+    </div>
+  </div>
+
+  <div class="emergency" onclick="cardGo(this,event,'emergency','emergency')">
+    <div class="stripe"></div>
+    <div class="inner">
+      <div class="ic">🚨</div>
+      <div><div class="t">緊急連絡119番</div><div class="s">欠勤の連絡はこちらから</div></div>
+    </div>
+  </div>
+
+  <div class="limited">
+    <div class="divider"><span class="tag">期間限定</span></div>
+    <div class="card c-gray tilt-l" onclick="cardGo(this,event,'fuyo')">
+      <div class="ic">📝</div>
+      <div><div class="t">扶養控除等申告書</div><div class="s">情報入力のお願い</div></div>
+      <div class="badge">12月5日<br>まで</div>
+    </div>
+  </div>
+
+  <div class="quiet-row">
+    <button class="quiet-link" onclick="navTo('resign')">退職を申請する</button>
+  </div>
+
+  <div class="sound-row">
+    <button class="sound-toggle" id="sound-toggle" onclick="toggleSound()"><span id="st-ic">🔊</span><span id="st-tx">サウンド ON</span></button>
+  </div>
+
+  <div class="foot">じゅうじゅう亭 スタッフ専用アプリ</div>
+</div>
+
+<!-- クエスト詳細 -->
+<div id="view-quest" class="hidden">
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">クエスト</span></div>
+  <div class="quest" style="margin-top:14px;">
+    <span class="quest-head">⚔ クエスト発生中!!</span>
+    <div class="quest-card">
+      <div class="quest-date" id="quest-date"></div>
+      <div class="quest-desc" id="quest-desc"></div>
+      <div class="quest-reward">報酬：まかないチケット ×1</div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px;">
+    <div class="note">立候補しても即確定にはなりません。田中が確認してから確定します。決まったら連絡します。</div>
+    <button class="sendbtn" id="quest-submit" onclick="submitQuest()">立候補する！</button>
+  </div>
+</div>
+
+<!-- シフト提出 -->
+<div id="view-shift" class="hidden">
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">シフトを提出する</span></div>
+  <div class="panel">
+  <div id="adv-block" style="margin-bottom:16px;">
+    <div style="font-weight:bold;font-size:16px;">先行申告カレンダー</div>
+    <div class="sub">先に分かっている「出勤できない日」が見えます。自分の出られない日は、先に登録しておいてください。休み希望は先着順で確定ではありません。</div>
+    <div id="adv-tabs"></div>
+    <div id="adv-cal"><div class="sub">カレンダーを読み込み中…</div></div>
+    <button class="adv-jump" onclick="toggleAdvEditor()">先の休みを申告・変更する</button>
+    <div id="adv-editor" class="hidden"></div>
+  </div>
+  <div class="sub">期間: <span id="period-label"></span><br>出勤できる日は「出勤できる」、休みたい日は「休み希望」を選んでください。夜に出勤できる場合は開始時間も選んでください。</div>
+  <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
+  <div id="weekend-counter" class="counter hidden"></div>
+  <div id="days"></div>
+  <div class="field">
+    <div class="flabel">備考（任意）</div>
+    <textarea id="shift-note" placeholder="例: 14日は18時30分からなら出勤できます"></textarea>
+  </div>
+  <button class="submit" onclick="submitShift()">提出する</button>
+  </div>
+</div>
+
+<!-- 長期休み申請 -->
+<div id="view-long" class="hidden">
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">長期休み申請</span></div>
+  <div class="panel">
+  <div class="sub">実習・研修、テスト期間、帰省など、先に分かっている長いお休みはこちらから申請してください。</div>
+  <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
+  <div class="field">
+    <div class="flabel">開始日</div>
+    <input type="date" id="long-start">
+  </div>
+  <div class="field">
+    <div class="flabel">終了日</div>
+    <input type="date" id="long-end">
+  </div>
+  <div class="field">
+    <div class="flabel">理由</div>
+    <select id="long-reason">
+      <option>実習・研修</option>
+      <option>テスト期間</option>
+      <option>帰省</option>
+      <option>旅行</option>
+      <option>その他</option>
+    </select>
+  </div>
+  <div class="field">
+    <div class="flabel">詳細（任意）</div>
+    <textarea id="long-detail" placeholder="例: 看護実習のため終日出勤できません"></textarea>
+  </div>
+  <button class="submit" onclick="submitLong()">申請する</button>
+  </div>
+</div>
+
+<!-- 退職申請 -->
+<div id="view-resign" class="hidden">
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">退職を申請する</span></div>
+  <div class="panel">
+  <div class="sub">送信すると店長に届きます。<span class="warn">研修期間終了後の退職は、1ヶ月前までの申告がルールです。</span></div>
+  <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
+  <div class="field">
+    <div class="flabel">退職希望日（最終出勤日）</div>
+    <input type="date" id="resign-day">
+  </div>
+  <div class="field">
+    <div class="flabel">理由（任意）</div>
+    <textarea id="resign-reason" placeholder="空欄でも問題ありません"></textarea>
+  </div>
+  <button class="submit" onclick="submitResign()">申請する</button>
+  </div>
+</div>
+
+<!-- 扶養控除等申告書（令和9年分） -->
+<div id="view-fuyo" class="hidden">
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">扶養控除等申告書</span></div>
+  <div class="panel">
+  <div class="sub">令和9年分の「給与所得者の扶養控除等（異動）申告書」を作るための情報です。<span class="warn">提出期限は12月5日（土）です。</span></div>
+  <div id="fuyo-status" class="sub"></div>
+  <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
+  <div class="field">
+    <div class="flabel">氏名</div>
+    <input type="text" id="fuyo-name" placeholder="例: 山田 次郎">
+  </div>
+  <div class="field">
+    <div class="flabel">郵便番号</div>
+    <input type="text" id="fuyo-postal" inputmode="numeric" placeholder="例: 870-0123">
+  </div>
+  <div class="field">
+    <div class="flabel">住所（令和9年1月1日時点＝今住んでいる住所）</div>
+    <textarea id="fuyo-address" placeholder="例: 大分県大分市明野北○-○-○"></textarea>
+  </div>
+  <div class="field">
+    <div class="flabel">生年月日（西暦で入力してください）</div>
+    <input type="date" id="fuyo-birth">
+  </div>
+  <div class="field">
+    <div class="flabel">世帯主の氏名</div>
+    <input type="text" id="fuyo-head" placeholder="例: 山田 太郎">
+  </div>
+  <div class="field">
+    <div class="flabel">世帯主は、あなたから見て誰ですか？</div>
+    <div>
+      <label class="choice"><input type="radio" name="fuyo-rel" value="自分" onchange="toggleFuyoRel()"> 自分</label>
+      <label class="choice"><input type="radio" name="fuyo-rel" value="父" onchange="toggleFuyoRel()"> 父</label>
+      <label class="choice"><input type="radio" name="fuyo-rel" value="母" onchange="toggleFuyoRel()"> 母</label>
+      <label class="choice"><input type="radio" name="fuyo-rel" value="その他" onchange="toggleFuyoRel()"> その他</label>
+    </div>
+    <input type="text" id="fuyo-rel-text" class="hidden" placeholder="例: 祖母、兄 など">
+    <div class="sub" style="margin-top:6px;">※申告書の「続柄」は「あなたから見た関係」で書きます。住民票の続柄とは逆向きになるので、間違えないように選んでください。</div>
+  </div>
+  <div class="field">
+    <div class="flabel">法律上、結婚していますか？</div>
+    <div>
+      <label class="choice"><input type="radio" name="fuyo-spouse" value="はい"> はい</label>
+      <label class="choice"><input type="radio" name="fuyo-spouse" value="いいえ"> いいえ</label>
+    </div>
+  </div>
+  <div class="field">
+    <div class="flabel">あなたの収入で生活を支えている家族はいますか？</div>
+    <div>
+      <label class="choice"><input type="radio" name="fuyo-family" value="はい"> はい</label>
+      <label class="choice"><input type="radio" name="fuyo-family" value="いいえ"> いいえ</label>
+    </div>
+    <div class="sub" style="margin-top:6px;">育てている子どもや、仕送りをしている親などが当てはまります。親に支えてもらっている人は『いいえ』です。</div>
+  </div>
+  <div class="note">個人番号（マイナンバー）を書く欄は、このフォームにはありません。後日、印刷した申告書の紙に、ご自身で手書きしていただきます。</div>
+  <button class="submit" onclick="submitFuyo()">提出する</button>
+  </div>
+</div>
+
+<!-- タイムカード -->
+<div id="view-timecard" class="hidden">
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">タイムカード</span></div>
+  <div class="panel">
+  <div class="sub">勤務した日付と時間を入れてください。基本は当日の分をその日に。入れ忘れた分は日付を変えて入れられます。同じ日付で送り直すと、新しい内容に置き換わります。</div>
+  <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
+  <div class="field">
+    <div class="flabel">日付</div>
+    <input type="date" id="tc-date">
+  </div>
+  <div class="seg-title">【昼】</div>
+  <div class="field">
+    <div class="flabel">出勤時間</div>
+    <div class="time-row" id="tc-day-in"></div>
+  </div>
+  <div class="field">
+    <div class="flabel">退勤時間</div>
+    <div class="time-row" id="tc-day-out"></div>
+  </div>
+  <div class="field">
+    <label class="choice"><input type="checkbox" id="tc-day-solo"> 一人勤務</label>
+  </div>
+  <div class="seg-title">【夜】</div>
+  <div class="field">
+    <div class="flabel">出勤時間</div>
+    <div class="time-row" id="tc-night-in"></div>
+  </div>
+  <div class="field">
+    <div class="flabel">退勤時間</div>
+    <div class="time-row" id="tc-night-out"></div>
+  </div>
+  <div class="field">
+    <label class="choice"><input type="checkbox" id="tc-night-solo"> 一人勤務</label>
+  </div>
+  <div class="field">
+    <div class="flabel">まかない金額（任意）</div>
+    <input type="number" id="tc-makanai" inputmode="numeric" min="0" placeholder="円">
+  </div>
+  <div class="field">
+    <div class="flabel">備考（任意）</div>
+    <textarea id="tc-note" placeholder="何かあれば書いてください"></textarea>
+  </div>
+  <button class="submit" onclick="submitTimecard()">記録する</button>
+  <div class="sub" style="margin-top:14px;">自分の記録と給与の見込みは、ホームの【勤務履歴】から確認できます。</div>
+  </div>
+</div>
+
+<!-- シフト確認 -->
+<div id="view-table" class="hidden">
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">シフトを確認する</span></div>
+  <div class="panel">
+  <div class="sub">期間: <span id="shift-period-label"></span></div>
+  <div class="seg-title" style="margin-top:6px;">あなたの出勤確定日</div>
+  <div class="sub" style="margin-bottom:6px;">今日以降、あなたが出勤する日です。</div>
+  <div id="my-confirmed-wrap"><div class="sub">読み込み中…</div></div>
+  <div class="seg-title" style="margin-top:20px;">全員のシフト表</div>
+  <div class="legend">上段は朝（9時〜15時）、下段は夜（17時30分〜23時）の時間帯です。<br>時間＝出勤、休＝休み希望、〇＝出勤できますがシフトに入っていません（18〇・19〇は、その時間から出勤できるという意味です）。</div>
+  <div id="shift-table-wrap"></div>
+  </div>
+</div>
+
+<!-- 勤務履歴 -->
+<div id="view-history" class="hidden">
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">勤務履歴</span></div>
+  <div class="panel">
+  <div class="sub">勤務の記録と、その月の給与の見込みです。金額は見込みで、確定は月末の給与明細でお知らせします。</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0;">
+    <button id="hist-prev" class="mtab" style="flex:none;" onclick="stepHistoryMonth(-1)">◀ 前の月</button>
+    <div id="hist-month-label" style="font-weight:800;font-size:16.5px;"></div>
+    <button id="hist-next" class="mtab" style="flex:none;" onclick="stepHistoryMonth(1)">次の月 ▶</button>
+  </div>
+  <div id="hist-tickets"></div>
+  <div id="hist-body"><div class="sub">読み込み中…</div></div>
+  </div>
+</div>
+
+<!-- 緊急連絡 -->
+<div id="view-emergency" class="hidden">
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div><span class="scr-title">緊急連絡119番</span></div>
+  <div class="panel panel-red">
+  <div class="sub">急遽出勤できなくなった時は、こちらから連絡してください。<br>※急遽出勤できない・他のスタッフにシフトを代わってほしい日をチェックしてください。</div>
+  <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
+  <div id="emg-list"><div class="sub">読み込み中…</div></div>
+  <div class="field">
+    <div class="flabel">理由</div>
+    <div class="emg-warn">この内容がそのままグループLINEの募集に載ります。他のスタッフに知られたくない個人的なことは記載しないように!!</div>
+    <div class="emg-example">例：〇日の〇時から〇〇で出勤できなくなりました。大変、申し訳ないのですがシフトを代わっていただける方はいらっしゃいませんか？</div>
+    <div class="emg-warn">※警告1：インフルエンザ等の場合は、病院の領収書、もしくは処方された薬を写真で上げてもらう可能性があります。安易にインフルエンザやコロナを理由にするのは止めましょう。</div>
+    <div class="emg-warn">※警告2：不幸ごとの場合、会葬礼状を後日提出してもらう場合があります。むやみに親戚を殺すのは止めましょう。</div>
+    <textarea id="emg-reason" placeholder="ここに理由を書いてください"></textarea>
+  </div>
+  <button class="submit emergency-submit" onclick="submitEmergency()">送信する</button>
+  <div class="sub" style="margin-top:14px;">遅刻・早退の連絡は、「事務 たなか」へ直接LINEしてください。</div>
+  <div class="emg-logbox">
+    <div style="border-top:2px dashed #bbb;margin-bottom:10px;"></div>
+    この機能を使用した場合は、下記のログが表示されます。<br><br>
+    〇年〇月〇日：スタッフ名　使用理由：〇〇のため欠勤
+    <div style="border-bottom:2px dashed #bbb;margin-top:10px;"></div>
+  </div>
+  </div>
+</div>
+
+<!-- 緊急連絡 送信前の二重確認 -->
+<div id="emg-confirm-overlay" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;padding:16px;overflow-y:auto;box-sizing:border-box;">
+  <div class="emg-confirm-box">
+    <h1 style="color:#b71c1c;">送信前の確認</h1>
+    <div class="emg-warn" style="font-size:15px;">この内容は、そのままグループLINEに載り、スタッフ全員に見られます。本当に送信しても良いですか？</div>
+    <div style="margin-top:8px;font-size:14px;font-weight:bold;color:#222;">使用ログが記録・表示されます。</div>
+    <div class="sub" style="margin:14px 0 0;">あなたが書いた理由</div>
+    <div id="emg-confirm-reason" class="emg-confirm-reason"></div>
+    <div id="emg-confirm-count" class="sub"></div>
+    <button class="submit emergency-submit" onclick="confirmEmergencySend()">共有されても送信する</button>
+    <button class="menu-btn secondary" onclick="closeEmgConfirm()">戻る</button>
+  </div>
+</div>
+
+<!-- 完了 -->
+<div id="view-done" class="hidden">
+  <div class="done">送信しました。<br>確認したら、こちらから連絡します。<br>ありがとうございました。</div>
+</div>
+</div>
+
+<!-- 完了演出 -->
+<div class="overlay" id="done-overlay">
+  <div class="burst"></div>
+  <div class="stamp"><span id="ov-stamp">受付完了！</span><small>お疲れ様でした</small></div>
+  <div class="msg" id="ov-msg">送信しました。</div>
+  <button class="closebtn" id="close-overlay" onclick="closeDoneOverlay()">とじる</button>
+</div>
+
+<script>
+  // 単独公開版: LIFF ID と送信先(GAS)はここに直接書いてあります
+  var LIFF_ID = '2012415539-uyDwxJzS';
+  var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyq-2V2fcnnlhTXKZKnOcTdAs0FkJo6vZeSnRewQItzR5fQaPBP_aPbEm9MsdvL74k6/exec';
+  var WEEKEND_TARGETS = ['\u7d05\u8449', '\u6709\u7a00', '\u83dc\u3005\u5b9f', 'Misaki', '\u5fc3\u8f1d'];
+  var PERIOD = computePeriod();
+  var HOLIDAYS = {'2026-11-03':1,'2026-11-23':1,'2027-01-01':1,'2027-01-11':1,'2027-02-11':1,'2027-02-23':1,'2027-03-20':1,'2027-04-29':1,'2027-05-03':1,'2027-05-04':1,'2027-05-05':1,'2027-07-19':1,'2027-08-11':1,'2027-09-20':1,'2027-09-23':1,'2027-10-11':1,'2027-11-03':1,'2027-11-23':1,'2028-01-01':1,'2028-01-10':1};
+  PERIOD.days.forEach(function (d) { d.isHol = HOLIDAYS[d.date] === 1; });
+
+  // 募集期間の計算（締切は月曜23:30。その時点まではその月曜 +10日(木) 〜 +15日(火)、
+  // 締切を過ぎたら翌週月曜の期間に切り替える。水曜を除く）
+  function computePeriod() {
+    var now = new Date();
+    var jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    var dow = jst.getUTCDay();
+    // 次に来る月曜までの日数（月曜は0、日曜は1、火曜は6）
+    var toMonday = (8 - dow) % 7;
+    // 月曜の23:30を過ぎていたら、その月曜の締切は終わっているので翌週の月曜にする
+    if (dow === 1 && (jst.getUTCHours() * 60 + jst.getUTCMinutes()) >= 23 * 60 + 30) toMonday = 7;
+    var monday = new Date(Date.UTC(jst.getUTCFullYear(), jst.getUTCMonth(), jst.getUTCDate() + toMonday));
+    function add(d, n) { return new Date(d.getTime() + n * 24 * 60 * 60 * 1000); }
+    function fmt(d) {
+      return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
+    }
+    var start = add(monday, 10), end = add(monday, 15);
+    // 年末年始の特例（2026-11-16決定）: 12/31〜1/5は休業期間のため募集対象外。
+    // 通常計算で開始日が2026-12-31または2027-01-07になる場合は1週間先へずらし、
+    // 1/7〜1/12分は12/21(月)23:30締切、1/14〜1/19分は12/28(月)23:30締切にする。
+    if (fmt(start) === '2026-12-31' || fmt(start) === '2027-01-07') { start = add(start, 7); end = add(end, 7); }
+    var dowNames = ['\u65e5', '\u6708', '\u706b', '\u6c34', '\u6728', '\u91d1', '\u571f'];
+    var days = [];
+    for (var d = start; d <= end; d = add(d, 1)) {
+      var w = d.getUTCDay();
+      if (w === 3) continue;
+      days.push({ date: fmt(d), dow: dowNames[w], isSat: w === 6, isSun: w === 0 });
+    }
+    return { start: fmt(start), end: fmt(end), days: days };
+  }
+  var profile = null;
+
+  function show(name) {
+    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history', 'emergency', 'fuyo', 'quest'].forEach(function (v) {
+      document.getElementById('view-' + v).classList.toggle('hidden', v !== name);
+    });
+    if (name === 'table') loadShiftTable();
+    if (name === 'shift') loadAdvanceCalendar();
+    if (name === 'history') loadWorkHistory();
+    if (name === 'emergency') loadMyShifts();
+    if (name === 'fuyo') loadFuyo();
+    if (name === 'home') loadQuests();
+    window.scrollTo(0, 0);
+  }
+
+  var NAME_MAP = { '\u307e\u3053': '\u6e05\u6c34\u771f\u5b50', '\u7d05\u8449': '\u5bae\ufa11\u7d05\u8449', '\u6709\u7a00': '\u68ee\u7530\u6709\u7a00', '\u83dc\u3005\u5b9f': '\u5927\u57ce\u83dc\u3005\u5b9f', 'Misaki': '\u79e6\u7f8e\u6c99\u59eb', '\u5fc3\u8f1d': '\u524d\u7530\u5fc3\u8f1d', '\u9ad9\u6a4b\u548c': '\u9ad9\u6a4b\u548c', '\u305f\u304c': '\u591b\u8cc0\u88d5\u4e5f' };
+
+  function renderShiftBlock_(data, myName) {
+    var html = '<div class="sub" style="margin:14px 0 4px;font-weight:bold;color:#222;">' + (data.periodLabel || '') + '</div>';
+    if (data.note) {
+      html += '<div style="margin:6px 0 10px;padding:10px 12px;background:#fff3f3;border:2px solid #d32f2f;border-radius:8px;color:#d32f2f;font-weight:bold;line-height:1.5;">' + data.note + '</div>';
+    }
+    var redSet = {};
+    (data.redCells || []).forEach(function (r) { redSet[r.name + '|' + r.seg + '|' + r.day] = 1; });
+    html += '<div class="shift-wrap"><table class="shift"><tr><th class="name">名前</th>';
+    data.days.forEach(function (d) {
+      html += '<th class="' + (d.cls || '') + '">' + d.label + '</th>';
+    });
+    html += '</tr>';
+    data.staff.forEach(function (s) {
+      var me = (myName && s.name === myName) ? 'me' : '';
+      html += '<tr class="' + me + '"><td class="name" rowspan="2">' + s.name + '</td>';
+      s.am.forEach(function (v, i) { html += '<td' + (redSet[s.name + '|am|' + i] ? ' style="color:#d32f2f;font-weight:bold;"' : '') + '>' + (v || '') + '</td>'; });
+      html += '</tr><tr class="' + (me ? me + ' ' : '') + 'end">';
+      s.pm.forEach(function (v, i) { html += '<td' + (redSet[s.name + '|pm|' + i] ? ' style="color:#d32f2f;font-weight:bold;"' : '') + '>' + (v || '') + '</td>'; });
+      html += '</tr>';
+    });
+    html += '</table></div>';
+    return html;
+  }
+
+  function loadMyConfirmedList() {
+    var wrap = document.getElementById('my-confirmed-wrap');
+    wrap.innerHTML = '<div class="sub">読み込み中…</div>';
+    var cb = 'myConfCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok') {
+        wrap.innerHTML = '<div class="sub">' + (res && res.message === 'no_data' ? '確定シフトはまだ公開されていません。' : '読み込めませんでした。') + '</div>';
+        return;
+      }
+      var items = res.items || [];
+      if (items.length === 0) {
+        wrap.innerHTML = '<div class="sub">これからの出勤確定日はありません。</div>';
+        return;
+      }
+      wrap.innerHTML = items.map(function (it) {
+        return '<div class="day" style="font-size:15px;font-weight:bold;">' + it.text + '</div>';
+      }).join('');
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=myshifts&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.onerror = function () { wrap.innerHTML = '<div class="sub">読み込みに失敗しました。</div>'; };
+    document.body.appendChild(s);
+  }
+
+  function loadShiftTable() {
+    loadMyConfirmedList();
+    var wrap = document.getElementById('shift-table-wrap');
+    var meta = document.getElementById('shift-period-label');
+    wrap.innerHTML = '<div style="padding:12px;">読み込み中…</div>';
+    var cb = 'shiftCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok' || !res.data) {
+        meta.textContent = '';
+        if (res && res.message === 'no_data') {
+          wrap.innerHTML = '<div style="padding:12px;">確定シフトはまだ公開されていません。</div>';
+        } else {
+          wrap.innerHTML = '<div style="padding:12px;">この画面はスタッフ専用です。<br>シフト表に名前のあるスタッフだけが確認できます。</div>';
+        }
+        return;
+      }
+      var data = res.data;
+      var myName = profile ? NAME_MAP[profile.displayName] : null;
+      var blocks = data.periods ? data.periods : [data];
+      meta.textContent = blocks.length === 1 ? (blocks[0].periodLabel || '') : '期間ごとに分かれています';
+      wrap.innerHTML = blocks.map(function (b) { return renderShiftBlock_(b, myName); }).join('');
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=shift&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.onerror = function () {
+      meta.textContent = '';
+      wrap.innerHTML = '<div style="padding:12px;">読み込みに失敗しました。</div>';
+    };
+    document.body.appendChild(s);
+  }
+
+  var TC_FIELDS = [
+    { id: 'day-in', hours: [9, 10, 11, 12] },
+    { id: 'day-out', hours: [12, 13, 14, 15] },
+    { id: 'night-in', hours: [17, 18, 19, 20] },
+    { id: 'night-out', hours: [19, 20, 21, 22, 23] }
+  ];
+
+  function buildTimecardForm() {
+    var now = new Date();
+    var jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    var iso = jst.getUTCFullYear() + '-' + ('0' + (jst.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + jst.getUTCDate()).slice(-2);
+    document.getElementById('tc-date').value = iso;
+    TC_FIELDS.forEach(function (f) {
+      var row = document.getElementById('tc-' + f.id);
+      var h = '<select id="tc-' + f.id + '-h" onchange="tcHourChange(\'' + f.id + '\')"><option value="">--</option>';
+      f.hours.forEach(function (hh) { h += '<option value="' + hh + '">' + hh + '時</option>'; });
+      h += '<option value="direct">直接入力</option></select>';
+      h += '<select id="tc-' + f.id + '-m"><option value="">--</option>';
+      for (var m = 0; m < 60; m += 5) {
+        var mm = ('0' + m).slice(-2);
+        h += '<option value="' + mm + '">' + mm + '分</option>';
+      }
+      h += '</select>';
+      h += '<input type="time" id="tc-' + f.id + '-direct" class="hidden">';
+      row.innerHTML = h;
+    });
+  }
+
+  function tcHourChange(id) {
+    var isDirect = document.getElementById('tc-' + id + '-h').value === 'direct';
+    document.getElementById('tc-' + id + '-direct').classList.toggle('hidden', !isDirect);
+    document.getElementById('tc-' + id + '-m').classList.toggle('hidden', isDirect);
+  }
+
+  function tcValue(id) {
+    var h = document.getElementById('tc-' + id + '-h').value;
+    if (!h) return '';
+    if (h === 'direct') return document.getElementById('tc-' + id + '-direct').value || '';
+    var m = document.getElementById('tc-' + id + '-m').value;
+    if (!m) return null;
+    return ('0' + h).slice(-2) + ':' + m;
+  }
+
+  function submitTimecard() {
+    var date = document.getElementById('tc-date').value;
+    if (!date) { alert('日付を選んでください。'); return; }
+    var ids = ['day-in', 'day-out', 'night-in', 'night-out'];
+    var vals = {};
+    for (var i = 0; i < ids.length; i++) {
+      var v = tcValue(ids[i]);
+      if (v === null) { alert('分まで選んでください。'); return; }
+      vals[ids[i]] = v;
+    }
+    var segs = [['昼', vals['day-in'], vals['day-out']], ['夜', vals['night-in'], vals['night-out']]];
+    var any = false;
+    for (var j = 0; j < segs.length; j++) {
+      var s = segs[j];
+      if (s[1] || s[2]) {
+        any = true;
+        if (!s[1] || !s[2]) { alert(s[0] + 'の出勤と退勤の両方を入れてください。'); return; }
+        if (s[2] <= s[1]) { alert(s[0] + 'の退勤時間が出勤時間より前になっています。'); return; }
+      }
+    }
+    if (!any) { alert('時間を入れてください。'); return; }
+    if (!confirm('この内容で記録します。よろしいでしょうか？')) return;
+    post({
+      formType: 'timecard',
+      date: date,
+      dayIn: vals['day-in'], dayOut: vals['day-out'],
+      nightIn: vals['night-in'], nightOut: vals['night-out'],
+      daySolo: document.getElementById('tc-day-solo').checked,
+      nightSolo: document.getElementById('tc-night-solo').checked,
+      makanaiAmount: document.getElementById('tc-makanai').value,
+      note: document.getElementById('tc-note').value
+    });
+  }
+
+  var histMonth = null;
+
+  function currentMonthStr() {
+    var now = new Date();
+    var jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    return jst.getUTCFullYear() + '-' + ('0' + (jst.getUTCMonth() + 1)).slice(-2);
+  }
+
+  function stepHistoryMonth(delta) {
+    if (!histMonth) histMonth = currentMonthStr();
+    var p = histMonth.split('-');
+    var d = new Date(Number(p[0]), Number(p[1]) - 1 + delta, 1);
+    var s = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
+    if (s > currentMonthStr() || s < '2026-11') return;
+    histMonth = s;
+    loadWorkHistory();
+  }
+
+  function fmtYen(n) { return '¥' + Number(n).toLocaleString('ja-JP'); }
+  function fmtMins(mins) { return Math.floor(mins / 60) + ':' + ('0' + (mins % 60)).slice(-2); }
+  function fmtDur(mins) {
+    var h = Math.floor(mins / 60), m = mins % 60;
+    if (h && m) return h + '時間' + m + '分';
+    if (h) return h + '時間';
+    return m + '分';
+  }
+
+  function loadWorkHistory() {
+    if (!histMonth) histMonth = currentMonthStr();
+    var body = document.getElementById('hist-body');
+    var p = histMonth.split('-');
+    document.getElementById('hist-month-label').textContent = Number(p[0]) + '年' + Number(p[1]) + '月';
+    document.getElementById('hist-next').style.visibility = (histMonth >= currentMonthStr()) ? 'hidden' : 'visible';
+    document.getElementById('hist-prev').style.visibility = (histMonth <= '2026-11') ? 'hidden' : 'visible';
+    body.innerHTML = '<div class="sub">読み込み中…</div>';
+    var cb = 'histCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok') { body.innerHTML = '<div class="sub">読み込めませんでした。</div>'; return; }
+      var t = res.totals || { pay: 0, makanai: 0, estimate: 0, mins: 0 };
+      var tk = document.getElementById('hist-tickets');
+      if (tk) {
+        tk.innerHTML = (typeof res.tickets === 'number')
+          ? '<div class="ticket-banner">🎟 まかないチケット <b>× ' + res.tickets + '</b></div>' : '';
+      }
+      var html = '<div class="totalbox">'
+        + '<div style="font-size:12.5px;opacity:.85;">給与の見込み（支給予定）</div>'
+        + '<div style="font-size:26px;font-weight:800;color:var(--yellow);">' + fmtYen(t.estimate) + '</div>'
+        + '<div style="font-size:13px;font-weight:700;">勤務分 ' + fmtYen(t.pay) + ' − まかない ' + fmtYen(t.makanai)
+        + '　／　勤務時間 ' + fmtDur(t.mins) + '</div>'
+        + (t.makanaiWaived ? '<div style="font-size:13px;font-weight:700;color:var(--yellow);margin-top:2px;">まかないチケットで ' + fmtYen(t.makanaiWaived) + ' 無料になりました</div>' : '')
+        + (res.pending ? '<div style="font-size:13px;color:#ff9db1;margin-top:4px;">確認中の記録が' + res.pending + '件あり、合計に入っていません。</div>' : '')
+        + '</div>'
+        + '<div class="note" style="margin-top:10px;">まかないチケットは、給与計算でまかない代1回分が自動で無料になります。</div>';
+      if (!res.days || res.days.length === 0) {
+        html += '<div class="sub">この月の記録はありません。</div>';
+      }
+      var dowNames = ['日', '月', '火', '水', '木', '金', '土'];
+      (res.days || []).forEach(function (d) {
+        var pp = d.date.split('-');
+        var dt = new Date(Number(pp[0]), Number(pp[1]) - 1, Number(pp[2]));
+        var cls = dt.getDay() === 6 ? 'sat' : (dt.getDay() === 0 ? 'sun' : '');
+        var dateHtml = Number(pp[1]) + '/' + Number(pp[2]) + '<small>(' + dowNames[dt.getDay()] + ')</small>';
+        html += '<div class="hrow">';
+        d.segments.forEach(function (sg, si) {
+          var dur = '（' + fmtDur(sg.mins) + '）'
+            + (sg.solo ? ' 一人勤務' : '')
+            + (sg.pending ? ' <span style="color:#b30000;font-weight:bold;">確認中</span>' : '')
+            + (sg.note ? '　「' + sg.note + '」' : '');
+          var amt = '<span class="hamt">' + (d.dayPay ? fmtYen(d.dayPay) : '―') + '</span>';
+          if (si === 0) {
+            html += '<div class="hl1"><span class="hdow ' + cls + '">' + dateHtml + '</span>'
+              + '<span class="hseg">' + sg.seg + ' ' + sg.in + '〜' + sg.out + '</span>'
+              + (d.makanai ? '' : amt) + '</div>';
+            html += '<div class="hl2"><span>' + dur + '</span>' + (d.makanai ? amt : '') + '</div>';
+          } else {
+            html += '<div class="hseg2">' + sg.seg + ' ' + sg.in + '〜' + sg.out + '</div>';
+            html += '<div class="hl2"><span>' + dur + '</span></div>';
+          }
+        });
+        if (d.makanai) html += '<div class="hl3">まかない ' + fmtYen(d.makanai) + (d.makanaiFree ? '（チケットで無料）' : '') + '</div>';
+        html += '</div>';
+      });
+      body.innerHTML = html;
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=history&token=' + encodeURIComponent(liff.getAccessToken()) + '&month=' + histMonth + '&callback=' + cb;
+    s.onerror = function () { body.innerHTML = '<div class="sub">読み込みに失敗しました。</div>'; };
+    document.body.appendChild(s);
+  }
+
+  function fmtDateLabel(iso) {
+    var p = iso.split('-');
+    return Number(p[1]) + '/' + Number(p[2]);
+  }
+
+  function buildShiftForm() {
+    document.getElementById('period-label').textContent =
+      fmtDateLabel(PERIOD.start) + ' 〜 ' + fmtDateLabel(PERIOD.end);
+    var wrap = document.getElementById('days');
+    wrap.innerHTML = '';
+    PERIOD.days.forEach(function (d, i) {
+      var div = document.createElement('div');
+      div.className = 'day';
+      div.innerHTML =
+        '<div class="date' + ((d.isSun || d.isHol) ? ' sun' : (d.isSat ? ' sat' : '')) + '">' + fmtDateLabel(d.date) + '（' + d.dow + '）</div>' +
+        '<div class="row"><span class="label">朝</span>' +
+        '<label class="choice"><input type="radio" name="m' + i + '" value="work"> 出勤できる</label>' +
+        '<label class="choice"><input type="radio" name="m' + i + '" value="off" checked> 休み希望</label></div>' +
+        '<div class="row"><span class="label">夜</span>' +
+        '<label class="choice"><input type="radio" name="n' + i + '" value="work" onchange="toggleTime(' + i + ')"> 出勤できる</label>' +
+        '<label class="choice"><input type="radio" name="n' + i + '" value="off" checked onchange="toggleTime(' + i + ')"> 休み希望</label>' +
+        '<select id="t' + i + '" disabled>' +
+        '<option>17:30</option><option>18:00</option><option>18:30</option><option>19:00</option>' +
+        '</select></div>';
+      wrap.appendChild(div);
+    });
+    if (profile && WEEKEND_TARGETS.indexOf(profile.displayName) >= 0) {
+      document.getElementById('weekend-counter').classList.remove('hidden');
+      updateCounter();
+      wrap.addEventListener('change', updateCounter);
+    }
+  }
+
+  function toggleTime(i) {
+    var work = document.querySelector('input[name="n' + i + '"][value="work"]').checked;
+    document.getElementById('t' + i).disabled = !work;
+  }
+
+  function collectDays() {
+    return PERIOD.days.map(function (d, i) {
+      var nightWork = document.querySelector('input[name="n' + i + '"][value="work"]').checked;
+      return {
+        date: d.date, dow: d.dow, isSat: d.isSat, isSun: d.isSun,
+        morning: document.querySelector('input[name="m' + i + '"][value="work"]').checked ? 'work' : 'off',
+        night: nightWork ? 'work' : 'off',
+        nightStart: nightWork ? document.getElementById('t' + i).value : null
+      };
+    });
+  }
+
+  function updateCounter() {
+    var days = collectDays();
+    var sat = days.filter(function (d) { return d.isSat && d.night === 'off'; }).length;
+    var sun = days.filter(function (d) { return d.isSun && d.night === 'off'; }).length;
+    document.getElementById('weekend-counter').textContent =
+      '土日の夜の休み希望（今回の提出分）: 土曜 ' + sat + '日 / 日曜 ' + sun + '日' +
+      ' ※土日の夜は月に半分以上の出勤が約束になっています';
+  }
+
+  // ===== 先行申告カレンダー（2026-11-16追加） =====
+  var ADV_OFFS = null, ADV_ME = '', ADV_MONTH = '', ADV_MONTHS = [], ADV_EDIT_OPEN = false, ADV_MY = {};
+  var ADV_SHORT = { '清水真子': '清水', '宮﨑紅葉': '宮﨑', '森田有稀': '森田', '大城菜々実': '大城', '髙橋和': '髙橋', '秦美沙姫': '秦', '前田心輝': '前田', '夛賀裕也': '夛賀', '坂井勝': '坂井' };
+  var ADV_CLOSED = [['2026-12-30', '2027-01-05']];
+  function advTodayJst() { var j = new Date(Date.now() + 9 * 3600 * 1000); return j.getUTCFullYear() + '-' + ('0' + (j.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + j.getUTCDate()).slice(-2); }
+  function advNowJstStr() { var j = new Date(Date.now() + 9 * 3600 * 1000); return advTodayJst() + ' ' + ('0' + j.getUTCHours()).slice(-2) + ':' + ('0' + j.getUTCMinutes()).slice(-2); }
+  function advAddDays(iso, n) { var p = iso.split('-'); var d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + n)); return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2); }
+  function advDow(iso) { var p = iso.split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).getUTCDay(); }
+  function advInClosedRange(iso) { for (var i = 0; i < ADV_CLOSED.length; i++) { if (iso >= ADV_CLOSED[i][0] && iso <= ADV_CLOSED[i][1]) return true; } return false; }
+  function advIsClosed(iso) { return advDow(iso) === 3 || advInClosedRange(iso); }
+  // 対象区分（GAS側と同じ規則）: 髙橋和は朝のみ、夛賀裕也は夜のみ、学生は朝は土日祝のみ
+  function advApplicable(name, iso) {
+    var dow = advDow(iso);
+    var wk = (dow === 0 || dow === 6 || HOLIDAYS[iso] === 1);
+    if (name === '髙橋和') return ['am'];
+    if (name === '夛賀裕也') return ['pm'];
+    return wk ? ['am', 'pm'] : ['pm'];
+  }
+  // その日が属する期間（木〜火）の締切＝期間開始の10日前の月曜23:30を過ぎているか
+  function advLocked(iso) {
+    var offset = (advDow(iso) + 7 - 4) % 7;
+    var mon = advAddDays(iso, -offset - 10);
+    return advNowJstStr() >= (mon + ' 23:30');
+  }
+  function loadAdvanceCalendar() {
+    var wrap = document.getElementById('adv-cal');
+    if (ADV_OFFS) { renderAdvTabs(); renderAdvCalendar(); if (ADV_AUTO_OPEN) { ADV_AUTO_OPEN = false; toggleAdvEditor(); } return; }
+    var cb = 'advCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok') { wrap.innerHTML = '<div class="sub">カレンダーを読み込めませんでした。</div>'; return; }
+      ADV_OFFS = res.offs || {}; ADV_ME = res.fullName || '';
+      var base = advTodayJst().slice(0, 7).split('-');
+      ADV_MONTHS = [0, 1, 2].map(function (k) { var d = new Date(Date.UTC(+base[0], +base[1] - 1 + k, 1)); return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2); });
+      ADV_MONTH = ADV_MONTHS[0];
+      renderAdvTabs(); renderAdvCalendar();
+      if (ADV_AUTO_OPEN) { ADV_AUTO_OPEN = false; toggleAdvEditor(); }
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=advanceoff&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.onerror = function () { wrap.innerHTML = '<div class="sub">カレンダーを読み込めませんでした。</div>'; };
+    document.body.appendChild(s);
+  }
+  function renderAdvTabs() {
+    document.getElementById('adv-tabs').innerHTML = ADV_MONTHS.map(function (m) {
+      var p = m.split('-');
+      return '<button class="adv-tab' + (m === ADV_MONTH ? ' on' : '') + '" onclick="advSetMonth(\'' + m + '\')">' + (+p[0]) + '年' + (+p[1]) + '月</button>';
+    }).join('');
+  }
+  function advSetMonth(m) {
+    ADV_MONTH = m; ADV_EDIT_OPEN = false;
+    document.getElementById('adv-editor').classList.add('hidden');
+    renderAdvTabs(); renderAdvCalendar();
+  }
+  function renderAdvCalendar() {
+    var wrap = document.getElementById('adv-cal');
+    var first = ADV_MONTH + '-01';
+    var gridStart = advAddDays(first, -advDow(first));
+    var today = advTodayJst();
+    var html = '<table class="adv-table"><tr><th class="sun">日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th class="sat">土</th></tr>';
+    for (var w = 0; w < 6; w++) {
+      html += '<tr>';
+      for (var c = 0; c < 7; c++) {
+        var iso = advAddDays(gridStart, w * 7 + c);
+        var cls = (c === 0 ? 'sun' : '') + (c === 6 ? ' sat' : '');
+        if (iso.slice(0, 7) !== ADV_MONTH) { html += '<td class="adv-cell out ' + cls + '"></td>'; continue; }
+        var inner = '<div class="adv-dnum">' + (+iso.slice(8)) + '</div>';
+        if (advIsClosed(iso)) {
+          inner += '<div class="adv-closed">' + (advInClosedRange(iso) ? '休業' : '定休日') + '</div>';
+        } else {
+          var dayOffs = (ADV_OFFS && ADV_OFFS[iso]) || {};
+          var am = [], pm = [];
+          Object.keys(dayOffs).forEach(function (name) {
+            var segs = dayOffs[name] || [];
+            var short = ADV_SHORT[name] || name;
+            if (segs.indexOf('am') >= 0) am.push(short);
+            if (segs.indexOf('pm') >= 0) pm.push(short);
+          });
+          if (am.length) inner += '<div class="adv-off">朝× ' + am.join('・') + '</div>';
+          if (pm.length) inner += '<div class="adv-off">夜× ' + pm.join('・') + '</div>';
+        }
+        if (iso < today) cls += ' past';
+        html += '<td class="adv-cell ' + cls + '">' + inner + '</td>';
+      }
+      html += '</tr>';
+    }
+    wrap.innerHTML = html + '</table>';
+  }
+  function toggleAdvEditor() {
+    if (!ADV_OFFS) { loadAdvanceCalendar(); return; }
+    ADV_EDIT_OPEN = !ADV_EDIT_OPEN;
+    var ed = document.getElementById('adv-editor');
+    ed.classList.toggle('hidden', !ADV_EDIT_OPEN);
+    if (ADV_EDIT_OPEN) { initAdvMy(); renderAdvEditor(); }
+  }
+  function initAdvMy() {
+    ADV_MY = {};
+    var p = ADV_MONTH.split('-');
+    var last = new Date(Date.UTC(+p[0], +p[1], 0)).getUTCDate();
+    for (var d = 1; d <= last; d++) {
+      var iso = ADV_MONTH + '-' + ('0' + d).slice(-2);
+      if (advIsClosed(iso)) continue;
+      ADV_MY[iso] = (((ADV_OFFS || {})[iso] || {})[ADV_ME] || []).slice();
+    }
+  }
+  function renderAdvEditor() {
+    var ed = document.getElementById('adv-editor');
+    if (!ADV_ME) { ed.innerHTML = '<div class="sub">登録が確認できないため、申告できません。</div>'; return; }
+    var dows = ['日', '月', '火', '水', '木', '金', '土'];
+    var html = '<div class="sub">出られない日の「朝」「夜」を押してください（赤が申告中）。その週の月曜23:30を過ぎた日は変更できません。</div>';
+    Object.keys(ADV_MY).sort().forEach(function (iso) {
+      var cur = ADV_MY[iso];
+      var app = advApplicable(ADV_ME, iso);
+      var locked = advLocked(iso) || iso < advTodayJst();
+      html += '<div class="adv-ed-row"><span>' + (+iso.slice(5, 7)) + '/' + (+iso.slice(8)) + '（' + dows[advDow(iso)] + '）</span>';
+      if (app.indexOf('am') >= 0) html += '<button class="adv-chip' + (cur.indexOf('am') >= 0 ? ' on' : '') + '"' + (locked ? ' disabled' : '') + ' onclick="advToggle(\'' + iso + '\',\'am\',this)">朝</button>';
+      if (app.indexOf('pm') >= 0) html += '<button class="adv-chip' + (cur.indexOf('pm') >= 0 ? ' on' : '') + '"' + (locked ? ' disabled' : '') + ' onclick="advToggle(\'' + iso + '\',\'pm\',this)">夜</button>';
+      if (locked) html += '<span class="adv-lock">締切済み</span>';
+      html += '</div>';
+    });
+    html += '<button class="submit" onclick="submitAdvanceOff()">この内容で保存する</button>';
+    ed.innerHTML = html;
+  }
+  function advToggle(iso, seg, btn) {
+    var arr = ADV_MY[iso] || (ADV_MY[iso] = []);
+    var i = arr.indexOf(seg);
+    if (i >= 0) arr.splice(i, 1); else arr.push(seg);
+    btn.classList.toggle('on');
+  }
+  function submitAdvanceOff() {
+    var entries = Object.keys(ADV_MY).map(function (iso) { return { date: iso, segs: ADV_MY[iso] }; });
+    if (!confirm('先行申告を保存します。よろしいですか？')) return;
+    if (postInFlight) return;
+    postInFlight = true;
+    fetch(WEB_APP_URL, {
+      method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ formType: 'advanceoff', entries: entries, accessToken: liff.getAccessToken() })
+    }).then(function () {
+      postInFlight = false;
+      ADV_OFFS = null; ADV_EDIT_OPEN = false;
+      document.getElementById('adv-editor').classList.add('hidden');
+      loadAdvanceCalendar();
+      playSendSound();
+      alert('保存しました。');
+    }).catch(function () { postInFlight = false; alert('保存に失敗しました。もう一度お試しください。'); });
+  }
+
+  var registered = null;
+  function checkRegistration() {
+    var cb = 'whoCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      registered = !!(res && res.status === 'ok' && res.registered);
+      if (!registered) {
+        var ns = document.querySelectorAll('.reg-notice');
+        for (var i = 0; i < ns.length; i++) ns[i].classList.remove('hidden');
+        var bs = document.querySelectorAll('button.submit');
+        for (var j = 0; j < bs.length; j++) bs[j].disabled = true;
+      }
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=whoami&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    document.body.appendChild(s);
+  }
+
+  var postInFlight = false;
+  function post(payload) {
+    if (postInFlight) { return Promise.resolve(); }
+    postInFlight = true;
+    payload.accessToken = liff.getAccessToken();
+    return fetch(WEB_APP_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    }).then(function () { postInFlight = false; showDone(payload.formType); })
+      .catch(function () { postInFlight = false; alert('送信に失敗しました。もう一度お試しください。'); });
+  }
+
+  function submitShift() {
+    var days = collectDays();
+    var weekend = null;
+    if (profile && WEEKEND_TARGETS.indexOf(profile.displayName) >= 0) {
+      weekend = {
+        satNightOff: days.filter(function (d) { return d.isSat && d.night === 'off'; }).length,
+        sunNightOff: days.filter(function (d) { return d.isSun && d.night === 'off'; }).length
+      };
+    }
+    if (!confirm('提出します。よろしいですか？変更がある場合は、期限までに再度提出してください。')) return;
+    post({
+      formType: 'shift',
+      period: { start: PERIOD.start, end: PERIOD.end },
+      days: days,
+      weekend: weekend,
+      note: document.getElementById('shift-note').value
+    });
+  }
+
+  function submitLong() {
+    var s = document.getElementById('long-start').value;
+    var e = document.getElementById('long-end').value;
+    if (!s || !e) { alert('開始日と終了日を選んでください。'); return; }
+    if (e < s) { alert('終了日が開始日より前になっています。'); return; }
+    if (!confirm('この内容で申告します。よろしいでしょうか？')) return;
+    post({
+      formType: 'long',
+      startDate: s, endDate: e,
+      reason: document.getElementById('long-reason').value,
+      detail: document.getElementById('long-detail').value
+    });
+  }
+
+  var emgItems = [];
+  function loadMyShifts() {
+    var list = document.getElementById('emg-list');
+    list.innerHTML = '<div class="sub">読み込み中…</div>';
+    var cb = 'emgCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok') {
+        emgItems = [];
+        list.innerHTML = '<div class="sub">' + (res && res.message === 'no_data' ? '確定シフトはまだ公開されていません。' : '読み込めませんでした。急ぎの場合は「事務 たなか」へ直接LINEしてください。') + '</div>';
+        return;
+      }
+      emgItems = res.items || [];
+      if (emgItems.length === 0) {
+        list.innerHTML = '<div class="sub">現在、確定シフトはありません。急ぎの場合は「事務 たなか」へ直接LINEしてください。</div>';
+        return;
+      }
+      list.innerHTML = emgItems.map(function (it, i) {
+        return '<label class="emg-item"><input type="checkbox" id="emg-' + i + '"><span>' + it.text + '</span></label>';
+      }).join('');
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=myshifts&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.onerror = function () { list.innerHTML = '<div class="sub">読み込みに失敗しました。</div>'; };
+    document.body.appendChild(s);
+  }
+
+  var emgPending = null;
+
+  function submitEmergency() {
+    var picked = [];
+    emgItems.forEach(function (it, i) {
+      var box = document.getElementById('emg-' + i);
+      if (box && box.checked) picked.push({ date: it.date, segKey: it.segKey, time: it.time });
+    });
+    if (picked.length === 0) { alert('出勤できないシフトにチェックを入れてください。'); return; }
+    var reason = document.getElementById('emg-reason').value.trim();
+    if (!reason) { alert('理由を書いてください。'); return; }
+    if (!confirm('チェックした ' + picked.length + ' 件のシフトを欠勤として送信します。よろしいですか？\n使用ログが記録・表示されます。')) return;
+    emgPending = { items: picked, reason: reason };
+    document.getElementById('emg-confirm-reason').textContent = reason;
+    document.getElementById('emg-confirm-count').textContent = '欠勤として送信するシフト: ' + picked.length + ' 件';
+    document.getElementById('emg-confirm-overlay').classList.remove('hidden');
+  }
+
+  function closeEmgConfirm() {
+    document.getElementById('emg-confirm-overlay').classList.add('hidden');
+  }
+
+  function confirmEmergencySend() {
+    if (!emgPending) { closeEmgConfirm(); return; }
+    var pending = emgPending;
+    emgPending = null;
+    closeEmgConfirm();
+    post({ formType: 'emergency', items: pending.items, reason: pending.reason });
+  }
+
+  function toggleFuyoRel() {
+    var sel = document.querySelector('input[name="fuyo-rel"]:checked');
+    var txt = document.getElementById('fuyo-rel-text');
+    if (sel && sel.value === 'その他') txt.classList.remove('hidden'); else txt.classList.add('hidden');
+  }
+
+  function setFuyoRadio(name, value) {
+    var rs = document.querySelectorAll('input[name="' + name + '"]');
+    for (var i = 0; i < rs.length; i++) rs[i].checked = (rs[i].value === value);
+  }
+
+  function loadFuyo() {
+    var status = document.getElementById('fuyo-status');
+    status.textContent = '読み込み中…';
+    var nameInput = document.getElementById('fuyo-name');
+    if (!nameInput.value && profile) nameInput.value = profile.fullName || NAME_MAP[profile.displayName] || '';
+    var cb = 'fuyoCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok') { status.textContent = ''; return; }
+      if (res.submitted && res.entry) {
+        var e = res.entry;
+        status.innerHTML = '<span style="color:#0a7d2c;font-weight:bold;">提出済みです</span>（' + (res.updated || '') + '）。内容を直す場合は、そのまま直して再提出してください。';
+        document.getElementById('fuyo-name').value = e.fullName || '';
+        document.getElementById('fuyo-postal').value = e.postal || '';
+        document.getElementById('fuyo-address').value = e.address || '';
+        document.getElementById('fuyo-birth').value = e.birth || '';
+        document.getElementById('fuyo-head').value = e.headName || '';
+        if (e.relation === '本人') setFuyoRadio('fuyo-rel', '自分');
+        else if (e.relation === '父') setFuyoRadio('fuyo-rel', '父');
+        else if (e.relation === '母') setFuyoRadio('fuyo-rel', '母');
+        else { setFuyoRadio('fuyo-rel', 'その他'); document.getElementById('fuyo-rel-text').value = e.relation || ''; }
+        toggleFuyoRel();
+        setFuyoRadio('fuyo-spouse', e.spouse === '有' ? 'はい' : 'いいえ');
+        if (e.supportedFamily) setFuyoRadio('fuyo-family', e.supportedFamily === '有' ? 'はい' : 'いいえ');
+      } else {
+        status.textContent = 'まだ提出されていません。12月5日（土）までに提出してください。';
+      }
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=fuyostatus&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    document.body.appendChild(s);
+  }
+
+  function submitFuyo() {
+    var fullName = document.getElementById('fuyo-name').value.trim();
+    var postal = document.getElementById('fuyo-postal').value.trim();
+    var address = document.getElementById('fuyo-address').value.trim();
+    var birth = document.getElementById('fuyo-birth').value;
+    var headName = document.getElementById('fuyo-head').value.trim();
+    var relSel = document.querySelector('input[name="fuyo-rel"]:checked');
+    var relText = document.getElementById('fuyo-rel-text').value.trim();
+    var spouseSel = document.querySelector('input[name="fuyo-spouse"]:checked');
+    var familySel = document.querySelector('input[name="fuyo-family"]:checked');
+    if (!fullName) { alert('氏名を入力してください。'); return; }
+    if (postal.replace(/[^0-9]/g, '').length !== 7) { alert('郵便番号は7桁で入力してください。'); return; }
+    if (!address) { alert('住所を入力してください。'); return; }
+    if (!birth) { alert('生年月日を入力してください。'); return; }
+    if (!headName) { alert('世帯主の氏名を入力してください。'); return; }
+    if (!relSel) { alert('「世帯主は、あなたから見て誰ですか？」を選んでください。'); return; }
+    if (relSel.value === 'その他' && !relText) { alert('続柄（その他）を入力してください。'); return; }
+    if (!spouseSel) { alert('「法律上、結婚していますか？」を選んでください。'); return; }
+    if (!familySel) { alert('「あなたの収入で生活を支えている家族はいますか？」を選んでください。'); return; }
+    var relation = relSel.value === '自分' ? '本人' : (relSel.value === 'その他' ? relText : relSel.value);
+    var spouse = spouseSel.value === 'はい' ? '有' : '無';
+    var family = familySel.value === 'はい' ? '有' : '無';
+    var summary = 'この内容で提出します。よろしいですか？\n\n氏名: ' + fullName + '\n郵便番号: ' + postal + '\n住所: ' + address + '\n生年月日: ' + birth + '\n世帯主の氏名: ' + headName + '\n続柄: ' + relation + '\n配偶者: ' + spouse + '\n収入で生活を支えている家族: ' + family;
+    if (!confirm(summary)) return;
+    post({
+      formType: 'fuyo',
+      fullName: fullName, postal: postal, address: address, birth: birth,
+      headName: headName, relationSelect: relSel.value, relationText: relText,
+      spouseAnswer: spouseSel.value, supportedFamilyAnswer: familySel.value
+    });
+  }
+
+  function submitResign() {
+    var d = document.getElementById('resign-day').value;
+    if (!d) { alert('退職希望日を選んでください。'); return; }
+    if (!confirm('この内容で退職を申請します。よろしいですか？')) return;
+    post({
+      formType: 'resign',
+      lastDay: d,
+      reason: document.getElementById('resign-reason').value
+    });
+  }
+
+  var debugEl = document.getElementById('debug');
+  function dbg(msg) { if (debugEl) debugEl.textContent += msg + '\n'; }
+  window.addEventListener('error', function (e) { dbg('エラー: ' + e.message); });
+
+  dbg('フォームのコード: 診断版');
+  dbg('LIFF ID: ' + (LIFF_ID ? LIFF_ID : '（空です）'));
+  setTimeout(function () {
+    if (document.getElementById('view-home').classList.contains('hidden')) {
+      dbg('10秒たっても初期化が終わりません。LIFF側の設定（エンドポイントURL・チャネルの公開状態）を確認してください。');
+    }
+  }, 10000);
+
+  if (typeof liff === 'undefined') {
+    dbg('LINEの部品（SDK）が読み込めませんでした。');
+  } else {
+    dbg('初期化を開始します…');
+    liff.init({ liffId: LIFF_ID }).then(function () {
+      dbg('初期化OK。ログイン状態: ' + liff.isLoggedIn() + ' / LINE内: ' + liff.isInClient());
+      if (!liff.isLoggedIn()) { liff.login(); return; }
+      return liff.getProfile();
+    }).then(function (p) {
+      if (!p) return;
+      profile = p;
+      document.getElementById('hello-name').textContent = p.displayName;
+      document.getElementById('hello-avatar').textContent = (p.displayName || '？').charAt(0);
+      buildShiftForm();
+      buildTimecardForm();
+      checkRegistration();
+      history.replaceState({ view: 'home' }, '');
+      show('home');
+    }).catch(function (err) {
+      dbg('初期化に失敗: ' + (err && err.message ? err.message : err));
+      document.getElementById('view-loading').firstChild.textContent =
+        '読み込みに失敗しました。';
+    });
+  }
+
+  // ===== ゲーム風UI: サウンド・画面遷移・クエスト（2026-11-23追加） =====
+  function storeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function storeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+  var soundOn = (storeGet('jyujyutei-ui-sound') !== 'off');
+  var audioCtx = null;
+  function ensureCtx() {
+    if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { } }
+    if (audioCtx && audioCtx.state === 'suspended') { audioCtx.resume(); }
+  }
+  function tone(fFrom, fTo, dur, vol, delay, type) {
+    if (!soundOn) return;
+    ensureCtx(); if (!audioCtx) return;
+    var t0 = audioCtx.currentTime + (delay || 0);
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type || 'triangle';
+    o.frequency.setValueAtTime(fFrom, t0);
+    o.frequency.exponentialRampToValueAtTime(Math.max(fTo, 1), t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol || 0.16, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0 + dur + 0.05);
+  }
+  function playTap() { tone(520, 900, 0.09, 0.16, 0); }
+  function playEmergencySound() {
+    for (var i = 0; i < 3; i++) {
+      tone(700, 700, 0.11, 0.17, i * 0.24);
+      tone(960, 960, 0.11, 0.17, i * 0.24 + 0.12);
+    }
+  }
+  function playMoneySound() {
+    tone(1500, 1500, 0.04, 0.10, 0, 'square');
+    tone(1568, 1568, 0.30, 0.13, 0.05);
+    tone(2093, 2093, 0.40, 0.12, 0.05);
+    tone(2637, 2637, 0.34, 0.07, 0.05);
+  }
+  function playSendSound() {
+    tone(523, 523, 0.09, 0.16, 0);
+    tone(659, 659, 0.09, 0.16, 0.08);
+    tone(784, 784, 0.09, 0.16, 0.16);
+    tone(1046, 1046, 0.28, 0.18, 0.24);
+  }
+  function paintSoundBtn() {
+    var btn = document.getElementById('sound-toggle');
+    if (!btn) return;
+    btn.classList.toggle('off', !soundOn);
+    document.getElementById('st-ic').textContent = soundOn ? '🔊' : '🔇';
+    document.getElementById('st-tx').textContent = soundOn ? 'サウンド ON' : 'サウンド OFF';
+  }
+  function toggleSound() {
+    soundOn = !soundOn;
+    storeSet('jyujyutei-ui-sound', soundOn ? 'on' : 'off');
+    paintSoundBtn();
+    if (soundOn) playTap();
+  }
+  paintSoundBtn();
+
+  var navDepth = 0;
+  function navTo(name) {
+    navDepth++;
+    history.pushState({ view: name }, '');
+    show(name);
+  }
+  function goBack() {
+    playTap();
+    if (navDepth > 0) { history.back(); }
+    else { show('home'); }
+  }
+  window.addEventListener('popstate', function (e) {
+    if (navDepth > 0) navDepth--;
+    var v = (e.state && e.state.view) || 'home';
+    show(v);
+  });
+  function pressFx(el, x, y) {
+    el.classList.add('pressing');
+    var r = el.getBoundingClientRect();
+    var s = document.createElement('span');
+    s.className = 'ink-pop';
+    s.style.left = (x - r.left) + 'px';
+    s.style.top = (y - r.top) + 'px';
+    el.appendChild(s);
+    setTimeout(function () { el.classList.remove('pressing'); }, 190);
+    setTimeout(function () { s.remove(); }, 480);
+  }
+  var ADV_AUTO_OPEN = false;
+  function cardGo(el, ev, view, sound, advOpen) {
+    if (sound === 'emergency') { pressFx(el, ev.clientX, ev.clientY); playEmergencySound(); }
+    else if (sound === 'money') { pressFx(el, ev.clientX, ev.clientY); playMoneySound(); }
+    else { playTap(); pressFx(el, ev.clientX, ev.clientY); }
+    if (advOpen) ADV_AUTO_OPEN = true;
+    setTimeout(function () { navTo(view); }, 300);
+  }
+
+  var DONE_INFO = {
+    timecard: { stamp: '受付完了！', msg: '記録しました。<br>内容は「勤務履歴」から確認できます。' },
+    shift: { stamp: '受付完了！', msg: '提出しました。<br>確認したら連絡します。' },
+    long: { stamp: '受付完了！', msg: '申請しました。<br>確認したら連絡します。' },
+    resign: { stamp: '受付完了！', msg: '申請しました。' },
+    emergency: { stamp: '受付完了！', msg: '送信しました。<br>田中が代わりを探します。' },
+    fuyo: { stamp: '受付完了！', msg: '提出しました。<br>ありがとうございました。' },
+    quest: { stamp: '立候補しました！', msg: '田中が確認してから確定します。<br>決まったら連絡しますね。' }
+  };
+  function showDone(formType) {
+    var info = DONE_INFO[formType] || { stamp: '受付完了！', msg: '送信しました。<br>確認したら、こちらから連絡します。<br>ありがとうございました。' };
+    document.getElementById('ov-stamp').textContent = info.stamp;
+    document.getElementById('ov-msg').innerHTML = info.msg;
+    var ov = document.getElementById('done-overlay');
+    ov.classList.remove('on');
+    void ov.offsetWidth;
+    ov.classList.add('on');
+    playSendSound();
+  }
+  function closeDoneOverlay() {
+    document.getElementById('done-overlay').classList.remove('on');
+    playTap();
+    goBack();
+  }
+
+  // ===== クエスト =====
+  var QUESTS = [];
+  var questCurrent = null;
+  function questDateLabel(q) {
+    var p = q.date.split('-');
+    return Number(p[1]) + '月' + Number(p[2]) + '日(' + q.dow + ') ' + q.start + '-' + q.end;
+  }
+  function loadQuests() {
+    var board = document.getElementById('quest-board');
+    if (!board || typeof liff === 'undefined' || !liff.getAccessToken) return;
+    var cb = 'questCb_' + Date.now();
+    window[cb] = function (res) {
+      delete window[cb];
+      if (!res || res.status !== 'ok' || !res.quests || res.quests.length === 0) { board.innerHTML = ''; return; }
+      QUESTS = res.quests;
+      var html = '<div class="quest"><span class="quest-head">⚔ クエスト発生中!!</span>';
+      QUESTS.forEach(function (q, i) {
+        html += '<div class="quest-card"><div class="quest-date">' + questDateLabel(q) + '</div>'
+          + '<div class="quest-desc">' + q.label + '</div>'
+          + '<div class="quest-reward">報酬：' + q.reward + '</div>'
+          + (q.joined
+            ? '<button class="quest-btn joined" disabled>立候補済み</button>'
+            : '<button class="quest-btn" onclick="openQuest(event,' + i + ')">立候補する！</button>')
+          + '</div>';
+      });
+      html += '</div>';
+      board.innerHTML = html;
+    };
+    var s = document.createElement('script');
+    s.src = WEB_APP_URL + '?action=quests&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.onerror = function () { board.innerHTML = ''; };
+    document.body.appendChild(s);
+  }
+  function openQuest(ev, i) {
+    var q = QUESTS[i];
+    if (!q) return;
+    var btn = ev.currentTarget;
+    playTap();
+    if (btn) pressFx(btn, ev.clientX, ev.clientY);
+    questCurrent = q;
+    document.getElementById('quest-date').textContent = questDateLabel(q);
+    document.getElementById('quest-desc').textContent = q.label;
+    setTimeout(function () { navTo('quest'); }, 300);
+  }
+  function submitQuest() {
+    if (!questCurrent) return;
+    if (!confirm('このクエストに立候補します。よろしいですか？\n立候補しても即確定にはなりません。')) return;
+    post({ formType: 'quest', questId: questCurrent.id });
+  }
+</script>
+</body>
+</html>
