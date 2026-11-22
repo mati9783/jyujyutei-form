@@ -301,11 +301,15 @@
   .overlay .msg{position:relative; z-index:2; margin-top:20px; font-weight:800; font-size:15px; text-align:center; line-height:1.6; color:#fff;}
   .overlay .closebtn{position:relative; z-index:2; margin-top:16px; background:#fff; color:var(--ink); border:3px solid var(--ink);
     font-family:inherit; font-weight:800; font-size:16px; border-radius:999px; padding:10px 30px; cursor:pointer;}
+#debug-banner{position:sticky;top:0;z-index:60;background:#8f0f26;color:#fff;font-weight:800;font-size:13.5px;padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:3px solid var(--yellow);}
+#debug-banner button{margin-left:auto;background:var(--yellow);color:#141414;border:none;border-radius:999px;font-weight:900;padding:5px 16px;font-size:13px;cursor:pointer;font-family:inherit;}
+.debug-staff-btn{display:block;width:100%;text-align:left;background:var(--ink-2);color:#fff;border:2px solid rgba(255,255,255,.3);border-radius:12px;padding:12px 14px;font-size:16px;font-weight:800;margin:0 0 8px;cursor:pointer;font-family:inherit;}
 </style>
 </head>
 <body>
 <div class="splat s1"></div><div class="splat s2"></div><div class="splat s3"></div>
 <div class="wrap">
+<div id="debug-banner" style="display:none;">👀 デバッグ中：<b id="debug-name"></b>さんの画面（送信はできません）<button onclick="exitDebug()">終了</button></div>
 
 <div id="view-loading">読み込み中…<div id="debug" style="margin-top:12px;font-size:12px;color:#888;white-space:pre-wrap;"></div></div>
 
@@ -378,11 +382,25 @@
     <button class="quiet-link" onclick="navTo('resign')">退職を申請する</button>
   </div>
 
+  <div class="quiet-row" id="debug-entry" style="display:none;">
+    <button class="quiet-link" onclick="navTo('debug')">🔧 デバッグ（スタッフの画面で確認）</button>
+  </div>
+
   <div class="sound-row">
     <button class="sound-toggle" id="sound-toggle" onclick="toggleSound()"><span id="st-ic">🔊</span><span id="st-tx">サウンド ON</span></button>
   </div>
 
   <div class="foot">じゅうじゅう亭 スタッフ専用アプリ</div>
+</div>
+
+<!-- デバッグ（オーナーのみ表示） -->
+<div id="view-debug" class="hidden">
+  <button class="backbtn" onclick="goBack()">← もどる</button>
+  <div class="scr-title">🔧 デバッグ：スタッフを選ぶ</div>
+  <div class="panel">
+    <div id="debug-list"></div>
+    <p class="note">選んだスタッフの画面を見るだけのモードです。送信はできません。</p>
+  </div>
 </div>
 
 <!-- クエスト詳細 -->
@@ -714,7 +732,7 @@
   var profile = null;
 
   function show(name) {
-    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history', 'emergency', 'fuyo', 'quest'].forEach(function (v) {
+    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history', 'emergency', 'fuyo', 'quest', 'debug'].forEach(function (v) {
       document.getElementById('view-' + v).classList.toggle('hidden', v !== name);
     });
     if (name === 'table') loadShiftTable();
@@ -772,7 +790,7 @@
       }).join('');
     };
     var s = document.createElement('script');
-    s.src = WEB_APP_URL + '?action=myshifts&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.src = WEB_APP_URL + '?action=myshifts&token=' + encodeURIComponent(liff.getAccessToken()) + dbgSuffix() + '&callback=' + cb;
     s.onerror = function () { wrap.innerHTML = '<div class="sub">読み込みに失敗しました。</div>'; };
     document.body.appendChild(s);
   }
@@ -972,7 +990,7 @@
       body.innerHTML = html;
     };
     var s = document.createElement('script');
-    s.src = WEB_APP_URL + '?action=history&token=' + encodeURIComponent(liff.getAccessToken()) + '&month=' + histMonth + '&callback=' + cb;
+    s.src = WEB_APP_URL + '?action=history&token=' + encodeURIComponent(liff.getAccessToken()) + '&month=' + histMonth + dbgSuffix() + '&callback=' + cb;
     s.onerror = function () { body.innerHTML = '<div class="sub">読み込みに失敗しました。</div>'; };
     document.body.appendChild(s);
   }
@@ -1075,7 +1093,7 @@
       if (ADV_AUTO_OPEN) { ADV_AUTO_OPEN = false; toggleAdvEditor(); }
     };
     var s = document.createElement('script');
-    s.src = WEB_APP_URL + '?action=advanceoff&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.src = WEB_APP_URL + '?action=advanceoff&token=' + encodeURIComponent(liff.getAccessToken()) + dbgSuffix() + '&callback=' + cb;
     s.onerror = function () { wrap.innerHTML = '<div class="sub">カレンダーを読み込めませんでした。</div>'; };
     document.body.appendChild(s);
   }
@@ -1166,6 +1184,7 @@
     btn.classList.toggle('on');
   }
   function submitAdvanceOff() {
+    if (DEBUG_AS) { alert('デバッグ中は送信できません。'); return; }
     var entries = Object.keys(ADV_MY).map(function (iso) { return { date: iso, segs: ADV_MY[iso] }; });
     if (!confirm('先行申告を保存します。よろしいですか？')) return;
     if (postInFlight) return;
@@ -1189,6 +1208,7 @@
     window[cb] = function (res) {
       delete window[cb];
       registered = !!(res && res.status === 'ok' && res.registered);
+      if (res && res.isOwner) { setupDebugPicker(res.staffList || []); }
       if (!registered) {
         var ns = document.querySelectorAll('.reg-notice');
         for (var i = 0; i < ns.length; i++) ns[i].classList.remove('hidden');
@@ -1203,6 +1223,7 @@
 
   var postInFlight = false;
   function post(payload) {
+    if (DEBUG_AS) { alert('デバッグ中は送信できません。'); return Promise.resolve(); }
     if (postInFlight) { return Promise.resolve(); }
     postInFlight = true;
     payload.accessToken = liff.getAccessToken();
@@ -1270,7 +1291,7 @@
       }).join('');
     };
     var s = document.createElement('script');
-    s.src = WEB_APP_URL + '?action=myshifts&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.src = WEB_APP_URL + '?action=myshifts&token=' + encodeURIComponent(liff.getAccessToken()) + dbgSuffix() + '&callback=' + cb;
     s.onerror = function () { list.innerHTML = '<div class="sub">読み込みに失敗しました。</div>'; };
     document.body.appendChild(s);
   }
@@ -1345,7 +1366,7 @@
       }
     };
     var s = document.createElement('script');
-    s.src = WEB_APP_URL + '?action=fuyostatus&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.src = WEB_APP_URL + '?action=fuyostatus&token=' + encodeURIComponent(liff.getAccessToken()) + dbgSuffix() + '&callback=' + cb;
     document.body.appendChild(s);
   }
 
@@ -1576,7 +1597,7 @@
       board.innerHTML = html;
     };
     var s = document.createElement('script');
-    s.src = WEB_APP_URL + '?action=quests&token=' + encodeURIComponent(liff.getAccessToken()) + '&callback=' + cb;
+    s.src = WEB_APP_URL + '?action=quests&token=' + encodeURIComponent(liff.getAccessToken()) + dbgSuffix() + '&callback=' + cb;
     s.onerror = function () { board.innerHTML = ''; };
     document.body.appendChild(s);
   }
@@ -1595,6 +1616,35 @@
     if (!questCurrent) return;
     if (!confirm('このクエストに立候補します。よろしいですか？\n立候補しても即確定にはなりません。')) return;
     post({ formType: 'quest', questId: questCurrent.id });
+  }
+
+  // ===== デバッグ表示（オーナーのみ・読み取り専用） =====
+  var DEBUG_AS = '';
+  var STAFF_ORDER = ['髙橋和', '夛賀裕也', '大城菜々実', '清水真子', '前田心輝', '森田有稀', '宮﨑紅葉', '秦美沙姫'];
+  function dbgSuffix() { return DEBUG_AS ? '&asUser=' + encodeURIComponent(DEBUG_AS) : ''; }
+  function setupDebugPicker(list) {
+    var entry = document.getElementById('debug-entry');
+    if (entry) entry.style.display = '';
+    var box = document.getElementById('debug-list');
+    if (!box) return;
+    var names = STAFF_ORDER.filter(function (n) { return list.indexOf(n) >= 0; });
+    list.forEach(function (n) { if (names.indexOf(n) < 0) names.push(n); });
+    box.innerHTML = names.map(function (n) {
+      return '<button class="debug-staff-btn" onclick="setDebug(\'' + n + '\')">' + n + ' さん</button>';
+    }).join('');
+  }
+  function setDebug(name) {
+    DEBUG_AS = name;
+    document.getElementById('debug-name').textContent = name;
+    document.getElementById('debug-banner').style.display = 'flex';
+    playTap();
+    navTo('home');
+  }
+  function exitDebug() {
+    DEBUG_AS = '';
+    document.getElementById('debug-banner').style.display = 'none';
+    playTap();
+    navTo('home');
   }
 </script>
 </body>
