@@ -273,6 +273,12 @@
     transform:rotate(-.5deg); color:var(--ink);
   }
   .ticket-banner b{font-size:19px;}
+  .makanai-ticket{
+    margin:2px 0 12px; background:linear-gradient(135deg,#ffd23e,#ffb03a); border:2.5px dashed var(--ink);
+    border-radius:12px; padding:9px 13px; font-weight:800; font-size:14.5px; color:var(--ink); line-height:1.55;
+    transform:rotate(-.5deg); box-shadow:0 3px 0 rgba(0,0,0,.35);
+  }
+  .makanai-ticket .mt-sub{font-size:12px; font-weight:700; opacity:.85;}
   .emg-item{display:flex; align-items:center; gap:10px; background:#fff; border:2.5px solid var(--ink); border-radius:12px; padding:12px; margin:8px 0; font-size:15px; font-weight:700; cursor:pointer;}
   .emg-item input{width:20px; height:20px; flex:none; accent-color:#e8102e;}
   .emg-warn{color:#b30000; font-weight:800; font-size:13px; line-height:1.65; margin:8px 0;}
@@ -785,9 +791,22 @@
         wrap.innerHTML = '<div class="sub">これからの出勤確定日はありません。</div>';
         return;
       }
-      wrap.innerHTML = items.map(function (it) {
-        return '<div class="day" style="font-size:15px;font-weight:bold;">' + it.text + '</div>';
-      }).join('');
+      var ticketHtml = '<div class="makanai-ticket">🎫 まかないチケット対象の日<br><span class="mt-sub">通し勤務の日は、昼の勤務が終わったら まかない1食が無料でもらえます（持ち帰って食べられます）</span></div>';
+      var byDate = {};
+      items.forEach(function (it) {
+        if (!byDate[it.date]) byDate[it.date] = { am: false, pm: false };
+        if (it.segKey === 'am') byDate[it.date].am = true;
+        if (it.segKey === 'pm') byDate[it.date].pm = true;
+      });
+      var html = '';
+      var lastDate = '';
+      items.forEach(function (it) {
+        if (lastDate && it.date !== lastDate && byDate[lastDate].am && byDate[lastDate].pm) html += ticketHtml;
+        html += '<div class="day" style="font-size:15px;font-weight:bold;">' + it.text + '</div>';
+        lastDate = it.date;
+      });
+      if (lastDate && byDate[lastDate].am && byDate[lastDate].pm) html += ticketHtml;
+      wrap.innerHTML = html;
     };
     var s = document.createElement('script');
     s.src = WEB_APP_URL + '?action=myshifts&token=' + encodeURIComponent(liff.getAccessToken()) + dbgSuffix() + '&callback=' + cb;
