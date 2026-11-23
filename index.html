@@ -117,6 +117,17 @@
       0 0 16px rgba(255,30,70,.55),
       0 4px 0 rgba(0,0,0,.35);
   }
+  .quest-card.q-wd-pm{box-shadow:inset 0 0 0 4px #19d3ff, inset 0 0 0 9px #2743c7, 0 0 16px rgba(39,67,199,.55), 0 4px 0 rgba(0,0,0,.35);}
+  .quest-card.q-we-am{box-shadow:inset 0 0 0 4px #ffb03a, inset 0 0 0 9px #ff3d8a, 0 0 16px rgba(255,61,138,.55), 0 4px 0 rgba(0,0,0,.35);}
+  .quest-card.q-we-pm{box-shadow:inset 0 0 0 4px #e0aaff, inset 0 0 0 9px #8b5bff, 0 0 16px rgba(139,91,255,.6), 0 4px 0 rgba(0,0,0,.35);}
+  .quest-kind{
+    display:inline-block; margin-bottom:7px; background:var(--yellow); color:var(--ink);
+    border:2px solid var(--ink); border-radius:999px; padding:2px 11px;
+    font-weight:800; font-size:12.5px; letter-spacing:.05em;
+  }
+  .quest-card.q-wd-pm .quest-kind{background:#2743c7; color:#fff;}
+  .quest-card.q-we-am .quest-kind{background:#ff3d8a; color:#fff;}
+  .quest-card.q-we-pm .quest-kind{background:#8b5bff; color:#fff;}
   .quest-date{font-weight:800; font-size:18.5px; line-height:1.3;}
   .quest-desc{font-weight:700; font-size:13px; opacity:.8; margin-top:2px;}
   .quest-reward{
@@ -1590,7 +1601,10 @@
       QUESTS = res.quests;
       var html = '<div class="quest"><span class="quest-head">⚔ クエスト発生中!!</span>';
       QUESTS.forEach(function (q, i) {
-        html += '<div class="quest-card"><div class="quest-date">' + questDateLabel(q) + '</div>'
+        var weekend = (q.dow === '土' || q.dow === '日' || q.holiday);
+        var kind = (weekend ? 'we' : 'wd') + (q.seg === '夜' ? '-pm' : '-am');
+        var kindLabel = (weekend ? '土日祝' : '平日') + '・' + (q.seg === '夜' ? '夜' : '昼');
+        html += '<div class="quest-card q-' + kind + '"><span class="quest-kind">' + kindLabel + '</span><div class="quest-date">' + questDateLabel(q) + '</div>'
           + '<div class="quest-desc">' + q.label + '</div>'
           + '<div class="quest-reward">報酬：' + q.reward + '</div>'
           + (q.joined
