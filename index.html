@@ -762,13 +762,13 @@
     data.staff.forEach(function (s) {
       var me = (myName && s.name === myName) ? 'me' : '';
       html += '<tr class="' + me + '"><td class="name" rowspan="2">' + s.name + '</td>';
-      s.am.forEach(function (v, i) { html += '<td' + (redSet[s.name + '|am|' + i] ? ' style="color:#d32f2f;font-weight:bold;"' : '') + '>' + (v || '') + '</td>'; });
-      html += '</tr><tr class="' + (me ? me + ' ' : '') + 'end">';
-      s.pm.forEach(function (v, i) {
+      s.am.forEach(function (v, i) {
         var rangeRe = /^\d{1,2}:\d{2}-\d{1,2}:\d{2}$/;
-        var ticket = (v && rangeRe.test(v) && s.am[i] && rangeRe.test(s.am[i])) ? '<br><span class="cell-ticket">🎫チケット</span>' : '';
-        html += '<td' + (redSet[s.name + '|pm|' + i] ? ' style="color:#d32f2f;font-weight:bold;"' : '') + '>' + (v || '') + ticket + '</td>';
+        var ticket = (v && rangeRe.test(v) && s.pm[i] && rangeRe.test(s.pm[i])) ? '<br><span class="cell-ticket">🎫チケット</span>' : '';
+        html += '<td' + (redSet[s.name + '|am|' + i] ? ' style="color:#d32f2f;font-weight:bold;"' : '') + '>' + (v || '') + ticket + '</td>';
       });
+      html += '</tr><tr class="' + (me ? me + ' ' : '') + 'end">';
+      s.pm.forEach(function (v, i) { html += '<td' + (redSet[s.name + '|pm|' + i] ? ' style="color:#d32f2f;font-weight:bold;"' : '') + '>' + (v || '') + '</td>'; });
       html += '</tr>';
     });
     html += '</table></div>';
