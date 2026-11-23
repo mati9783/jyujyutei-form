@@ -117,17 +117,37 @@
       0 0 16px rgba(255,30,70,.55),
       0 4px 0 rgba(0,0,0,.35);
   }
-  .quest-card.q-wd-pm{box-shadow:inset 0 0 0 4px #19d3ff, inset 0 0 0 9px #2743c7, 0 0 16px rgba(39,67,199,.55), 0 4px 0 rgba(0,0,0,.35);}
-  .quest-card.q-we-am{box-shadow:inset 0 0 0 4px #ffb03a, inset 0 0 0 9px #ff3d8a, 0 0 16px rgba(255,61,138,.55), 0 4px 0 rgba(0,0,0,.35);}
-  .quest-card.q-we-pm{box-shadow:inset 0 0 0 4px #e0aaff, inset 0 0 0 9px #8b5bff, 0 0 16px rgba(139,91,255,.6), 0 4px 0 rgba(0,0,0,.35);}
   .quest-kind{
     display:inline-block; margin-bottom:7px; background:var(--yellow); color:var(--ink);
     border:2px solid var(--ink); border-radius:999px; padding:2px 11px;
     font-weight:800; font-size:12.5px; letter-spacing:.05em;
   }
-  .quest-card.q-wd-pm .quest-kind{background:#2743c7; color:#fff;}
+  /* クエスト4パターン: カード全体とボタンの配色を変える */
+  .quest-card.q-wd-am{background:linear-gradient(135deg,#fffbe0,#ffec70);}
+  .quest-card.q-wd-am .quest-btn{background:#ff9f1c; color:#fff;}
+  .quest-card.q-wd-pm{
+    background:linear-gradient(135deg,#26348f,#0d1440); color:#fff;
+    box-shadow:inset 0 0 0 4px #19d3ff, inset 0 0 0 9px #7ee8ff, 0 0 16px rgba(25,211,255,.55), 0 4px 0 rgba(0,0,0,.35);
+  }
+  .quest-card.q-wd-pm .quest-btn{background:#19d3ff; color:var(--ink);}
+  .quest-card.q-wd-pm .quest-kind{background:#19d3ff; color:var(--ink);}
+  .quest-card.q-we-am{
+    background:linear-gradient(135deg,#ffe3ee,#ffc46b);
+    box-shadow:inset 0 0 0 4px #ff3d8a, inset 0 0 0 9px #ff9f1c, 0 0 16px rgba(255,61,138,.55), 0 4px 0 rgba(0,0,0,.35);
+  }
+  .quest-card.q-we-am .quest-btn{background:#ff3d8a; color:#fff;}
   .quest-card.q-we-am .quest-kind{background:#ff3d8a; color:#fff;}
-  .quest-card.q-we-pm .quest-kind{background:#8b5bff; color:#fff;}
+  .quest-card.q-we-pm{
+    background:linear-gradient(135deg,#4a1a8f,#1d0b38); color:#fff;
+    box-shadow:inset 0 0 0 4px #e0aaff, inset 0 0 0 9px #ff3d8a, 0 0 16px rgba(139,91,255,.65), 0 4px 0 rgba(0,0,0,.35);
+  }
+  .quest-card.q-we-pm .quest-btn{background:#8b5bff; color:#fff;}
+  .quest-card.q-we-pm .quest-kind{background:#e0aaff; color:var(--ink);}
+  #quest-submit.q-wd-am{background:#ff9f1c;}
+  #quest-submit.q-wd-pm{background:#19d3ff; color:var(--ink);}
+  #quest-submit.q-we-am{background:#ff3d8a;}
+  #quest-submit.q-we-pm{background:#8b5bff;}
+  .quest-card .quest-btn.joined{background:#9aa3ab; color:#fff;}
   .quest-date{font-weight:800; font-size:18.5px; line-height:1.3;}
   .quest-desc{font-weight:700; font-size:13px; opacity:.8; margin-top:2px;}
   .quest-reward{
@@ -421,7 +441,8 @@
   <div><span class="scr-title">クエスト</span></div>
   <div class="quest" style="margin-top:14px;">
     <span class="quest-head">⚔ クエスト発生中!!</span>
-    <div class="quest-card">
+    <div class="quest-card" id="quest-detail-card">
+      <span class="quest-kind" id="quest-kind"></span>
       <div class="quest-date" id="quest-date"></div>
       <div class="quest-desc" id="quest-desc"></div>
       <div class="quest-reward">報酬：まかないチケット ×1</div>
@@ -1591,6 +1612,13 @@
     var p = q.date.split('-');
     return Number(p[1]) + '月' + Number(p[2]) + '日(' + q.dow + ') ' + q.start + '-' + q.end;
   }
+  function questKind(q) {
+    var weekend = (q.dow === '土' || q.dow === '日' || q.holiday);
+    return {
+      kind: (weekend ? 'we' : 'wd') + (q.seg === '夜' ? '-pm' : '-am'),
+      label: (weekend ? '土日祝' : '平日') + '・' + (q.seg === '夜' ? '夜' : '昼')
+    };
+  }
   function loadQuests() {
     var board = document.getElementById('quest-board');
     if (!board || typeof liff === 'undefined' || !liff.getAccessToken) return;
@@ -1601,10 +1629,8 @@
       QUESTS = res.quests;
       var html = '<div class="quest"><span class="quest-head">⚔ クエスト発生中!!</span>';
       QUESTS.forEach(function (q, i) {
-        var weekend = (q.dow === '土' || q.dow === '日' || q.holiday);
-        var kind = (weekend ? 'we' : 'wd') + (q.seg === '夜' ? '-pm' : '-am');
-        var kindLabel = (weekend ? '土日祝' : '平日') + '・' + (q.seg === '夜' ? '夜' : '昼');
-        html += '<div class="quest-card q-' + kind + '"><span class="quest-kind">' + kindLabel + '</span><div class="quest-date">' + questDateLabel(q) + '</div>'
+        var k = questKind(q);
+        html += '<div class="quest-card q-' + k.kind + '"><span class="quest-kind">' + k.label + '</span><div class="quest-date">' + questDateLabel(q) + '</div>'
           + '<div class="quest-desc">' + q.label + '</div>'
           + '<div class="quest-reward">報酬：' + q.reward + '</div>'
           + (q.joined
@@ -1627,6 +1653,10 @@
     playTap();
     if (btn) pressFx(btn, ev.clientX, ev.clientY);
     questCurrent = q;
+    var k = questKind(q);
+    document.getElementById('quest-detail-card').className = 'quest-card q-' + k.kind;
+    document.getElementById('quest-kind').textContent = k.label;
+    document.getElementById('quest-submit').className = 'sendbtn q-' + k.kind;
     document.getElementById('quest-date').textContent = questDateLabel(q);
     document.getElementById('quest-desc').textContent = q.label;
     setTimeout(function () { navTo('quest'); }, 300);
