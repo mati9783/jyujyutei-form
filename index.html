@@ -989,7 +989,7 @@ body.training #training-notice { display: block; }
         + '<div style="font-size:12.5px;opacity:.85;">給与の見込み（支給予定）</div>'
         + '<div style="font-size:26px;font-weight:800;color:var(--yellow);">' + fmtYen(t.estimate) + '</div>'
         + '<div style="font-size:13px;font-weight:700;">勤務分 ' + fmtYen(t.pay) + ' − まかない ' + fmtYen(t.makanai)
-        + '　／　勤務時間 ' + fmtDur(t.mins) + '</div>'
+        + '<br>勤務時間 ' + fmtDur(t.mins) + '</div>'
         + (t.makanaiWaived ? '<div style="font-size:13px;font-weight:700;color:var(--yellow);margin-top:2px;">まかないチケットで ' + fmtYen(t.makanaiWaived) + ' 無料になりました</div>' : '')
         + (res.pending ? '<div style="font-size:13px;color:#ff9db1;margin-top:4px;">確認中の記録が' + res.pending + '件あり、合計に入っていません。</div>' : '')
         + '</div>'
