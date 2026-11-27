@@ -1289,8 +1289,9 @@ body.training #training-notice { display: block; }
   // ===== 研修モード（2026-11-28追加） =====
   var MY_TRAINING = false;
   var STAFF_MODES = {};
+  var TRAINING_PREVIEW = '__training_preview__';
   function effTraining() {
-    if (typeof DEBUG_AS !== 'undefined' && DEBUG_AS) return !!STAFF_MODES[DEBUG_AS];
+    if (typeof DEBUG_AS !== 'undefined' && DEBUG_AS) return DEBUG_AS === TRAINING_PREVIEW || !!STAFF_MODES[DEBUG_AS];
     return MY_TRAINING;
   }
   function applyMode() {
@@ -1756,13 +1757,13 @@ body.training #training-notice { display: block; }
     if (!box) return;
     var names = STAFF_ORDER.filter(function (n) { return list.indexOf(n) >= 0; });
     list.forEach(function (n) { if (names.indexOf(n) < 0) names.push(n); });
-    box.innerHTML = names.map(function (n) {
+    box.innerHTML = '<button class="debug-staff-btn" onclick="setDebug(\'' + TRAINING_PREVIEW + '\')">🎓 研修モードでプレビュー</button>' + names.map(function (n) {
       return '<button class="debug-staff-btn" onclick="setDebug(\'' + n + '\')">' + n + ' さん' + (STAFF_MODES[n] ? '（研修中）' : '') + '</button>';
     }).join('');
   }
   function setDebug(name) {
     DEBUG_AS = name;
-    document.getElementById('debug-name').textContent = name;
+    document.getElementById('debug-name').textContent = (name === TRAINING_PREVIEW) ? '研修モード（プレビュー）' : name;
     document.getElementById('debug-banner').style.display = 'flex';
     applyMode();
     playTap();
