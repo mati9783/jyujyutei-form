@@ -336,12 +336,17 @@
 #debug-banner{position:sticky;top:0;z-index:60;background:#8f0f26;color:#fff;font-weight:800;font-size:13.5px;padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:3px solid var(--yellow);}
 #debug-banner button{margin-left:auto;background:var(--yellow);color:#141414;border:none;border-radius:999px;font-weight:900;padding:5px 16px;font-size:13px;cursor:pointer;font-family:inherit;}
 .debug-staff-btn{display:block;width:100%;text-align:left;background:var(--ink);color:#fff;border:3px solid var(--ink);border-radius:12px;padding:12px 14px;font-size:16px;font-weight:800;margin:0 0 8px;cursor:pointer;font-family:inherit;}
+/* 研修モード: 対象外のメニューを隠す */
+body.training .hide-in-training { display: none !important; }
+#training-notice { display: none; margin-top: 20px; padding: 14px; background: #fffbe6; border: 2px solid #e6a817; border-radius: 10px; color: #333; font-size: 14px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+body.training #training-notice { display: block; }
+#graduate-btn { display: none; margin-left: 8px; background: #2e7d32; color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-weight: bold; }
 </style>
 </head>
 <body>
 <div class="splat s1"></div><div class="splat s2"></div><div class="splat s3"></div>
 <div class="wrap">
-<div id="debug-banner" style="display:none;">👀 デバッグ中：<b id="debug-name"></b>さんの画面（送信はできません）<button onclick="exitDebug()">終了</button></div>
+<div id="debug-banner" style="display:none;">👀 デバッグ中：<b id="debug-name"></b>さんの画面（送信はできません）<button onclick="exitDebug()">終了</button><button id="graduate-btn" onclick="graduateTraining()">🎓 研修を終了して通常モードにする</button></div>
 
 <div id="view-loading">読み込み中…<div id="debug" style="margin-top:12px;font-size:12px;color:#888;white-space:pre-wrap;"></div></div>
 
@@ -358,7 +363,7 @@
     </div>
   </div>
 
-  <div id="quest-board"></div>
+  <div id="quest-board" class="hide-in-training"></div>
 
   <div class="tier-big">
     <div class="card c-cyan tilt-l" onclick="cardGo(this,event,'timecard')">
@@ -366,7 +371,7 @@
       <div><div class="t">タイムカード</div><div class="s">出勤・退勤を記録する</div></div>
       <div class="go">›</div>
     </div>
-    <div class="card c-yellow tilt-r" onclick="cardGo(this,event,'shift')">
+    <div class="card c-yellow tilt-r hide-in-training" onclick="cardGo(this,event,'shift')">
       <div class="ic">✎</div>
       <div><div class="t">シフトを提出する</div><div class="s">休み希望・出勤できる日を送る</div></div>
       <div class="go">›</div>
@@ -377,23 +382,23 @@
     <div class="card c-pink tilt-r" onclick="cardGo(this,event,'table')">
       <div class="ic">📋</div><div class="t">シフトを確認する</div><div class="s">確定したシフトを見る</div>
     </div>
-    <div class="card c-purple tilt-l" onclick="cardGo(this,event,'history','money')">
+    <div class="card c-purple tilt-l hide-in-training" onclick="cardGo(this,event,'history','money')">
       <div class="ic">💰</div><div class="t">勤務履歴</div><div class="s">見込み給与もここで確認</div>
     </div>
   </div>
 
   <div class="tier-small">
-    <div class="card c-green tilt-l" onclick="cardGo(this,event,'long')">
+    <div class="card c-green tilt-l hide-in-training" onclick="cardGo(this,event,'long')">
       <div class="ic">🌴</div>
       <div><div class="t">長期休み申請</div><div class="s">1週間以上休む場合</div></div>
     </div>
-    <div class="card c-orange tilt-r" onclick="cardGo(this,event,'shift',null,true)">
+    <div class="card c-orange tilt-r hide-in-training" onclick="cardGo(this,event,'shift',null,true)">
       <div class="ic">📅</div>
       <div><div class="t">先行申告</div><div class="s">早めに休み希望の提出</div></div>
     </div>
   </div>
 
-  <div class="emergency" onclick="cardGo(this,event,'emergency','emergency')">
+  <div class="emergency hide-in-training" onclick="cardGo(this,event,'emergency','emergency')">
     <div class="stripe"></div>
     <div class="inner">
       <div class="ic">🚨</div>
@@ -401,7 +406,7 @@
     </div>
   </div>
 
-  <div class="limited">
+  <div class="limited hide-in-training">
     <div class="divider"><span class="tag">期間限定</span></div>
     <div class="card c-gray tilt-l" onclick="cardGo(this,event,'fuyo')">
       <div class="ic">📝</div>
@@ -410,7 +415,7 @@
     </div>
   </div>
 
-  <div class="quiet-row">
+  <div class="quiet-row hide-in-training">
     <button class="quiet-link" onclick="navTo('resign')">退職を申請する</button>
   </div>
 
@@ -647,9 +652,40 @@
   <div class="seg-title" style="margin-top:6px;">あなたの出勤確定日</div>
   <div class="sub" style="margin-bottom:6px;">今日以降、あなたが出勤する日です。</div>
   <div id="my-confirmed-wrap"><div class="sub">読み込み中…</div></div>
+  <div id="training-notice">必ず読むこと
+-------------------------------------------
+初日に持ってくるもの：赤ペン(マッキー極細)・黒いズボン
+1回目の給与日までに持ってくるもの：顔写真を貼った履歴書
+2回目の給与日までに持ってくるもの：豊和銀行の口座
+退職時：制服はクリーニングをして返却。給与日は面接時の説明通り月締め翌10日。水曜日の場合は後日。
+
+◆時給・研修期間・規定
+-------------------------------------------
+平日：1,100円
+22時～24時：1,375円(深夜時給含む)
+土日祝日：1,200円
+22時～24時：1,500円(深夜時給含む)
+
+◆給料の支払い日
+月末締め毎月10日に銀行振込
+※10日が銀行休日の場合、翌銀行営業日に振込
+※1回目の給料と退職月の給料は現金手渡し
+
+◆研修期間
+10回の勤務まで研修時給1,096円。
+
+規定(ピアス・頭髪・ネイル・スマートフォン)
+-------------------------------------------
+ピアスは片耳4つまで。4つ以上は外すこと。
+勤務時間中、耳以外のピアスは外すこと。
+レインボー色の頭髪は禁止。
+ネイルはOK（ただし洗い物業務に支障がないこと）
+勤務時間中、スマートフォン(携帯電話)の持ち込み不可。</div>
+  <div id="all-shift-section" class="hide-in-training">
   <div class="seg-title" style="margin-top:20px;">全員のシフト表</div>
   <div class="legend">上段は朝（9時〜15時）、下段は夜（17時30分〜23時）の時間帯です。<br>時間＝出勤、休＝休み希望、〇＝出勤できますがシフトに入っていません（18〇・19〇は、その時間から出勤できるという意味です）。<br>🎫チケット＝その日は通し勤務（昼・夜の両方）です。昼の勤務が終わったら、まかない1食が無料でもらえます（持ち帰って食べられます）。</div>
   <div id="shift-table-wrap"></div>
+  </div>
   </div>
 </div>
 
@@ -765,6 +801,8 @@
   var profile = null;
 
   function show(name) {
+    // 研修モードでは、使える画面（ホーム・タイムカード・シフト確認・完了）以外は開かせない
+    if (effTraining() && ['home', 'timecard', 'table', 'done', 'debug', 'loading'].indexOf(name) < 0) name = 'home';
     ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history', 'emergency', 'fuyo', 'quest', 'debug'].forEach(function (v) {
       document.getElementById('view-' + v).classList.toggle('hidden', v !== name);
     });
@@ -850,8 +888,17 @@
         return;
       }
       var data = res.data;
-      var myName = profile ? NAME_MAP[profile.displayName] : null;
+      var myName = (typeof DEBUG_AS !== 'undefined' && DEBUG_AS) ? DEBUG_AS : (profile ? NAME_MAP[profile.displayName] : null);
       var blocks = data.periods ? data.periods : [data];
+      if (effTraining() && typeof DEBUG_AS !== 'undefined' && DEBUG_AS) {
+        // オーナーのプレビュー用: 対象スタッフの行だけに絞る（本人の画面ではサーバー側で絞り済み）
+        blocks = blocks.map(function (b) {
+          var c = {}; for (var k in b) c[k] = b[k];
+          c.staff = (b.staff || []).filter(function (s) { return s.name === DEBUG_AS; });
+          c.redCells = (b.redCells || []).filter(function (r) { return r.name === DEBUG_AS; });
+          return c;
+        });
+      }
       meta.textContent = blocks.length === 1 ? (blocks[0].periodLabel || '') : '期間ごとに分かれています';
       wrap.innerHTML = blocks.map(function (b) { return renderShiftBlock_(b, myName); }).join('');
     };
@@ -1239,12 +1286,44 @@
     }).catch(function () { postInFlight = false; alert('保存に失敗しました。もう一度お試しください。'); });
   }
 
+  // ===== 研修モード（2026-11-28追加） =====
+  var MY_TRAINING = false;
+  var STAFF_MODES = {};
+  function effTraining() {
+    if (typeof DEBUG_AS !== 'undefined' && DEBUG_AS) return !!STAFF_MODES[DEBUG_AS];
+    return MY_TRAINING;
+  }
+  function applyMode() {
+    var t = effTraining();
+    document.body.classList.toggle('training', t);
+    var gb = document.getElementById('graduate-btn');
+    if (gb) gb.style.display = (typeof DEBUG_AS !== 'undefined' && DEBUG_AS && STAFF_MODES[DEBUG_AS]) ? '' : 'none';
+  }
+  function graduateTraining() {
+    if (!DEBUG_AS || !STAFF_MODES[DEBUG_AS]) return;
+    if (!confirm(DEBUG_AS + ' さんの研修を終了し、通常モードに切り替えます。よろしいですか？')) return;
+    var payload = { formType: 'setTraining', targetName: DEBUG_AS, training: false, accessToken: liff.getAccessToken() };
+    fetch(WEB_APP_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    }).then(function () {
+      STAFF_MODES[DEBUG_AS] = false;
+      applyMode();
+      alert('通常モードに切り替えました。');
+    }).catch(function () { alert('切り替えに失敗しました。もう一度お試しください。'); });
+  }
+
   var registered = null;
   function checkRegistration() {
     var cb = 'whoCb_' + Date.now();
     window[cb] = function (res) {
       delete window[cb];
       registered = !!(res && res.status === 'ok' && res.registered);
+      MY_TRAINING = !!(res && res.training);
+      if (res && res.staffModes) STAFF_MODES = res.staffModes;
+      applyMode();
       if (res && res.isOwner) { setupDebugPicker(res.staffList || []); }
       if (!registered) {
         var ns = document.querySelectorAll('.reg-notice');
@@ -1620,6 +1699,7 @@
   function loadQuests() {
     var board = document.getElementById('quest-board');
     if (!board || typeof liff === 'undefined' || !liff.getAccessToken) return;
+    if (effTraining()) { board.innerHTML = ''; return; }
     var cb = 'questCb_' + Date.now();
     window[cb] = function (res) {
       delete window[cb];
@@ -1677,19 +1757,21 @@
     var names = STAFF_ORDER.filter(function (n) { return list.indexOf(n) >= 0; });
     list.forEach(function (n) { if (names.indexOf(n) < 0) names.push(n); });
     box.innerHTML = names.map(function (n) {
-      return '<button class="debug-staff-btn" onclick="setDebug(\'' + n + '\')">' + n + ' さん</button>';
+      return '<button class="debug-staff-btn" onclick="setDebug(\'' + n + '\')">' + n + ' さん' + (STAFF_MODES[n] ? '（研修中）' : '') + '</button>';
     }).join('');
   }
   function setDebug(name) {
     DEBUG_AS = name;
     document.getElementById('debug-name').textContent = name;
     document.getElementById('debug-banner').style.display = 'flex';
+    applyMode();
     playTap();
     navTo('home');
   }
   function exitDebug() {
     DEBUG_AS = '';
     document.getElementById('debug-banner').style.display = 'none';
+    applyMode();
     playTap();
     navTo('home');
   }
