@@ -406,14 +406,6 @@ body.training #training-notice { display: block; }
     </div>
   </div>
 
-  <div class="limited hide-in-training">
-    <div class="divider"><span class="tag">期間限定</span></div>
-    <div class="card c-gray tilt-l" onclick="cardGo(this,event,'fuyo')">
-      <div class="ic">📝</div>
-      <div><div class="t">扶養控除等申告書</div><div class="s">情報入力のお願い</div></div>
-      <div class="badge">12月5日<br>まで</div>
-    </div>
-  </div>
 
   <div class="quiet-row hide-in-training">
     <button class="quiet-link" onclick="navTo('resign')">退職を申請する</button>
@@ -533,65 +525,6 @@ body.training #training-notice { display: block; }
     <textarea id="resign-reason" placeholder="空欄でも問題ありません"></textarea>
   </div>
   <button class="submit" onclick="submitResign()">申請する</button>
-  </div>
-</div>
-
-<!-- 扶養控除等申告書（令和9年分） -->
-<div id="view-fuyo" class="hidden">
-  <button class="backbtn" onclick="goBack()">← もどる</button>
-  <div><span class="scr-title">扶養控除等申告書</span></div>
-  <div class="panel">
-  <div class="sub">令和9年分の「給与所得者の扶養控除等（異動）申告書」を作るための情報です。<span class="warn">提出期限は12月5日（土）です。</span></div>
-  <div id="fuyo-status" class="sub"></div>
-  <div class="reg-notice hidden">このアカウントはまだ登録されていません。「事務 たなか」に登録テンプレートでお名前などを送ってください。登録が済むまで送信できません。</div>
-  <div class="field">
-    <div class="flabel">氏名</div>
-    <input type="text" id="fuyo-name" placeholder="例: 山田 次郎">
-  </div>
-  <div class="field">
-    <div class="flabel">郵便番号</div>
-    <input type="text" id="fuyo-postal" inputmode="numeric" placeholder="例: 870-0123">
-  </div>
-  <div class="field">
-    <div class="flabel">住所（令和9年1月1日時点＝今住んでいる住所）</div>
-    <textarea id="fuyo-address" placeholder="例: 大分県大分市明野北○-○-○"></textarea>
-  </div>
-  <div class="field">
-    <div class="flabel">生年月日（西暦で入力してください）</div>
-    <input type="date" id="fuyo-birth">
-  </div>
-  <div class="field">
-    <div class="flabel">世帯主の氏名</div>
-    <input type="text" id="fuyo-head" placeholder="例: 山田 太郎">
-  </div>
-  <div class="field">
-    <div class="flabel">世帯主は、あなたから見て誰ですか？</div>
-    <div>
-      <label class="choice"><input type="radio" name="fuyo-rel" value="自分" onchange="toggleFuyoRel()"> 自分</label>
-      <label class="choice"><input type="radio" name="fuyo-rel" value="父" onchange="toggleFuyoRel()"> 父</label>
-      <label class="choice"><input type="radio" name="fuyo-rel" value="母" onchange="toggleFuyoRel()"> 母</label>
-      <label class="choice"><input type="radio" name="fuyo-rel" value="その他" onchange="toggleFuyoRel()"> その他</label>
-    </div>
-    <input type="text" id="fuyo-rel-text" class="hidden" placeholder="例: 祖母、兄 など">
-    <div class="sub" style="margin-top:6px;">※申告書の「続柄」は「あなたから見た関係」で書きます。住民票の続柄とは逆向きになるので、間違えないように選んでください。</div>
-  </div>
-  <div class="field">
-    <div class="flabel">法律上、結婚していますか？</div>
-    <div>
-      <label class="choice"><input type="radio" name="fuyo-spouse" value="はい"> はい</label>
-      <label class="choice"><input type="radio" name="fuyo-spouse" value="いいえ"> いいえ</label>
-    </div>
-  </div>
-  <div class="field">
-    <div class="flabel">あなたの収入で生活を支えている家族はいますか？</div>
-    <div>
-      <label class="choice"><input type="radio" name="fuyo-family" value="はい"> はい</label>
-      <label class="choice"><input type="radio" name="fuyo-family" value="いいえ"> いいえ</label>
-    </div>
-    <div class="sub" style="margin-top:6px;">育てている子どもや、仕送りをしている親などが当てはまります。親に支えてもらっている人は『いいえ』です。</div>
-  </div>
-  <div class="note">個人番号（マイナンバー）を書く欄は、このフォームにはありません。後日、印刷した申告書の紙に、ご自身で手書きしていただきます。</div>
-  <button class="submit" onclick="submitFuyo()">提出する</button>
   </div>
 </div>
 
@@ -823,14 +756,13 @@ body.training #training-notice { display: block; }
   function show(name) {
     // 研修モードでは、使える画面（ホーム・タイムカード・シフト確認・完了）以外は開かせない
     if (effTraining() && ['home', 'timecard', 'table', 'done', 'debug', 'loading'].indexOf(name) < 0) name = 'home';
-    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history', 'emergency', 'fuyo', 'quest', 'debug'].forEach(function (v) {
+    ['loading', 'home', 'shift', 'table', 'long', 'resign', 'done', 'timecard', 'history', 'emergency', 'quest', 'debug'].forEach(function (v) {
       document.getElementById('view-' + v).classList.toggle('hidden', v !== name);
     });
     if (name === 'table') loadShiftTable();
     if (name === 'shift') loadAdvanceCalendar();
     if (name === 'history') loadWorkHistory();
     if (name === 'emergency') loadMyShifts();
-    if (name === 'fuyo') loadFuyo();
     if (name === 'home') loadQuests();
     window.scrollTo(0, 0);
   }
